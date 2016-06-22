@@ -49,21 +49,19 @@ class LunchBot(Bot):
         if len(tokens) < 2 or tokens[0] != "lunchbot":
             return False
 
-        if tokens[1] == "help":
-            self.send_usage()
-
-        elif tokens[1] == "info":
+        if tokens[1] == "info":
             self.send_list("destinations", self.destinations)
 
         elif tokens[1] == "add":
             if len(tokens) <= 2:
-                self.send_message("EH <@{}> ?!? nothing to add".format(user))
+                self.send_message("EH <@{}> ?!? nothing to add".format(message.user))
             else:
                 dest = ' '.join(tokens[2:])
                 destinations.add(dest)
                 self.send_message("added '{}' as a destination".format(dest))
         else:
-            self.send_message("EH?!? what you on about <@{}> BOY?".format(user))
+            self.send_message("EH?!? what you on about <@{}>??".format(message.user))
+            self.send_usage()
 
         return True
 
