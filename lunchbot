@@ -5,7 +5,7 @@ class Bot():
         selfbotname = botname
         self.slackconnection = slackconnection
 
-    def _send_message(self, text, channel):
+    def send_message(self, text):
         # post as BOT_NAME instead of the current user
         self.slackconnection.api_call(
                 "chat.postMessage",
@@ -14,7 +14,7 @@ class Bot():
                 username = self.botname,
                 as_user = False)
 
-    def _send_list(self, prefix, list):
+    def send_list(self, prefix, list):
         self.send_message("{}: {}".format(prefix, ', '.join(list)))
 
     def handle_message(self, message):
