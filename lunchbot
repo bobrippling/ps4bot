@@ -1,74 +1,92 @@
 #!/usr/bin/env python
 
-import time
-from slackclient import SlackClient
+class Bot():
+    def __init__(self, slackconnection, botname):
+        selfbotname = botname
+        self.slackconnection = slackconnection
 
-BOT_TOKEN = "<redacted>"
-CHANNEL_NAME = "_testbot"
-BOT_NAME = "lunchbot"
-
-def main():
-    # Create the slackclient instance
-    sc = SlackClient(BOT_TOKEN)
-
-    destinations = set()
-
-    # Connect to slack
-    if not sc.rtm_connect():
-        print "couldn't connect"
-        return
-
-    print "connected, monitoring {}".format(CHANNEL_NAME)
-
-    def send_message(text):
-        # necessary to post as BOT_NAME instead of the current user
-        sc.api_call(
+    def _send_message(self, text, channel):
+        # post as BOT_NAME instead of the current user
+        self.slackconnection.api_call(
                 "chat.postMessage",
-                channel=CHANNEL_NAME,
-                text=text,
-                username=BOT_NAME,
-                as_user=False
-                )
+                channel = channel,
+                text = text,
+                username = self.botname,
+                as_user = False)
 
-    def dump_info():
-        all = ''
-        separator = ''
-        for dest in destinations:
-            all = '{}{}{}'.format(all, separator, dest)
-            separator = ', '
-        send_message("destinations: {}".format(all))
+    def _send_list(self, prefix, list):
+        self.send_message("{}: {}".format(prefix, ', '.join(list)))
 
+    def handle_message(self, message, user):
+        return False # abstract
 
-    def handle_message(message, user):
+class LunchBot(Bot):
+    def __init__(self, slackconnection, botname):
+        Bot.__init__(self, slackconnection, botname)
+
+        self.destinations = set() # set of Destination
+        self.users = set() # set of Eater
+
+    def handle_message(self, message, user):
         tokens = message.split()
         if len(tokens) < 2 or tokens[0] != "lunchbot":
-            return
+            return False
 
         if tokens[1] == "help":
-            send_message('lunchbot usage: `lunchbot [help | add | info]`')
+            self.send_message('lunchbot usage: `lunchbot [help | add | info]`')
+
         elif tokens[1] == "info":
-            dump_info()
+            self.send_list("destinations", self.destinations)
+
         elif tokens[1] == "add":
             if len(tokens) <= 2:
-                send_message("EH <@{}> ?!? nothing to add".format(user))
+                self.send_message("EH <@{}> ?!? nothing to add".format(user))
             else:
                 dest = ' '.join(tokens[2:])
                 destinations.add(dest)
-                send_message("added '{}' as a destination".format(dest))
+                self.send_message("added '{}' as a destination".format(dest))
         else:
-            send_message("EH?!? what you on about <@{}> BOY?".format(user))
+            self.send_message("EH?!? what you on about <@{}> BOY?".format(user))
 
-    while True:
-        for slack_message in sc.rtm_read():
-            message = slack_message.get("text")
-            user = slack_message.get("user")
-            if not message or not user:
-                continue
-
-            handle_message(message, user)
-
-        time.sleep(0.1)
+        return True
 
 
-if __name__ == '__main__':
-    main()
+class SlackMonitorConnectError():
+    pass
+
+class SlackMonitor():
+    def __init__(self, slackconnection):
+        self.slackconnection = slackconnection
+        self.handlers = []
+        if not slackconnection.rtm_connect():
+            raise SlackMonitorConnectError()
+
+    def add_handler(self, handler):
+        self.handlers.append(handler)
+
+    def run(self):
+        while True:
+            for slack_message in self.slackconnection.rtm_read():
+                message = slack_message.get("text")
+                user = slack_message.get("user")
+                if not message or not user:
+                    continue
+                for handler in self.handlers:
+                    handler.handle_message(message, user)
+            time.sleep(0.1)
+
+import time
+from slackclient import SlackClient
+
+# bot constants
+BOT_TOKEN = "<redacted>"
+
+# global slack connection
+slackconnection = SlackClient(BOT_TOKEN)
+
+# setup channel monitoring
+lunchbot = LunchBot(slackconnection, "lunchbot")
+
+slackmonitor = SlackMonitor(slackconnection)
+slackmonitor.add_handler(lunchbot)
+slackmonitor.run()
