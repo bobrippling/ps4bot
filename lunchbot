@@ -31,13 +31,26 @@ class LunchBot(Bot):
         self.destinations = set() # set of Destination
         self.users = set() # set of Eater
 
+    def send_usage(self):
+        message = '\n'.join([
+                "usage: ```lunchbot [subcommand]",
+                "  add <destination>",
+                "  rate <destination> <rating>",
+                "  list",
+                "  suggest",
+                "  who",
+                "```"
+                ])
+
+        self.send_message(message)
+
     def handle_message(self, message):
         tokens = message.text.split()
         if len(tokens) < 2 or tokens[0] != "lunchbot":
             return False
 
         if tokens[1] == "help":
-            self.send_message('lunchbot usage: `lunchbot [help | add | info]`')
+            self.send_usage()
 
         elif tokens[1] == "info":
             self.send_list("destinations", self.destinations)
