@@ -2,7 +2,7 @@
 
 class Bot():
     def __init__(self, slackconnection, botname):
-        selfbotname = botname
+        self.botname = botname
         self.slackconnection = slackconnection
         self.channel_id = None
 
