@@ -88,9 +88,15 @@ class SlackMonitor():
 
                 text = slack_message.get("text")
                 user = slack_message.get("user")
-                channel = slack_message.get("channel")
+                channel_id = slack_message.get("channel")
                 reply_to = slack_message.get("reply_to")
                 bot_id = slack_message.get("bot_id")
+
+                channel = channel_id # safe fallback
+                for i in self.slackconnection.server.channels:
+                    if i.id == channel_id:
+                        channel = i.name
+                        break
 
                 if not text or not user or not channel:
                     continue
