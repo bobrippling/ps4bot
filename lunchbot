@@ -1,0 +1,74 @@
+#!/usr/bin/env python
+
+import time
+from slackclient import SlackClient
+
+BOT_TOKEN = "<redacted>"
+CHANNEL_NAME = "_testbot"
+BOT_NAME = "lunchbot"
+
+def main():
+    # Create the slackclient instance
+    sc = SlackClient(BOT_TOKEN)
+
+    destinations = set()
+
+    # Connect to slack
+    if not sc.rtm_connect():
+        print "couldn't connect"
+        return
+
+    print "connected, monitoring {}".format(CHANNEL_NAME)
+
+    def send_message(text):
+        # necessary to post as BOT_NAME instead of the current user
+        sc.api_call(
+                "chat.postMessage",
+                channel=CHANNEL_NAME,
+                text=text,
+                username=BOT_NAME,
+                as_user=False
+                )
+
+    def dump_info():
+        all = ''
+        separator = ''
+        for dest in destinations:
+            all = '{}{}{}'.format(all, separator, dest)
+            separator = ', '
+        send_message("destinations: {}".format(all))
+
+
+    def handle_message(message, user):
+        tokens = message.split()
+        if len(tokens) < 2 or tokens[0] != "lunchbot":
+            return
+
+        if tokens[1] == "help":
+            send_message('lunchbot usage: `lunchbot [help | add | info]`')
+        elif tokens[1] == "info":
+            dump_info()
+        elif tokens[1] == "add":
+            if len(tokens) <= 2:
+                send_message("EH <@{}> ?!? nothing to add".format(user))
+            else:
+                dest = ' '.join(tokens[2:])
+                destinations.add(dest)
+                send_message("added '{}' as a destination".format(dest))
+        else:
+            send_message("EH?!? what you on about <@{}> BOY?".format(user))
+
+    while True:
+        for slack_message in sc.rtm_read():
+            message = slack_message.get("text")
+            user = slack_message.get("user")
+            if not message or not user:
+                continue
+
+            handle_message(message, user)
+
+        time.sleep(0.1)
+
+
+if __name__ == '__main__':
+    main()
