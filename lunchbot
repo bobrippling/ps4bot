@@ -126,6 +126,6 @@ lunchbot = LunchBot(slackconnection, "lunchbot")
 dumpbot = DumpBot(slackconnection, "dumpbot")
 
 slackmonitor = SlackMonitor(slackconnection)
-#slackmonitor.add_handler_for_channel(lunchbot, "_testbot")
-slackmonitor.add_handler_for_channel(dumpbot, "_testbot")
+slackmonitor.add_handler_for_channel(lunchbot, "_testbot")
+#slackmonitor.add_handler_for_channel(dumpbot, "_testbot")
 slackmonitor.run()
