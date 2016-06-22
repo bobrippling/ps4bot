@@ -73,12 +73,14 @@ class SlackMonitorConnectError():
 class SlackMonitor():
     def __init__(self, slackconnection):
         self.slackconnection = slackconnection
-        self.handlers = []
+        self.handlers = dict()
         if not slackconnection.rtm_connect():
             raise SlackMonitorConnectError()
 
-    def add_handler(self, handler):
-        self.handlers.append(handler)
+    def add_handler_for_channel(self, handler, channel):
+        if channel not in self.handlers:
+            self.handlers[channel] = []
+        self.handlers[channel].append(handler)
 
     def run(self):
         while True:
@@ -101,8 +103,11 @@ class SlackMonitor():
                 if not text or not user or not channel:
                     continue
 
+                if channel not in self.handlers:
+                    continue
+
                 message = SlackMessage(text, user, channel, reply_to, bot_id)
-                for handler in self.handlers:
+                for handler in self.handlers[channel]:
                     handler.handle_message(message)
 
             time.sleep(0.1)
@@ -121,6 +126,6 @@ lunchbot = LunchBot(slackconnection, "lunchbot")
 dumpbot = DumpBot(slackconnection, "dumpbot")
 
 slackmonitor = SlackMonitor(slackconnection)
-#slackmonitor.add_handler(lunchbot)
-slackmonitor.add_handler(dumpbot)
+#slackmonitor.add_handler_for_channel(lunchbot, "_testbot")
+slackmonitor.add_handler_for_channel(dumpbot, "_testbot")
 slackmonitor.run()
