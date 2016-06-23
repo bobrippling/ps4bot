@@ -1,5 +1,17 @@
 #!/usr/bin/env python
 
+class Rating():
+    def __init__(self):
+        self.ratings = []
+
+    def add_rating(self, rating):
+        self.ratings.append(rating)
+
+    def average(self):
+        if len(self.ratings) == 0:
+            return 50
+        return sum(self.ratings) / float(len(self.ratings))
+
 class Bot():
     def __init__(self, slackconnection, botname):
         self.botname = botname
@@ -28,7 +40,7 @@ class LunchBot(Bot):
     def __init__(self, slackconnection, botname):
         Bot.__init__(self, slackconnection, botname)
 
-        self.destinations = set() # set of Destination
+        self.destinations = dict() # string => Rating
         self.users = set() # set of Eater
 
     def send_usage(self):
@@ -44,26 +56,68 @@ class LunchBot(Bot):
 
         self.send_message(message)
 
-    def handle_message(self, message):
-        tokens = message.text.split()
-        if len(tokens) < 2 or tokens[0] != "lunchbot":
-            return False
-
-        if tokens[1] == "info":
-            self.send_list("destinations", self.destinations)
-
-        elif tokens[1] == "add":
-            if len(tokens) <= 2:
+    def handle_command(self, message, command, rest):
+        if command == "add":
+            if len(rest) < 1:
                 self.send_message("EH <@{}> ?!? nothing to add".format(message.user))
-            else:
-                dest = ' '.join(tokens[2:])
-                destinations.add(dest)
-                self.send_message("added '{}' as a destination".format(dest))
+                return
+            if rest in self.destinations:
+                self.send_message("'{}' already exists".format(rest))
+                return
+
+            self.destinations[rest] = Rating()
+            self.send_message("added '{}' as a destination".format(rest))
+
+        elif command == "rate":
+            tokens = rest.split()
+
+            if len(tokens) < 2:
+                self.send_message("rate needs two arguments")
+                return
+
+            dest = ' '.join(tokens[:-1])
+            if dest not in self.destinations:
+                self.send_message("'{}' doesn't exist".format(dest))
+                return
+
+            rating_str = tokens[-1] # last entry
+            rating = 0
+            try:
+                rating = int(rating_str)
+                if rating < 0 or rating > 100:
+                    raise ValueError()
+            except ValueError:
+                self.send_message(
+                        "'{}' not an integer between 0 and 100".format(rating_str))
+                return
+
+            self.destinations[dest].add_rating(rating)
+            self.send_message("added {} as a rating for '{}'".format(rating, dest))
+
+        elif command == "list":
+            self.send_message("{} destinations:".format(len(self.destinations)))
+
+            for dest in self.destinations:
+                rating_avg = self.destinations[dest].average()
+                self.send_message("'{}', rating average: {}".format(dest, rating_avg))
+
+        elif command == "suggest":
+            self.send_message("TODO")
+
+        elif command == "who":
+            self.send_message("TODO")
+
         else:
             self.send_message("EH?!? what you on about <@{}>??".format(message.user))
             self.send_usage()
 
         return True
+
+    def handle_message(self, message):
+        tokens = message.text.split()
+        if len(tokens) < 2 or tokens[0] != "lunchbot":
+            return False
+        return self.handle_command(message, tokens[1], ' '.join(tokens[2:]))
 
 class DumpBot(Bot):
     def __init__(self, slackconnection, botname):
