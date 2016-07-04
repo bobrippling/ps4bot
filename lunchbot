@@ -1,5 +1,41 @@
 #!/usr/bin/env python
 
+LUNCHBOT_FNAME_RATINGS = "lunchbot-ratings.txt"
+LUNCHBOT_FNAME_LUNCHERS = "lunchbot-lunchers.txt"
+
+def lunchbot_maybe_load():
+    try:
+        destinations = dict()
+        with open(LUNCHBOT_FNAME_RATINGS, 'r') as f:
+            while True:
+                line = f.readline()
+                if line == '':
+                    break
+                line = line.rstrip('\n')
+
+                destination, ratings_raw = line.split(':', 1)
+                ratings_numeric = ratings_raw.split()
+
+                rating = Rating()
+                for i in ratings_numeric:
+                    rating.add_rating(int(i))
+
+                destinations[destination] = rating
+
+        lunchers = set()
+        with open(LUNCHBOT_FNAME_LUNCHERS, 'r') as f:
+            while True:
+                line = f.readline()
+                if line == '':
+                    break
+                lunchers.append(line.rstrip('\n'))
+
+        return (destinations, lunchers)
+
+    except:
+        return (None, None)
+
+
 class Rating():
     def __init__(self):
         self.ratings = []
