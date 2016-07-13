@@ -180,6 +180,8 @@ class LunchBot(Bot):
             destination = ' '.join(tokens[1:])
             if destination in self.destinations.keys():
                 self.send_message("'{}' already exists".format(destination))
+            elif destination.count(':') > 0:
+                self.send_message("destinations can't contain a colon")
             else:
                 self.destinations[destination] = Rating()
                 self.send_message("'{}' added".format(destination))
