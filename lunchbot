@@ -179,6 +179,25 @@ class LunchBot(Bot):
     def visited(self, message, args):
         self.send_message("`lunchbot visited` not implemented")
 
+    def handle_rating(self, message, args):
+        tokens = args.split()
+        rating_str = tokens[-1] # last entry
+        rating = 0
+        try:
+            rating = int(rating_str)
+            if rating < 0 or rating > 100:
+                raise ValueError()
+        except ValueError:
+            self.send_message("'{}' not an integer between 0 and 100".format(rating_str))
+            return
+
+        destination = ' '.join(tokens[:-1])
+        if destination in self.destinations.keys():
+            self.destinations[destination].add_rating(rating)
+            self.send_message("added rating for '{}'".format(destination))
+        else:
+            self.send_message("'{}' doesn't exist as a destination".format(destination))
+
     def handle_command(self, message, command, rest):
         if command == 'suggest':
             if len(rest) > 0:
@@ -215,23 +234,7 @@ class LunchBot(Bot):
                 self.send_message("'{}' added".format(destination))
 
         elif command == 'rate':
-            tokens = rest.split()
-            rating_str = tokens[-1] # last entry
-            rating = 0
-            try:
-                rating = int(rating_str)
-                if rating < 0 or rating > 100:
-                    raise ValueError()
-            except ValueError:
-                self.send_message("'{}' not an integer between 0 and 100".format(rating_str))
-                return
-
-            destination = ' '.join(tokens[-1])
-            if destination in self.destinations.keys():
-                self.destinations[destination].add_rating(rating)
-                self.send_message("added rating for '{}'".format(destination))
-            else:
-                self.send_message("'{}' doesn't exist as a destination".format(destination))
+            self.handle_rating(message, rest)
 
         else:
             self.send_usage_small(message.user)
