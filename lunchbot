@@ -169,6 +169,9 @@ class LunchBot(Bot):
 
         self.send_message("{} - {}".format(luncher_message, destination_message))
 
+    def visited(self, message, args):
+        self.send_message("`lunchbot visited` not implemented")
+
     def handle_command(self, message, command, rest):
 
         tokens = command.split(' ')
@@ -184,6 +187,9 @@ class LunchBot(Bot):
 
         elif command == 'suggest':
             self.suggest()
+
+        elif command == 'visited':
+            self.visited(message, rest)
 
         elif command == 'usage':
             self.send_usage()
