@@ -180,29 +180,32 @@ class LunchBot(Bot):
         self.send_message("`lunchbot visited` not implemented")
 
     def handle_command(self, message, command, rest):
+        if command == 'suggest':
+            if len(rest) > 0:
+                self.send_usage_small(message.user)
+                return
 
-        tokens = command.split(' ')
-
-        if len(tokens) == 0:
-            self.send_usage_small(message.user)
-
-        # check command for single-argument commands,
-        # check tokens[0] for commands with arguments:
-
-        if command == 'list':
-            self.send_destinations()
-
-        elif command == 'suggest':
             self.suggest()
 
         elif command == 'visited':
+            if len(rest) > 0:
+                self.send_usage_small(message.user)
+                return
+
             self.visited(message, rest)
 
         elif command == 'usage' or command == 'help':
             self.send_usage()
 
-        elif tokens[0] == 'add':
-            destination = ' '.join(tokens[1:])
+        elif command == 'list':
+            if rest != '':
+                self.send_usage_small(message.user)
+                return
+
+            self.send_destinations(verbose)
+
+        elif command == 'add':
+            destination = rest
             if destination in self.destinations.keys():
                 self.send_message("'{}' already exists".format(destination))
             elif destination.count(':') > 0:
@@ -211,7 +214,8 @@ class LunchBot(Bot):
                 self.destinations[destination] = Rating()
                 self.send_message("'{}' added".format(destination))
 
-        elif tokens[0] == 'rate':
+        elif command == 'rate':
+            tokens = rest.split()
             rating_str = tokens[-1] # last entry
             rating = 0
             try:
@@ -222,7 +226,7 @@ class LunchBot(Bot):
                 self.send_message("'{}' not an integer between 0 and 100".format(rating_str))
                 return
 
-            destination = ' '.join(tokens[1:-1])
+            destination = ' '.join(tokens[-1])
             if destination in self.destinations.keys():
                 self.destinations[destination].add_rating(rating)
                 self.send_message("added rating for '{}'".format(destination))
