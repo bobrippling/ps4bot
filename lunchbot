@@ -22,7 +22,7 @@ def lunchbot_maybe_load():
 
                 destinations[destination] = rating
 
-        lunchers = set()
+        lunchers = []
         with open(LUNCHBOT_FNAME_LUNCHERS, 'r') as f:
             while True:
                 line = f.readline()
@@ -95,7 +95,7 @@ class LunchBot(Bot):
         Bot.__init__(self, slackconnection, botname)
 
         self.destinations = dict() # string => Rating
-        self.lunchers = set()
+        self.lunchers = []
         self.load()
 
     def load(self):
