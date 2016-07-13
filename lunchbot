@@ -133,7 +133,18 @@ class LunchBot(Bot):
         self.send_message("lunchers: {}".format(', '.join(self.lunchers)))
 
     def suggest_luncher(self):
-        self.send_message("suggest_luncher unimplemented") # TODO
+        if len(self.lunchers) == 0:
+            self.send_message("no lunchers to choose from")
+            return
+
+        # rotate lunchers
+        luncher = self.lunchers[0]
+        del self.lunchers[0]
+        self.lunchers.append(luncher)
+
+        self.send_message("it's {}'{} turn to choose".format(
+                luncher,
+                '' if luncher[-1] == 's' else 's'))
 
     def handle_subcommand_destination(self, message, command):
         if len(command) < 1:
