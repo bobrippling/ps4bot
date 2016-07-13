@@ -48,6 +48,9 @@ class Rating():
             return 0
         return sum(self.ratings) / float(len(self.ratings))
 
+    def getall(self):
+        return self.ratings
+
 class Bot():
     def __init__(self, slackconnection, botname):
         self.botname = botname
