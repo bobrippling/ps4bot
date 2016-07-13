@@ -7,20 +7,28 @@ def lunchbot_maybe_load():
     try:
         destinations = dict()
         with open(LUNCHBOT_FNAME_RATINGS, 'r') as f:
+            current_destination = None
             while True:
                 line = f.readline()
+                line = line.rstrip('\n')
                 if line == '':
                     break
-                line = line.rstrip('\n')
 
-                destination, ratings_raw = line.split(':', 1)
-                ratings_numeric = ratings_raw.split()
+                if line[-1] == ':':
+                    # destination
+                    current_destination = line[:-1]
+                    destinations[current_destination] = Rating()
+                else:
+                    # <rating>: <user>
+                    if current_destination is None:
+                        raise ValueError()
 
-                rating = Rating()
-                for i in ratings_numeric:
-                    rating.add_rating(int(i))
+                    rating_raw, user = line.split(':', 1)
+                    rating_num = int(rating_raw)
+                    user = user.strip()
 
-                destinations[destination] = rating
+                    current_rating = destinations[current_destination]
+                    current_rating.add_rating(rating_num, user)
 
         lunchers = []
         with open(LUNCHBOT_FNAME_LUNCHERS, 'r') as f:
@@ -39,9 +47,12 @@ def lunchbot_save(destinations, lunchers):
     try:
         with open(LUNCHBOT_FNAME_RATINGS, 'w') as f:
             for destination in destinations:
-                f.write("{}: {}\n".format(
-                    destination,
-                    ' '.join(str(x) for x in destinations[destination].getall())))
+                f.write("{}:\n".format(destination));
+
+                for rating_pair in destinations[destination].getall():
+                    rating = rating_pair[0]
+                    user = rating_pair[1]
+                    f.write('  {}: {}\n'.format(str(rating), user));
 
         with open(LUNCHBOT_FNAME_LUNCHERS, 'w') as f:
             for luncher in lunchers:
@@ -55,13 +66,13 @@ class Rating():
     def __init__(self):
         self.ratings = []
 
-    def add_rating(self, rating):
-        self.ratings.append(rating)
+    def add_rating(self, rating, rater):
+        self.ratings.append((rating, rater))
 
     def average(self):
         if len(self.ratings) == 0:
             return 0
-        return sum(self.ratings) / float(len(self.ratings))
+        return sum(r[0] for r in self.ratings) / float(len(self.ratings))
 
     def getall(self):
         return self.ratings
