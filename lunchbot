@@ -118,9 +118,9 @@ class LunchBot(Bot):
                 "    Record destination and who chose it",
                 "",
                 "Other commands:",
-                "  destination add <destination>           - Add an unvisited destination",
-                "  destination list                        - List all destinations",
-                "  destination rate <destination> <rating> - Rate a destination (as your user)",
+                "  add <destination>           - Add an unvisited destination",
+                "  list                        - List all destinations",
+                "  rate <destination> <rating> - Rate a destination (as your user)",
                 "  usage                       - Show this",
                 "```"
                 ])
@@ -169,18 +169,26 @@ class LunchBot(Bot):
 
         self.send_message("{} - {}".format(luncher_message, destination_message))
 
-    def handle_subcommand_destination(self, message, command):
-        if len(command) < 1:
+    def handle_command(self, message, command, rest):
+
+        tokens = command.split(' ')
+
+        if len(tokens) == 0:
             self.send_usage_small(message.user)
-            return
+
+        # check command for single-argument commands,
+        # check tokens[0] for commands with arguments:
 
         if command == 'list':
             self.send_destinations()
-            return
 
-        # add <dest> or rate <dest> <int>
-        tokens = command.split(' ')
-        if tokens[0] == 'add':
+        elif command == 'suggest':
+            self.suggest()
+
+        elif command == 'usage':
+            self.send_usage()
+
+        elif tokens[0] == 'add':
             destination = ' '.join(tokens[1:])
             if destination in self.destinations.keys():
                 self.send_message("'{}' already exists".format(destination))
@@ -207,19 +215,6 @@ class LunchBot(Bot):
                 self.send_message("added rating for '{}'".format(destination))
             else:
                 self.send_message("'{}' doesn't exist as a destination".format(destination))
-
-        else:
-            self.send_usage_small(message.user)
-
-    def handle_command(self, message, command, rest):
-        if command == "destination":
-            self.handle_subcommand_destination(message, rest)
-
-        elif command == 'suggest':
-            self.suggest()
-
-        elif command == 'usage':
-            self.send_usage()
 
         else:
             self.send_usage_small(message.user)
