@@ -319,6 +319,11 @@ from slackclient import SlackClient
 import signal
 import sys
 
+if len(sys.argv) != 2:
+    print >>sys.stderr, "Usage: {} channel".format(sys.argv[0])
+    sys.exit(1)
+arg_channel = sys.argv[1]
+
 # bot constants
 BOT_TOKEN = "<redacted>"
 
@@ -330,8 +335,7 @@ lunchbot = LunchBot(slackconnection, "lunchbot")
 dumpbot = DumpBot(slackconnection, "dumpbot")
 
 slackmonitor = SlackMonitor(slackconnection)
-slackmonitor.add_handler_for_channel(lunchbot, "_testbot")
-#slackmonitor.add_handler_for_channel(dumpbot, "_testbot")
+slackmonitor.add_handler_for_channel(lunchbot, arg_channel)
 
 # catch SIGINT, cleanup before exit
 def interrupt_handler(signal, frame):
@@ -341,5 +345,5 @@ def interrupt_handler(signal, frame):
 signal.signal(signal.SIGINT, interrupt_handler)
 
 # and begin
-print "connected"
+print "connected, watching {}...".format(arg_channel)
 slackmonitor.run()
