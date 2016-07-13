@@ -207,31 +207,9 @@ class LunchBot(Bot):
         else:
             self.send_usage()
 
-    def handle_subcommand_luncher(self, message, command):
-        # seed <lunchers>, list
-
-        if len(command) < 1:
-            self.send_usage()
-            return
-
-        if command == 'list':
-            self.send_lunchers()
-            return
-
-        tokens = command.split()
-
-        if tokens[0] == 'seed':
-            self.lunchers = tokens[1:]
-            self.send_message("accepted new set of lunchers")
-        else:
-            self.send_usage()
-
     def handle_command(self, message, command, rest):
         if command == "destination":
             self.handle_subcommand_destination(message, rest)
-
-        elif command == "luncher":
-            self.handle_subcommand_luncher(message, rest)
 
         elif command == 'suggest':
             self.suggest()
