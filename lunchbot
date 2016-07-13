@@ -224,13 +224,11 @@ class LunchBot(Bot):
         else:
             self.send_usage_small(message.user)
 
-        return True
-
     def handle_message(self, message):
         tokens = message.text.split()
         if len(tokens) < 2 or tokens[0] != "lunchbot":
             return False
-        return self.handle_command(message, tokens[1], ' '.join(tokens[2:]))
+        self.handle_command(message, tokens[1], ' '.join(tokens[2:]))
 
 class DumpBot(Bot):
     def __init__(self, slackconnection, botname):
@@ -238,8 +236,6 @@ class DumpBot(Bot):
 
     def handle_message(self, message):
         print "got message from '{}': '{}'".format(message.user, message.text)
-
-        return True
 
     def teardown(self):
         pass
