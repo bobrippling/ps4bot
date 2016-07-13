@@ -190,8 +190,8 @@ class SlackMonitor():
 
     def teardown(self):
         for channel in self.handlers:
-            bot = self.handlers[channel]
-            bot.teardown()
+            for bot in self.handlers[channel]:
+                bot.teardown()
 
 import time
 from slackclient import SlackClient
