@@ -121,10 +121,14 @@ class LunchBot(Bot):
                 "  destination add <destination>           - Add an unvisited destination",
                 "  destination list                        - List all destinations",
                 "  destination rate <destination> <rating> - Rate a destination (as your user)",
+                "  usage                       - Show this",
                 "```"
                 ])
 
         self.send_message(message)
+
+    def send_usage_small(self, to_user):
+        self.send_message("<@{}>: didn't understand that. `lunchbot usage` for details".format(to_user))
 
     def send_destinations(self):
         self.send_message("{} destinations:".format(len(self.destinations)))
@@ -167,7 +171,7 @@ class LunchBot(Bot):
 
     def handle_subcommand_destination(self, message, command):
         if len(command) < 1:
-            self.send_usage()
+            self.send_usage_small(message.user)
             return
 
         if command == 'list':
@@ -205,7 +209,7 @@ class LunchBot(Bot):
                 self.send_message("'{}' doesn't exist as a destination".format(destination))
 
         else:
-            self.send_usage()
+            self.send_usage_small(message.user)
 
     def handle_command(self, message, command, rest):
         if command == "destination":
@@ -213,11 +217,12 @@ class LunchBot(Bot):
 
         elif command == 'suggest':
             self.suggest()
-            return
+
+        elif command == 'usage':
+            self.send_usage()
 
         else:
-            self.send_message("EH?!? what you on about <@{}>??".format(message.user))
-            self.send_usage()
+            self.send_usage_small(message.user)
 
         return True
 
