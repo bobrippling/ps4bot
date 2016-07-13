@@ -9,7 +9,7 @@ class Rating():
 
     def average(self):
         if len(self.ratings) == 0:
-            return 50
+            return 0
         return sum(self.ratings) / float(len(self.ratings))
 
 class Bot():
