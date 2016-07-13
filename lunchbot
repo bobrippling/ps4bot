@@ -35,6 +35,21 @@ def lunchbot_maybe_load():
     except:
         return (None, None)
 
+def lunchbot_save(destinations, lunchers):
+    try:
+        with open(LUNCHBOT_FNAME_RATINGS, 'w') as f:
+            for destination in destinations:
+                f.write("{}: {}\n".format(
+                    destination,
+                    ' '.join(str(x) for x in destinations[destination].getall())))
+
+        with open(LUNCHBOT_FNAME_LUNCHERS, 'w') as f:
+            for luncher in lunchers:
+                f.write("{}\n".format(luncher))
+
+    except IOError as e:
+        print >>sys.stderr, "exception saving state: {}".format(e)
+
 
 class Rating():
     def __init__(self):
