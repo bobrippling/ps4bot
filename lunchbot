@@ -131,11 +131,18 @@ class LunchBot(Bot):
         self.send_message("<@{}>: didn't understand that. `lunchbot usage` for details".format(to_user))
 
     def send_destinations(self):
-        self.send_message("{} destinations:".format(len(self.destinations)))
+        message = "{} destinations:\n".format(len(self.destinations))
 
-        for dest in self.destinations:
+        sorted_dests = sorted(
+                self.destinations,
+                key=lambda d: self.destinations[d].average(),
+                reverse=True)
+
+        for dest in sorted_dests:
             rating_avg = self.destinations[dest].average()
-            self.send_message("'{}', rating average: {}".format(dest, round(rating_avg, 2)))
+            message += '>  `%02.2f`\t%s\n' % (rating_avg, dest)
+
+        self.send_message(message)
 
     def send_lunchers(self):
         self.send_message("lunchers: {}".format(', '.join(self.lunchers)))
