@@ -121,7 +121,7 @@ class LunchBot(Bot):
                 "  add <destination>           - Add an unvisited destination",
                 "  list                        - List all destinations",
                 "  rate <destination> <rating> - Rate a destination (as your user)",
-                "  usage                       - Show this",
+                "  usage | help                - Show this",
                 "```"
                 ])
 
@@ -191,7 +191,7 @@ class LunchBot(Bot):
         elif command == 'visited':
             self.visited(message, rest)
 
-        elif command == 'usage':
+        elif command == 'usage' or command == 'help':
             self.send_usage()
 
         elif tokens[0] == 'add':
