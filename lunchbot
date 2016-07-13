@@ -111,12 +111,16 @@ class LunchBot(Bot):
     def send_usage(self):
         message = '\n'.join([
                 "usage: ```lunchbot [subcommand]",
-                "  destination add <destination>",
-                "  destination list",
-                "  destination rate <destination> <rating>",
-                "  luncher seed <lunchers...>",
-                "  luncher list",
+                "Common usage:",
                 "  suggest",
+                "    Suggest a luncher to pick a destination, and a possible destination",
+                "  visited <destination> <luncher>",
+                "    Record destination and who chose it",
+                "",
+                "Other commands:",
+                "  destination add <destination>           - Add an unvisited destination",
+                "  destination list                        - List all destinations",
+                "  destination rate <destination> <rating> - Rate a destination (as your user)",
                 "```"
                 ])
 
