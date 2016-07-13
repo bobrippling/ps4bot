@@ -95,7 +95,18 @@ class LunchBot(Bot):
         Bot.__init__(self, slackconnection, botname)
 
         self.destinations = dict() # string => Rating
-        self.users = set() # set of Eater
+        self.lunchers = set()
+        self.load()
+
+    def load(self):
+        destinations, lunchers = lunchbot_maybe_load()
+        if destinations is not None:
+            self.destinations = destinations
+        if lunchers is not None:
+            self.lunchers = lunchers
+
+    def teardown(self):
+        lunchbot_save(self.destinations, self.lunchers)
 
     def send_usage(self):
         message = '\n'.join([
@@ -172,9 +183,6 @@ class LunchBot(Bot):
         if len(tokens) < 2 or tokens[0] != "lunchbot":
             return False
         return self.handle_command(message, tokens[1], ' '.join(tokens[2:]))
-
-    def teardown(self):
-        pass
 
 class DumpBot(Bot):
     def __init__(self, slackconnection, botname):
