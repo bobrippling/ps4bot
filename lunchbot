@@ -111,40 +111,50 @@ class LunchBot(Bot):
     def send_usage(self):
         message = '\n'.join([
                 "usage: ```lunchbot [subcommand]",
-                "  add <destination>",
-                "  rate <destination> <rating>",
-                "  list",
-                "  suggest",
-                "  who",
+                "  destination add <destination>",
+                "  destination list",
+                "  destination rate <destination> <rating>",
+                "  luncher seed <lunchers...>",
+                "  luncher list",
+                "  luncher suggest",
                 "```"
                 ])
 
         self.send_message(message)
 
-    def handle_command(self, message, command, rest):
-        if command == "add":
-            if len(rest) < 1:
-                self.send_message("EH <@{}> ?!? nothing to add".format(message.user))
-                return
-            if rest in self.destinations:
-                self.send_message("'{}' already exists".format(rest))
-                return
+    def send_destinations(self):
+        self.send_message("{} destinations:".format(len(self.destinations)))
 
-            self.destinations[rest] = Rating()
-            self.send_message("added '{}' as a destination".format(rest))
+        for dest in self.destinations:
+            rating_avg = self.destinations[dest].average()
+            self.send_message("'{}', rating average: {}".format(dest, round(rating_avg, 2)))
 
-        elif command == "rate":
-            tokens = rest.split()
+    def send_lunchers(self):
+        self.send_message("lunchers: {}".format(', '.join(self.lunchers)))
 
-            if len(tokens) < 2:
-                self.send_message("rate needs two arguments")
-                return
+    def suggest_luncher(self):
+        self.send_message("suggest_luncher unimplemented") # TODO
 
-            dest = ' '.join(tokens[:-1])
-            if dest not in self.destinations:
-                self.send_message("'{}' doesn't exist".format(dest))
-                return
+    def handle_subcommand_destination(self, message, command):
+        if len(command) < 1:
+            self.send_usage()
+            return
 
+        if command == 'list':
+            self.send_destinations()
+            return
+
+        # add <dest> or rate <dest> <int>
+        tokens = command.split(' ')
+        if tokens[0] == 'add':
+            destination = ' '.join(tokens[1:])
+            if destination in self.destinations.keys():
+                self.send_message("'{}' already exists".format(destination))
+            else:
+                self.destinations[destination] = Rating()
+                self.send_message("'{}' added".format(destination))
+
+        elif tokens[0] == 'rate':
             rating_str = tokens[-1] # last entry
             rating = 0
             try:
@@ -152,25 +162,47 @@ class LunchBot(Bot):
                 if rating < 0 or rating > 100:
                     raise ValueError()
             except ValueError:
-                self.send_message(
-                        "'{}' not an integer between 0 and 100".format(rating_str))
+                self.send_message("'{}' not an integer between 0 and 100".format(rating_str))
                 return
 
-            self.destinations[dest].add_rating(rating)
-            self.send_message("added {} as a rating for '{}'".format(rating, dest))
+            destination = ' '.join(tokens[1:-1])
+            if destination in self.destinations.keys():
+                self.destinations[destination].add_rating(rating)
+                self.send_message("added rating for '{}'".format(destination))
+            else:
+                self.send_message("'{}' doesn't exist as a destination".format(destination))
 
-        elif command == "list":
-            self.send_message("{} destinations:".format(len(self.destinations)))
+        else:
+            self.send_usage()
 
-            for dest in self.destinations:
-                rating_avg = self.destinations[dest].average()
-                self.send_message("'{}', rating average: {}".format(dest, rating_avg))
+    def handle_subcommand_luncher(self, message, command):
+        # seed <lunchers>, list, or suggest
 
-        elif command == "suggest":
-            self.send_message("TODO")
+        if len(command) < 1:
+            self.send_usage()
+            return
 
-        elif command == "who":
-            self.send_message("TODO")
+        if command == 'list':
+            self.send_lunchers()
+            return
+        elif command == 'suggest':
+            self.suggest_luncher()
+            return
+
+        tokens = command.split()
+
+        if tokens[0] == 'seed':
+            self.lunchers = tokens[1:]
+            self.send_message("accepted new set of lunchers")
+        else:
+            self.send_usage()
+
+    def handle_command(self, message, command, rest):
+        if command == "destination":
+            self.handle_subcommand_destination(message, rest)
+
+        elif command == "luncher":
+            self.handle_subcommand_luncher(message, rest)
 
         else:
             self.send_message("EH?!? what you on about <@{}>??".format(message.user))
