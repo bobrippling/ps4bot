@@ -331,5 +331,5 @@ def interrupt_handler(signal, frame):
 signal.signal(signal.SIGINT, interrupt_handler)
 
 # and begin
-print "connected, watching {}...".format(arg_channel)
+print "connected, watching #{}...".format(arg_channel)
 slackmonitor.run()
