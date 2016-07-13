@@ -213,10 +213,12 @@ class LunchBot(Bot):
             self.send_message("'{}' not an integer between 0 and 100".format(rating_str))
             return
 
+        user = message.user # FIXME: proper name
+
         destination = ' '.join(tokens[:-1])
         if destination in self.destinations.keys():
-            self.destinations[destination].add_rating(rating)
-            self.send_message("added rating for '{}'".format(destination))
+            self.destinations[destination].add_rating(rating, user)
+            self.send_message("added rating for '{}' (as {})".format(destination, user))
         else:
             self.send_message("'{}' doesn't exist as a destination".format(destination))
 
