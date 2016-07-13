@@ -141,7 +141,7 @@ class LunchBot(Bot):
     def send_usage_small(self, to_user):
         self.send_message("<@{}>: didn't understand that. `lunchbot usage` for details".format(to_user))
 
-    def send_destinations(self):
+    def send_destinations(self, verbose):
         message = "{} destinations:\n".format(len(self.destinations))
 
         sorted_dests = sorted(
@@ -149,9 +149,20 @@ class LunchBot(Bot):
                 key=lambda d: self.destinations[d].average(),
                 reverse=True)
 
+        def stringify_rating(rating_pair):
+            rating = rating_pair[0]
+            user = rating_pair[1]
+            return '{} from {}'.format(rating, user)
+
         for dest in sorted_dests:
-            rating_avg = self.destinations[dest].average()
-            message += '>  `%02.2f`\t%s\n' % (rating_avg, dest)
+            rating = self.destinations[dest]
+            rating_avg = rating.average()
+            message += '>  `%02.2f`\t%s' % (rating_avg, dest)
+            if verbose:
+                message += ' ('
+                message += ', '.join(map(stringify_rating, rating.getall()))
+                message += ')'
+            message += '\n'
 
         self.send_message(message)
 
@@ -228,7 +239,10 @@ class LunchBot(Bot):
             self.send_usage()
 
         elif command == 'list':
-            if rest != '':
+            verbose = False
+            if rest == '-v':
+                verbose = True
+            elif rest != '':
                 self.send_usage_small(message.user)
                 return
 
