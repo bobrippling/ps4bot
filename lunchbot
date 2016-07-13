@@ -49,9 +49,9 @@ def lunchbot_save(destinations, lunchers):
             for destination in destinations:
                 f.write("{}:\n".format(destination));
 
-                for rating_pair in destinations[destination].getall():
-                    rating = rating_pair[0]
-                    user = rating_pair[1]
+                ratings = destinations[destination].getall()
+                for user in ratings:
+                    rating = ratings[user]
                     f.write('  {}: {}\n'.format(str(rating), user));
 
         with open(LUNCHBOT_FNAME_LUNCHERS, 'w') as f:
@@ -64,15 +64,15 @@ def lunchbot_save(destinations, lunchers):
 
 class Rating():
     def __init__(self):
-        self.ratings = []
+        self.ratings = dict() # string => int
 
     def add_rating(self, rating, rater):
-        self.ratings.append((rating, rater))
+        self.ratings[rater] = rating
 
     def average(self):
         if len(self.ratings) == 0:
             return 0
-        return sum(r[0] for r in self.ratings) / float(len(self.ratings))
+        return sum(self.ratings.values()) / float(len(self.ratings))
 
     def getall(self):
         return self.ratings
@@ -149,18 +149,16 @@ class LunchBot(Bot):
                 key=lambda d: self.destinations[d].average(),
                 reverse=True)
 
-        def stringify_rating(rating_pair):
-            rating = rating_pair[0]
-            user = rating_pair[1]
-            return '{} from {}'.format(rating, user)
-
         for dest in sorted_dests:
             rating = self.destinations[dest]
             rating_avg = rating.average()
             message += '>  `%02.2f`\t%s' % (rating_avg, dest)
             if verbose:
                 message += ' ('
-                message += ', '.join(map(stringify_rating, rating.getall()))
+                dest_ratings = rating.getall()
+                message += ', '.join(
+                        map(lambda user: '{} from {}'.format(dest_ratings[user], user),
+                            dest_ratings))
                 message += ')'
             message += '\n'
 
