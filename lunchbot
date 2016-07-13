@@ -116,7 +116,7 @@ class LunchBot(Bot):
                 "  destination rate <destination> <rating>",
                 "  luncher seed <lunchers...>",
                 "  luncher list",
-                "  luncher suggest",
+                "  suggest",
                 "```"
                 ])
 
@@ -132,19 +132,34 @@ class LunchBot(Bot):
     def send_lunchers(self):
         self.send_message("lunchers: {}".format(', '.join(self.lunchers)))
 
-    def suggest_luncher(self):
-        if len(self.lunchers) == 0:
-            self.send_message("no lunchers to choose from")
-            return
+    def get_top_destination(self):
+        top = None
+        top_rating = 0
+        for dest in self.destinations:
+            cur_rating = self.destinations[dest].average()
+            if cur_rating >= top_rating:
+                top = dest
+                top_rating = cur_rating
+        return top
 
-        # rotate lunchers
-        luncher = self.lunchers[0]
-        del self.lunchers[0]
-        self.lunchers.append(luncher)
+    def suggest(self):
+        luncher_message = "no lunchers to choose from"
+        if len(self.lunchers) > 0:
+            # rotate lunchers
+            luncher = self.lunchers[0]
+            del self.lunchers[0]
+            self.lunchers.append(luncher)
 
-        self.send_message("it's {}'{} turn to choose".format(
-                luncher,
-                '' if luncher[-1] == 's' else 's'))
+            luncher_message = "it's {}'{} turn to choose".format(
+                    luncher,
+                    '' if luncher[-1] == 's' else 's')
+
+        destination_message = "no destinations to choose from"
+        top = self.get_top_destination()
+        if top is not None:
+            destination_message = '{} is currently favourite'.format(top)
+
+        self.send_message("{} - {}".format(luncher_message, destination_message))
 
     def handle_subcommand_destination(self, message, command):
         if len(command) < 1:
@@ -187,7 +202,7 @@ class LunchBot(Bot):
             self.send_usage()
 
     def handle_subcommand_luncher(self, message, command):
-        # seed <lunchers>, list, or suggest
+        # seed <lunchers>, list
 
         if len(command) < 1:
             self.send_usage()
@@ -195,9 +210,6 @@ class LunchBot(Bot):
 
         if command == 'list':
             self.send_lunchers()
-            return
-        elif command == 'suggest':
-            self.suggest_luncher()
             return
 
         tokens = command.split()
@@ -214,6 +226,10 @@ class LunchBot(Bot):
 
         elif command == "luncher":
             self.handle_subcommand_luncher(message, rest)
+
+        elif command == 'suggest':
+            self.suggest()
+            return
 
         else:
             self.send_message("EH?!? what you on about <@{}>??".format(message.user))
