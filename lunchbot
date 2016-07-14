@@ -361,10 +361,13 @@ class SlackMonitor():
 
             time.sleep(0.1)
 
-    def teardown(self):
+    def iterate_bots(self, fn):
         for channel in self.handlers:
             for bot in self.handlers[channel]:
-                bot.teardown()
+                fn(bot)
+
+    def teardown(self):
+        self.iterate_bots(lambda bot: bot.teardown())
 
 import time
 from slackclient import SlackClient
