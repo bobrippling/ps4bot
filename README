@@ -1,4 +1,7 @@
-Setup
------
+# Setup
 
 `pip install slackclient`
+
+# Running
+
+`./lunchbot channel-name`
