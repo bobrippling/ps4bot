@@ -1,5 +1,6 @@
 from Bot import Bot
 from Rating import Rating
+import random
 
 LUNCHBOT_FNAME_RATINGS = "lunchbot-ratings.txt"
 LUNCHBOT_FNAME_RATEE = "lunchbot-current.txt"
@@ -258,4 +259,12 @@ class LunchBot(Bot):
         tokens = message.text.split()
         if len(tokens) < 2 or tokens[0] != "lunchbot":
             return False
-        self.handle_command(message, tokens[1], ' '.join(tokens[2:]))
+
+        try:
+            self.handle_command(message, tokens[1], ' '.join(tokens[2:]))
+        except Exception as e:
+            r = random.randint(1, 2)
+            self.send_message(
+                    "My MASSIVE computer membrane #%d has ruptured... GOODBYE FOREVER (`%s`)"
+                    % (r, e))
+            raise e
