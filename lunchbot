@@ -201,6 +201,11 @@ class LunchBot(Bot):
 
     def handle_rating(self, message, args):
         tokens = args.split()
+
+        if len(tokens) == 0:
+            self.send_usage_small(message.user)
+            return
+
         rating_str = tokens[-1] # last entry
         rating = 0
         try:
@@ -250,6 +255,12 @@ class LunchBot(Bot):
 
         elif command == 'add':
             destination = rest
+
+            if len(destination) == 0:
+                self.send_usage_small(message.user)
+                return
+
+
             if destination in self.destinations.keys():
                 self.send_message("'{}' already exists".format(destination))
             elif destination.count(':') > 0:
