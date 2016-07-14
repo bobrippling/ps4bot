@@ -190,7 +190,30 @@ class LunchBot(Bot):
         self.send_message("{} - {}".format(luncher_message, destination_message))
 
     def visited(self, message, args):
-        self.send_message("`lunchbot visited` not implemented")
+        tokens = args.split()
+        if len(tokens) < 2:
+            self.send_usage_small(message.user)
+            return
+
+        luncher = tokens[-1]
+        destination = ' '.join(tokens[:-1])
+
+        # luncher should be in slack's user format:
+        # "<@U...>"
+        luncher = luncher.lstrip('<').rstrip('>').lstrip('@')
+        if luncher not in message.channel.members:
+            self.send_message("<@{}> not a member of lunchers".format(luncher))
+            return
+
+        if not destination in self.destinations.keys():
+            self.send_message("{} not a destination".format(destination))
+            return
+
+        self.luncher_index += 1
+        self.send_message(
+                "recorded '{}' as visited, chosen by <@{}> "
+                "`(TODO: record '{}' as visited on today's date)`"
+                .format(destination, luncher, destination))
 
     def handle_rating(self, message, args):
         tokens = args.split()
@@ -229,10 +252,6 @@ class LunchBot(Bot):
             self.suggest(message.channel)
 
         elif command == 'visited':
-            if len(rest) > 0:
-                self.send_usage_small(message.user)
-                return
-
             self.visited(message, rest)
 
         elif command == 'usage' or command == 'help':
