@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 LUNCHBOT_FNAME_RATINGS = "lunchbot-ratings.txt"
-LUNCHBOT_FNAME_LUNCHERS = "lunchbot-lunchers.txt"
 
 def lunchbot_maybe_load():
     try:
@@ -30,20 +29,12 @@ def lunchbot_maybe_load():
                     current_rating = destinations[current_destination]
                     current_rating.add_rating(rating_num, user)
 
-        lunchers = []
-        with open(LUNCHBOT_FNAME_LUNCHERS, 'r') as f:
-            while True:
-                line = f.readline()
-                if line == '':
-                    break
-                lunchers.append(line.rstrip('\n'))
-
-        return (destinations, lunchers)
+        return destinations
 
     except:
-        return (None, None)
+        return None
 
-def lunchbot_save(destinations, lunchers):
+def lunchbot_save(destinations):
     try:
         with open(LUNCHBOT_FNAME_RATINGS, 'w') as f:
             for destination in destinations:
@@ -53,10 +44,6 @@ def lunchbot_save(destinations, lunchers):
                 for user in ratings:
                     rating = ratings[user]
                     f.write('  {}: {}\n'.format(str(rating), user));
-
-        with open(LUNCHBOT_FNAME_LUNCHERS, 'w') as f:
-            for luncher in lunchers:
-                f.write("{}\n".format(luncher))
 
     except IOError as e:
         print >>sys.stderr, "exception saving state: {}".format(e)
@@ -110,18 +97,15 @@ class LunchBot(Bot):
         Bot.__init__(self, slackconnection, botname)
 
         self.destinations = dict() # string => Rating
-        self.lunchers = []
         self.load()
 
     def load(self):
-        destinations, lunchers = lunchbot_maybe_load()
+        destinations = lunchbot_maybe_load()
         if destinations is not None:
             self.destinations = destinations
-        if lunchers is not None:
-            self.lunchers = lunchers
 
     def teardown(self):
-        lunchbot_save(self.destinations, self.lunchers)
+        lunchbot_save(self.destinations)
 
     def send_usage(self):
         message = '\n'.join([
@@ -161,15 +145,12 @@ class LunchBot(Bot):
                 message += ' ('
                 dest_ratings = rating.getall()
                 message += ', '.join(
-                        map(lambda user: '{} from {}'.format(dest_ratings[user], user),
+                        map(lambda user: '{} from <@{}>'.format(dest_ratings[user], user),
                             dest_ratings))
                 message += ')'
             message += '\n'
 
         self.send_message(message)
-
-    def send_lunchers(self):
-        self.send_message("lunchers: {}".format(', '.join(self.lunchers)))
 
     def get_top_destination(self):
         top = None
@@ -181,17 +162,14 @@ class LunchBot(Bot):
                 top_rating = cur_rating
         return top
 
-    def suggest(self):
+    def suggest(self, channel):
         luncher_message = "no lunchers to choose from"
-        if len(self.lunchers) > 0:
-            # rotate lunchers
-            luncher = self.lunchers[0]
-            del self.lunchers[0]
-            self.lunchers.append(luncher)
 
-            luncher_message = "it's {}'{} turn to choose".format(
-                    luncher,
-                    '' if luncher[-1] == 's' else 's')
+        lunchers = channel.members
+        if len(lunchers) > 0:
+            # TODO: index into (sorted) lunchers
+            luncher = lunchers[0]
+            luncher_message = "it's <@{}>'s turn to choose (TODO)".format(luncher)
 
         destination_message = "no destinations to choose from"
         top = self.get_top_destination()
@@ -220,15 +198,14 @@ class LunchBot(Bot):
             self.send_message("'{}' not an integer between 0 and 100".format(rating_str))
             return
 
-        user = message.user # FIXME: proper name
-
+        user = message.user # note - this is the slack id, not the real name
         destination = ' '.join(tokens[:-1])
         if destination in self.destinations.keys():
             rating = self.destinations[destination]
             add_or_mod = 'modified' if rating.has_user_rating(user) else 'added'
             rating.add_rating(rating_int, user)
 
-            self.send_message("{} rating for '{}' (as {})".format(add_or_mod, destination, user))
+            self.send_message("{} rating for '{}' (as <@{}>)".format(add_or_mod, destination, user))
         else:
             self.send_message("'{}' doesn't exist as a destination".format(destination))
 
@@ -238,7 +215,7 @@ class LunchBot(Bot):
                 self.send_usage_small(message.user)
                 return
 
-            self.suggest()
+            self.suggest(message.channel)
 
         elif command == 'visited':
             if len(rest) > 0:
@@ -266,7 +243,6 @@ class LunchBot(Bot):
             if len(destination) == 0:
                 self.send_usage_small(message.user)
                 return
-
 
             if destination in self.destinations.keys():
                 self.send_message("'{}' already exists".format(destination))
