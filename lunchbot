@@ -144,7 +144,7 @@ class LunchBot(Bot):
                 "",
                 "Other commands:",
                 "  add <destination>           - Add an unvisited destination",
-                "  list                        - List all destinations",
+                "  list [-v]                   - List all destinations (-v: with ratings)",
                 "  rate <destination> <rating> - Rate a destination (as your user)",
                 "  usage | help                - Show this",
                 "```"
