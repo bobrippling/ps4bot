@@ -29,7 +29,7 @@ def lunchbot_maybe_load():
 
                     current_rating = destinations[current_destination]
                     current_rating.add_rating(rating_num, user)
-    except:
+    except IOError:
         pass
 
     index = 0
@@ -38,7 +38,7 @@ def lunchbot_maybe_load():
             line = f.readline()
             line = line.rstrip('\n')
             index = int(line)
-    except:
+    except IOError:
         pass
 
     return (destinations, index)
