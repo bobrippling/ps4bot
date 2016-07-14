@@ -69,6 +69,10 @@ class Rating():
     def add_rating(self, rating, rater):
         self.ratings[rater] = rating
 
+    def has_user_rating(self, rater):
+        return rater in self.ratings
+
+
     def average(self):
         if len(self.ratings) == 0:
             return 0
@@ -207,10 +211,10 @@ class LunchBot(Bot):
             return
 
         rating_str = tokens[-1] # last entry
-        rating = 0
+        rating_int = 0
         try:
-            rating = int(rating_str)
-            if rating < 0 or rating > 100:
+            rating_int = int(rating_str)
+            if rating_int < 0 or rating_int > 100:
                 raise ValueError()
         except ValueError:
             self.send_message("'{}' not an integer between 0 and 100".format(rating_str))
@@ -220,8 +224,11 @@ class LunchBot(Bot):
 
         destination = ' '.join(tokens[:-1])
         if destination in self.destinations.keys():
-            self.destinations[destination].add_rating(rating, user)
-            self.send_message("added rating for '{}' (as {})".format(destination, user))
+            rating = self.destinations[destination]
+            add_or_mod = 'modified' if rating.has_user_rating(user) else 'added'
+            rating.add_rating(rating_int, user)
+
+            self.send_message("{} rating for '{}' (as {})".format(add_or_mod, destination, user))
         else:
             self.send_message("'{}' doesn't exist as a destination".format(destination))
 
