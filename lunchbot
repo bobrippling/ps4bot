@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
 LUNCHBOT_FNAME_RATINGS = "lunchbot-ratings.txt"
+LUNCHBOT_FNAME_RATEE = "lunchbot-current.txt"
 
 def lunchbot_maybe_load():
+    destinations = dict()
     try:
-        destinations = dict()
         with open(LUNCHBOT_FNAME_RATINGS, 'r') as f:
             current_destination = None
             while True:
@@ -28,13 +29,21 @@ def lunchbot_maybe_load():
 
                     current_rating = destinations[current_destination]
                     current_rating.add_rating(rating_num, user)
-
-        return destinations
-
     except:
-        return None
+        pass
 
-def lunchbot_save(destinations):
+    index = 0
+    try:
+        with open(LUNCHBOT_FNAME_RATEE, 'r') as f:
+            line = f.readline()
+            line = line.rstrip('\n')
+            index = int(line)
+    except:
+        pass
+
+    return (destinations, index)
+
+def lunchbot_save(destinations, index):
     try:
         with open(LUNCHBOT_FNAME_RATINGS, 'w') as f:
             for destination in destinations:
@@ -44,6 +53,9 @@ def lunchbot_save(destinations):
                 for user in ratings:
                     rating = ratings[user]
                     f.write('  {}: {}\n'.format(str(rating), user));
+
+        with open(LUNCHBOT_FNAME_RATEE, 'w') as f:
+            f.write('{}\n'.format(index))
 
     except IOError as e:
         print >>sys.stderr, "exception saving state: {}".format(e)
@@ -97,15 +109,14 @@ class LunchBot(Bot):
         Bot.__init__(self, slackconnection, botname)
 
         self.destinations = dict() # string => Rating
+        self.luncher_index = 0
         self.load()
 
     def load(self):
-        destinations = lunchbot_maybe_load()
-        if destinations is not None:
-            self.destinations = destinations
+        self.destinations, self.luncher_index = lunchbot_maybe_load()
 
     def teardown(self):
-        lunchbot_save(self.destinations)
+        lunchbot_save(self.destinations, self.luncher_index)
 
     def send_usage(self):
         message = '\n'.join([
@@ -164,12 +175,12 @@ class LunchBot(Bot):
 
     def suggest(self, channel):
         luncher_message = "no lunchers to choose from"
-
         lunchers = channel.members
         if len(lunchers) > 0:
-            # TODO: index into (sorted) lunchers
-            luncher = lunchers[0]
-            luncher_message = "it's <@{}>'s turn to choose (TODO)".format(luncher)
+            if self.luncher_index >= len(lunchers):
+                self.luncher_index = 0
+            luncher = lunchers[self.luncher_index]
+            luncher_message = "it's <@{}>'s turn to choose".format(luncher)
 
         destination_message = "no destinations to choose from"
         top = self.get_top_destination()
