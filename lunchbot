@@ -81,13 +81,13 @@ class Bot():
     def __init__(self, slackconnection, botname):
         self.botname = botname
         self.slackconnection = slackconnection
-        self.channel_id = None
+        self.channel = None
 
     def send_message(self, text):
         # post as BOT_NAME instead of the current user
         self.slackconnection.api_call(
                 "chat.postMessage",
-                channel = self.channel_id,
+                channel = self.channel.id,
                 text = text,
                 username = self.botname,
                 as_user = False)
@@ -98,8 +98,8 @@ class Bot():
     def handle_message(self, message):
         return False # abstract
 
-    def set_current_channel_id(self, channel_id):
-        self.channel_id = channel_id
+    def set_current_channel(self, channel):
+        self.channel = channel
 
 class LunchBot(Bot):
     def __init__(self, slackconnection, botname):
@@ -329,18 +329,18 @@ class SlackMonitor():
                 channel = channel_id # safe fallback
                 for i in self.slackconnection.server.channels:
                     if i.id == channel_id:
-                        channel = i.name
+                        channel = i
                         break
 
                 if not text or not user or not channel:
                     continue
 
-                if channel not in self.handlers:
+                if channel.name not in self.handlers:
                     continue
 
                 message = SlackMessage(text, user, channel, reply_to, bot_id)
-                for handler in self.handlers[channel]:
-                    handler.set_current_channel_id(channel_id)
+                for handler in self.handlers[channel.name]:
+                    handler.set_current_channel(channel)
                     handler.handle_message(message)
 
             time.sleep(0.1)
