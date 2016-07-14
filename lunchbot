@@ -107,6 +107,9 @@ class Bot():
     def teardown(self):
         pass
 
+    def idle(self):
+        pass
+
 class LunchBot(Bot):
     def __init__(self, slackconnection, botname):
         Bot.__init__(self, slackconnection, botname)
@@ -122,6 +125,9 @@ class LunchBot(Bot):
         lunchbot_save(self.destinations, self.luncher_index)
 
     def teardown(self):
+        self.save()
+
+    def idle(self):
         self.save()
 
     def send_usage(self):
@@ -322,6 +328,7 @@ class SlackMonitor():
     def __init__(self, slackconnection):
         self.slackconnection = slackconnection
         self.handlers = dict()
+        self.idle_timeout = 5 * 60 # seconds
         if not slackconnection.rtm_connect():
             raise SlackMonitorConnectError()
 
@@ -331,6 +338,7 @@ class SlackMonitor():
         self.handlers[channel].append(handler)
 
     def run(self):
+        idle_time = 0
         while True:
             for slack_message in self.slackconnection.rtm_read():
                 if slack_message.get("type") is None:
@@ -354,12 +362,20 @@ class SlackMonitor():
                 if channel.name not in self.handlers:
                     continue
 
+                # handling something, reset idle time
+                idle_time = 0
+
                 message = SlackMessage(text, user, channel, reply_to, bot_id)
                 for handler in self.handlers[channel.name]:
                     handler.set_current_channel(channel)
                     handler.handle_message(message)
 
-            time.sleep(0.1)
+            time.sleep(0.5)
+            idle_time += 0.5
+
+            if idle_time >= self.idle_timeout:
+                self.iterate_bots(lambda bot: bot.idle())
+                idle_time = 0
 
     def iterate_bots(self, fn):
         for channel in self.handlers:
