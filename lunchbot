@@ -118,8 +118,11 @@ class LunchBot(Bot):
     def load(self):
         self.destinations, self.luncher_index = lunchbot_maybe_load()
 
-    def teardown(self):
+    def save(self):
         lunchbot_save(self.destinations, self.luncher_index)
+
+    def teardown(self):
+        self.save()
 
     def send_usage(self):
         message = '\n'.join([
