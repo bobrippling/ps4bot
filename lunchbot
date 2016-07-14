@@ -20,7 +20,7 @@ slackconnection = SlackClient(BOT_TOKEN)
 
 # setup channel monitoring
 lunchbot = LunchBot(slackconnection, "lunchbot")
-dumpbot = DumpBot(slackconnection, "dumpbot")
+#dumpbot = DumpBot(slackconnection, "dumpbot")
 
 slackmonitor = SlackMonitor(slackconnection)
 slackmonitor.add_handler_for_channel(lunchbot, arg_channel)
