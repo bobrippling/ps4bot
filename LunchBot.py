@@ -104,7 +104,7 @@ class LunchBot(Bot):
         self.send_message(message)
 
     def send_usage_small(self, to_user):
-        self.send_message("<@{}>: didn't understand that. `lunchbot usage` for details".format(to_user))
+        self.send_message("EH?!? What you on about <@{}>? (try `lunchbot usage`)".format(to_user))
 
     def send_destinations(self, verbose):
         message = "{} destinations:\n".format(len(self.destinations))
