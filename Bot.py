@@ -4,6 +4,12 @@ class Bot():
         self.slackconnection = slackconnection
         self.channel = None
 
+    def lookup_user(self, id):
+        for u in self.slackconnection.server.users:
+            if u.id == id:
+                return u.name
+        return id
+
     def send_message(self, text):
         # post as BOT_NAME instead of the current user
         self.slackconnection.api_call(
