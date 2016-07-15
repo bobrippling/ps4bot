@@ -7,7 +7,7 @@ class Bot():
     def lookup_user(self, id):
         for u in self.slackconnection.server.users:
             if u.id == id:
-                return u.name
+                return u.name.encode('utf-8')
         return id
 
     def send_message(self, text):

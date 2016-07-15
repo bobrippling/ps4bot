@@ -1,6 +1,11 @@
 import time
 from SlackMessage import SlackMessage
 
+def ENCODE(s):
+    if s is None:
+        return None
+    return s.encode('utf-8')
+
 class SlackMonitorConnectError():
     pass
 
@@ -44,6 +49,11 @@ class SlackMonitor():
 
                 # handling something, reset idle time
                 idle_time = 0
+
+                # anything from slack needs to be explicitly encoded as utf-8
+                text = ENCODE(text)
+                user = ENCODE(user)
+                bot_id = ENCODE(bot_id)
 
                 message = SlackMessage(text, user, channel, reply_to, bot_id)
                 for handler in self.handlers[channel.name]:

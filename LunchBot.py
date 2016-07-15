@@ -6,9 +6,6 @@ LUNCHBOT_FNAME_RATINGS = "lunchbot-ratings.txt"
 LUNCHBOT_FNAME_RATEE = "lunchbot-current.txt"
 DESTINATION_SEPARATOR = '\x01'.encode('ascii')
 
-def ENCODE(s):
-    return s.encode('utf-8')
-
 def lunchbot_maybe_load():
     destinations = dict()
     try:
@@ -260,13 +257,13 @@ class LunchBot(Bot):
             self.send_usage_small(message.user)
 
     def handle_message(self, message):
-        tokens = ENCODE(message.text).split()
+        tokens = message.text.split()
         if len(tokens) < 2 or tokens[0] != "lunchbot":
             return False
 
         try:
             # lookup message.user
-            message.user = ENCODE(self.lookup_user(message.user))
+            message.user = self.lookup_user(message.user)
             self.handle_command(message, tokens[1], ' '.join(tokens[2:]))
         except Exception as e:
             r = random.randint(1, 2)
