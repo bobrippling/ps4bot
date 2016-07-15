@@ -4,6 +4,7 @@ import random
 
 LUNCHBOT_FNAME_RATINGS = "lunchbot-ratings.txt"
 LUNCHBOT_FNAME_RATEE = "lunchbot-current.txt"
+DESTINATION_SEPARATOR = ':'
 
 def ENCODE(s):
     return s.encode('utf-8')
@@ -19,7 +20,7 @@ def lunchbot_maybe_load():
                 if line == '':
                     break
 
-                if line[-1] == ':':
+                if line[-1] == DESTINATION_SEPARATOR:
                     # destination
                     current_destination = line[:-1]
                     destinations[current_destination] = Rating()
@@ -28,7 +29,7 @@ def lunchbot_maybe_load():
                     if current_destination is None:
                         raise ValueError()
 
-                    rating_raw, user = line.split(':', 1)
+                    rating_raw, user = line.split(DESTINATION_SEPARATOR, 1)
                     rating_num = int(rating_raw)
                     user = user.strip()
 
@@ -52,12 +53,12 @@ def lunchbot_save(destinations, index):
     try:
         with open(LUNCHBOT_FNAME_RATINGS, 'w') as f:
             for destination in destinations:
-                f.write("{}:\n".format(destination));
+                f.write("{}{}\n".format(destination, DESTINATION_SEPARATOR));
 
                 ratings = destinations[destination].getall()
                 for user in ratings:
                     rating = ratings[user]
-                    f.write('  {}: {}\n'.format(str(rating), user));
+                    f.write('  {}{} {}\n'.format(str(rating), DESTINATION_SEPARATOR, user));
 
         with open(LUNCHBOT_FNAME_RATEE, 'w') as f:
             f.write('{}\n'.format(index))
@@ -245,8 +246,8 @@ class LunchBot(Bot):
 
             if destination in self.destinations.keys():
                 self.send_message("'{}' already exists".format(destination))
-            elif destination.count(':') > 0:
-                self.send_message("destinations can't contain a colon")
+            elif destination.count(DESTINATION_SEPARATOR) > 0:
+                self.send_message("destinations can't contain '{}'".format(DESTINATION_SEPARATOR))
             else:
                 self.destinations[destination] = Rating()
                 self.send_message("'{}' added".format(destination))
