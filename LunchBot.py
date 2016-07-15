@@ -5,6 +5,9 @@ import random
 LUNCHBOT_FNAME_RATINGS = "lunchbot-ratings.txt"
 LUNCHBOT_FNAME_RATEE = "lunchbot-current.txt"
 
+def ENCODE(s):
+    return s.encode('utf-8')
+
 def lunchbot_maybe_load():
     destinations = dict()
     try:
@@ -156,7 +159,7 @@ class LunchBot(Bot):
     def visited(self, message, args):
         tokens = args.split()
         if len(tokens) < 2:
-            self.send_usage_small(message.user)
+            self.send_usage_small(ENCODE(message.user))
             return
 
         luncher = tokens[-1]
@@ -184,7 +187,7 @@ class LunchBot(Bot):
         tokens = args.split()
 
         if len(tokens) == 0:
-            self.send_usage_small(message.user)
+            self.send_usage_small(ENCODE(message.user))
             return
 
         rating_str = tokens[-1] # last entry
@@ -197,7 +200,7 @@ class LunchBot(Bot):
             self.send_message("'{}' not an integer between 0 and 100".format(rating_str))
             return
 
-        user = message.user # note - this is the slack id, not the real name
+        user = ENCODE(message.user) # note - this is the slack id, not the real name
         destination = ' '.join(tokens[:-1])
         if destination in self.destinations.keys():
             rating = self.destinations[destination]
@@ -212,7 +215,7 @@ class LunchBot(Bot):
     def handle_command(self, message, command, rest):
         if command == 'suggest':
             if len(rest) > 0:
-                self.send_usage_small(message.user)
+                self.send_usage_small(ENCODE(message.user))
                 return
 
             self.suggest(message.channel)
@@ -228,7 +231,7 @@ class LunchBot(Bot):
             if rest == '-v':
                 verbose = True
             elif rest != '':
-                self.send_usage_small(message.user)
+                self.send_usage_small(ENCODE(message.user))
                 return
 
             self.send_destinations(verbose)
@@ -237,7 +240,7 @@ class LunchBot(Bot):
             destination = rest
 
             if len(destination) == 0:
-                self.send_usage_small(message.user)
+                self.send_usage_small(ENCODE(message.user))
                 return
 
             if destination in self.destinations.keys():
@@ -256,7 +259,7 @@ class LunchBot(Bot):
             self.send_usage_small(message.user)
 
     def handle_message(self, message):
-        tokens = message.text.split()
+        tokens = ENCODE(message.text).split()
         if len(tokens) < 2 or tokens[0] != "lunchbot":
             return False
 
