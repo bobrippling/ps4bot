@@ -4,7 +4,7 @@ import random
 
 LUNCHBOT_FNAME_RATINGS = "lunchbot-ratings.txt"
 LUNCHBOT_FNAME_RATEE = "lunchbot-current.txt"
-DESTINATION_SEPARATOR = ':'
+DESTINATION_SEPARATOR = '\x01'.encode('ascii')
 
 def ENCODE(s):
     return s.encode('utf-8')
