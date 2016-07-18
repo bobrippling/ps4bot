@@ -298,13 +298,13 @@ class LunchBot(Bot):
 
     def handle_message(self, message):
         tokens = message.text.split()
-        if len(tokens) < 2 or tokens[0] != "lunchbot":
+        if len(tokens) < 1 or tokens[0] != "lunchbot":
             return False
 
         try:
             # lookup message.user
             message.user = self.lookup_user(message.user)
-            self.handle_command(message, tokens[1], ' '.join(tokens[2:]))
+            self.handle_command(message, tokens[1] if len(tokens) > 1 else '', ' '.join(tokens[2:]))
         except Exception as e:
             r = random.randint(1, 2)
             self.send_message(
