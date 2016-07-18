@@ -25,7 +25,15 @@ def lunchbot_maybe_load():
 
                     tokens = line.lstrip(' ').split(' ', 1)
 
-                    if len(tokens) == 2:
+                    if len(tokens) != 2:
+                        raise ValueError()
+
+                    if tokens[0][0] == '@':
+                        time_raw = tokens[0][1:]
+                        who = tokens[1]
+                        time = int(time_raw)
+                        destinations[current_destination].add_visit(who, time)
+                    else:
                         rating_raw = tokens[0]
                         user = tokens[1]
 
@@ -34,12 +42,6 @@ def lunchbot_maybe_load():
 
                         current_rating = destinations[current_destination].rating
                         current_rating.add_rating(rating_num, user)
-                    elif len(tokens) == 1:
-                        time_raw = tokens[0]
-                        time = int(time_raw)
-                        destinations[current_destination].add_visit(time)
-                    else:
-                        raise ValueError()
                 else:
                     # destination
                     current_destination = line
@@ -72,8 +74,8 @@ def lunchbot_save(destinations, index):
                     f.write('  {} {}\n'.format(str(rating), user));
 
                 history = dest_obj.history
-                for time in history:
-                    f.write('  {}\n'.format(str(time)))
+                for time, who in history:
+                    f.write('  @{} {}\n'.format(str(time), who))
 
         with open(LUNCHBOT_FNAME_RATEE, 'w') as f:
             f.write('{}\n'.format(index))
@@ -138,8 +140,8 @@ class LunchBot(Bot):
         for dest in sorted_dests:
             dest_obj = self.destinations[dest]
             when = dest_obj.latest_visit()
-            if when > 0:
-                message += '{}: {}\n'.format(formattime(when), dest)
+            if when is not None and when[0] > 0:
+                message += "{}: {} (<@{}>'s choice)\n".format(formattime(when[0]), dest, when[1])
 
         self.send_message(message)
 
@@ -212,7 +214,7 @@ class LunchBot(Bot):
             self.send_message("{} not a destination".format(destination))
             return
 
-        self.destinations[destination].add_visit()
+        self.destinations[destination].add_visit(luncher)
 
         self.luncher_index += 1
         self.send_message(
