@@ -5,6 +5,7 @@ import signal
 import sys
 from LunchBot import LunchBot
 from DumpBot import DumpBot
+from DoodleBot import DoodleBot
 from SlackMonitor import SlackMonitor
 
 if len(sys.argv) != 2:
@@ -21,9 +22,11 @@ slackconnection = SlackClient(BOT_TOKEN)
 # setup channel monitoring
 lunchbot = LunchBot(slackconnection, "lunchbot")
 #dumpbot = DumpBot(slackconnection, "dumpbot")
+doodlebot = DoodleBot(slackconnection, "doodlebot")
 
 slackmonitor = SlackMonitor(slackconnection)
 slackmonitor.add_handler_for_channel(lunchbot, arg_channel)
+slackmonitor.add_handler_for_channel(doodlebot, arg_channel)
 
 # catch SIGINT, cleanup before exit
 def interrupt_handler(signal, frame):
