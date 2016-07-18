@@ -129,19 +129,27 @@ class LunchBot(Bot):
     def send_usage_small(self, to_user):
         self.send_message("EH?!? What you on about <@{}>? (try `lunchbot usage`)".format(to_user))
 
+    def get_recents(self):
+        # returns [(name, time, who)]
+        def dest_to_triple(dest):
+            visit = self.destinations[dest].latest_visit()
+            return (dest, visit[0], visit[1])
+
+        return map(
+                dest_to_triple,
+                filter(
+                    lambda d: self.destinations[d].latest_visit() is not None,
+                    sorted(
+                        self.destinations,
+                        key=lambda d: self.destinations[d].latest_visit(),
+                        reverse=True)))
+
     def send_recent(self):
         message = 'Recent visitations:\n'
 
-        sorted_dests = sorted(
-                self.destinations,
-                key=lambda d: self.destinations[d].latest_visit(),
-                reverse=True)
-
-        for dest in sorted_dests:
-            dest_obj = self.destinations[dest]
-            when = dest_obj.latest_visit()
-            if when is not None and when[0] > 0:
-                message += "{}: {} (<@{}>'s choice)\n".format(formattime(when[0]), dest, when[1])
+        recents = self.get_recents()
+        for name, time, who in recents:
+            message += "{}: {} (<@{}>'s choice)\n".format(formattime(time), name, who)
 
         self.send_message(message)
 
