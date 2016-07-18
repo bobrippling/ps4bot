@@ -9,7 +9,8 @@ class Destination():
     def add_visit(self, when = None):
         when_resolved = when
         if when_resolved is None:
-            when_resolved = time.time()
+            # int() as we get a fraction from time.time()
+            when_resolved = int(time.time())
         self.history.append(when_resolved)
 
     def latest_visit(self):
