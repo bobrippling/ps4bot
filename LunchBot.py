@@ -212,11 +212,12 @@ class LunchBot(Bot):
             self.send_message("{} not a destination".format(destination))
             return
 
+        self.destinations[destination].add_visit()
+
         self.luncher_index += 1
         self.send_message(
                 "recorded '{}' as visited, chosen by <@{}> "
-                "`(TODO: record '{}' as visited on today's date)`"
-                .format(destination, luncher, destination))
+                .format(destination, luncher))
         self.save()
 
     def handle_rating(self, message, args):
