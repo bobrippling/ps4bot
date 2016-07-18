@@ -1,10 +1,10 @@
 from Bot import Bot
 from Rating import Rating
+from Destination import Destination
 import random
 
 LUNCHBOT_FNAME_RATINGS = "lunchbot-ratings.txt"
 LUNCHBOT_FNAME_RATEE = "lunchbot-current.txt"
-DESTINATION_SEPARATOR = '\x01'.encode('ascii')
 
 def lunchbot_maybe_load():
     destinations = dict()
@@ -17,21 +17,32 @@ def lunchbot_maybe_load():
                 if line == '':
                     break
 
-                if line[-1] == DESTINATION_SEPARATOR:
-                    # destination
-                    current_destination = line[:-1]
-                    destinations[current_destination] = Rating()
-                else:
-                    # <rating>: <user>
+                if line[0] == ' ':
+                    # rating or visit-time
                     if current_destination is None:
                         raise ValueError()
 
-                    rating_raw, user = line.split(DESTINATION_SEPARATOR, 1)
-                    rating_num = int(rating_raw)
-                    user = user.strip()
+                    tokens = line.lstrip(' ').split(' ', 1)
 
-                    current_rating = destinations[current_destination]
-                    current_rating.add_rating(rating_num, user)
+                    if len(tokens) == 2:
+                        rating_raw = tokens[0]
+                        user = tokens[1]
+
+                        rating_num = int(rating_raw)
+                        user = user.strip()
+
+                        current_rating = destinations[current_destination].rating
+                        current_rating.add_rating(rating_num, user)
+                    elif len(tokens) == 1:
+                        time_raw = tokens[0]
+                        time = int(time_raw)
+                        destinations[current_destination].add_visit(time)
+                    else:
+                        raise ValueError()
+                else:
+                    # destination
+                    current_destination = line
+                    destinations[current_destination] = Destination()
     except IOError:
         pass
 
@@ -50,12 +61,18 @@ def lunchbot_save(destinations, index):
     try:
         with open(LUNCHBOT_FNAME_RATINGS, 'w') as f:
             for destination in destinations:
-                f.write("{}{}\n".format(destination, DESTINATION_SEPARATOR));
+                f.write("{}\n".format(destination))
 
-                ratings = destinations[destination].getall()
+                dest_obj = destinations[destination]
+
+                ratings = dest_obj.rating.getall()
                 for user in ratings:
                     rating = ratings[user]
-                    f.write('  {}{} {}\n'.format(str(rating), DESTINATION_SEPARATOR, user));
+                    f.write('  {} {}\n'.format(str(rating), user));
+
+                history = dest_obj.history
+                for time in history:
+                    f.write('  {}\n'.format(str(time)))
 
         with open(LUNCHBOT_FNAME_RATEE, 'w') as f:
             f.write('{}\n'.format(index))
@@ -67,7 +84,7 @@ class LunchBot(Bot):
     def __init__(self, slackconnection, botname):
         Bot.__init__(self, slackconnection, botname)
 
-        self.destinations = dict() # string => Rating
+        self.destinations = dict() # string => Destination
         self.luncher_index = 0
         self.load()
 
@@ -110,11 +127,11 @@ class LunchBot(Bot):
 
         sorted_dests = sorted(
                 self.destinations,
-                key=lambda d: self.destinations[d].average(),
+                key=lambda d: self.destinations[d].rating.average(),
                 reverse=True)
 
         for dest in sorted_dests:
-            rating = self.destinations[dest]
+            rating = self.destinations[dest].rating
             rating_avg = rating.average()
             message += '>  `%02.2f`\t%s' % (rating_avg, dest)
             if verbose:
@@ -132,7 +149,7 @@ class LunchBot(Bot):
         top = None
         top_rating = 0
         for dest in self.destinations:
-            cur_rating = self.destinations[dest].average()
+            cur_rating = self.destinations[dest].rating.average()
             if cur_rating >= top_rating:
                 top = dest
                 top_rating = cur_rating
@@ -201,7 +218,7 @@ class LunchBot(Bot):
         user = message.user # note - this is the slack id, not the real name
         destination = ' '.join(tokens[:-1])
         if destination in self.destinations.keys():
-            rating = self.destinations[destination]
+            rating = self.destinations[destination].rating
             add_or_mod = 'modified' if rating.has_user_rating(user) else 'added'
             rating.add_rating(rating_int, user)
 
@@ -243,10 +260,8 @@ class LunchBot(Bot):
 
             if destination in self.destinations.keys():
                 self.send_message("'{}' already exists".format(destination))
-            elif destination.count(DESTINATION_SEPARATOR) > 0:
-                self.send_message("destinations can't contain '{}'".format(DESTINATION_SEPARATOR))
             else:
-                self.destinations[destination] = Rating()
+                self.destinations[destination] = Destination()
                 self.send_message("'{}' added".format(destination))
                 self.save()
 
