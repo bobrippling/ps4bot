@@ -1,4 +1,5 @@
 import time
+import websocket
 from SlackMessage import SlackMessage
 
 def ENCODE(s):
@@ -14,7 +15,10 @@ class SlackMonitor():
         self.slackconnection = slackconnection
         self.handlers = dict()
         self.idle_timeout = 5 * 60 # seconds
-        if not slackconnection.rtm_connect():
+        self.connect()
+
+    def connect(self):
+        if not self.slackconnection.rtm_connect():
             raise SlackMonitorConnectError()
 
     def add_handler_for_channel(self, handler, channel):
@@ -64,9 +68,13 @@ class SlackMonitor():
     def run(self):
         idle_time = 0
         while True:
-            if self.handle_slack_messages():
-                # handled something, reset idle time
-                idle_time = 0
+            try:
+                if self.handle_slack_messages():
+                    # handled something, reset idle time
+                    idle_time = 0
+            except websocket._exceptions.WebSocketConnectionClosedException:
+                # slack timeout, reconnect
+                self.connect()
 
             time.sleep(0.5)
             idle_time += 0.5
