@@ -117,7 +117,7 @@ class LunchBot(Bot):
                 "  add <destination>           - Add an unvisited destination",
                 "  list [-v]                   - List all destinations (-v: with ratings)",
                 "  rate <destination> <rating> - Rate a destination (as your user)",
-                "  when                        - Show visit dates",
+                "  recent                      - Show visit dates",
                 "  usage | help                - Show this",
                 "```"
                 ])
@@ -127,7 +127,7 @@ class LunchBot(Bot):
     def send_usage_small(self, to_user):
         self.send_message("EH?!? What you on about <@{}>? (try `lunchbot usage`)".format(to_user))
 
-    def send_when(self):
+    def send_recent(self):
         message = 'Recent visitations:\n'
 
         sorted_dests = sorted(
@@ -273,8 +273,8 @@ class LunchBot(Bot):
 
             self.send_destinations(verbose)
 
-        elif command == 'when':
-            self.send_when()
+        elif command == 'recent':
+            self.send_recent()
 
         elif command == 'add':
             destination = rest
