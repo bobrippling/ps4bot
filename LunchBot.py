@@ -2,6 +2,7 @@ from Bot import Bot
 from Rating import Rating
 from Destination import Destination
 import random
+import datetime
 
 LUNCHBOT_FNAME_RATINGS = "lunchbot-ratings.txt"
 LUNCHBOT_FNAME_RATEE = "lunchbot-current.txt"
@@ -80,6 +81,9 @@ def lunchbot_save(destinations, index):
     except IOError as e:
         print >>sys.stderr, "exception saving state: {}".format(e)
 
+def formattime(time):
+    return datetime.date.fromtimestamp(time).strftime('%a, %b %d %Y')
+
 class LunchBot(Bot):
     def __init__(self, slackconnection, botname):
         Bot.__init__(self, slackconnection, botname)
@@ -113,6 +117,7 @@ class LunchBot(Bot):
                 "  add <destination>           - Add an unvisited destination",
                 "  list [-v]                   - List all destinations (-v: with ratings)",
                 "  rate <destination> <rating> - Rate a destination (as your user)",
+                "  when                        - Show visit dates",
                 "  usage | help                - Show this",
                 "```"
                 ])
@@ -121,6 +126,22 @@ class LunchBot(Bot):
 
     def send_usage_small(self, to_user):
         self.send_message("EH?!? What you on about <@{}>? (try `lunchbot usage`)".format(to_user))
+
+    def send_when(self):
+        message = 'Recent visitations:\n'
+
+        sorted_dests = sorted(
+                self.destinations,
+                key=lambda d: self.destinations[d].latest_visit(),
+                reverse=True)
+
+        for dest in sorted_dests:
+            dest_obj = self.destinations[dest]
+            when = dest_obj.latest_visit()
+            if when > 0:
+                message += '{}: {}\n'.format(formattime(when), dest)
+
+        self.send_message(message)
 
     def send_destinations(self, verbose):
         message = "{} destinations:\n".format(len(self.destinations))
@@ -250,6 +271,9 @@ class LunchBot(Bot):
                 return
 
             self.send_destinations(verbose)
+
+        elif command == 'when':
+            self.send_when()
 
         elif command == 'add':
             destination = rest
