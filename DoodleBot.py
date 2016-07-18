@@ -1,4 +1,5 @@
 from collections import defaultdict
+import datetime
 
 valid_days = [
         ['Monday', 'Mon'],
@@ -16,6 +17,9 @@ def parseday(day):
             if day.lower() == ent.lower():
                 return ar[0]
     return None
+
+def today():
+    return parseday(datetime.date.today().strftime('%a'))
 
 def doodle_reset(self, who, args):
     if len(args) > 0:
@@ -108,6 +112,7 @@ class DoodleBot(Bot):
 
     def reset(self):
         self.doodles = defaultdict(set) # day => [user]
+        self.logged_today_msg = defaultdict(int)
 
     def generate_doodle_reply(self, message, command, tokens):
         who = message.user
@@ -138,3 +143,31 @@ class DoodleBot(Bot):
                     "THE DOGS HAVE GOTTEN LOOSE! GOODBYE FOREVER (`%s`)"
                     % (e))
             raise e
+
+    def idle(self):
+        if self.logged_today_msg[today()]:
+            return
+
+        # is today the day with the most votes?
+        contended = False
+        most = None
+        mostcount = 0
+        for day in valid_days:
+            users_on_today = self.doodles[day[0]]
+            if len(users_on_today) > mostcount:
+                most = day[0]
+                mostcount = len(users_on_today)
+                contended = False
+            elif len(users_on_today) == mostcount:
+                contended = True
+
+        if mostcount == 0:
+            return
+
+        if today() == most:
+            self.send_message(
+                    'OI! Today is{} the best day{} for whatever sick activity you have planned'.format(
+                        ' (one of)' if contended else '',
+                        's' if contended else ''))
+
+            self.logged_today_msg[most] = 1
