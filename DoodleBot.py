@@ -108,6 +108,7 @@ from Bot import Bot
 class DoodleBot(Bot):
     def __init__(self, slackconnection, botname):
         Bot.__init__(self, slackconnection, botname)
+        self.icon_emoji = ':bar_chart:'
         self.reset()
 
     def reset(self):

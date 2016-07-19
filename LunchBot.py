@@ -90,6 +90,7 @@ class LunchBot(Bot):
     def __init__(self, slackconnection, botname):
         Bot.__init__(self, slackconnection, botname)
 
+        self.icon_emoji = ':bread:'
         self.destinations = dict() # string => Destination
         self.luncher_index = 0
         self.load()

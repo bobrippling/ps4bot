@@ -3,6 +3,7 @@ class Bot():
         self.botname = botname
         self.slackconnection = slackconnection
         self.channel = None
+        self.icon_emoji = None
 
     def lookup_user(self, id):
         for u in self.slackconnection.server.users:
@@ -17,6 +18,7 @@ class Bot():
                 channel = self.channel.id,
                 text = text,
                 username = self.botname,
+                icon_emoji = self.icon_emoji,
                 as_user = False)
 
     def send_list(self, prefix, list):
