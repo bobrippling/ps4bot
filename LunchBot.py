@@ -157,10 +157,7 @@ class LunchBot(Bot):
     def send_destinations(self, verbose):
         message = "{} destinations:\n".format(len(self.destinations))
 
-        sorted_dests = sorted(
-                self.destinations,
-                key=lambda d: self.destinations[d].rating.average(),
-                reverse=True)
+        sorted_dests = self.get_favourites()
 
         for dest in sorted_dests:
             rating = self.destinations[dest].rating
@@ -177,15 +174,11 @@ class LunchBot(Bot):
 
         self.send_message(message)
 
-    def get_top_destination(self):
-        top = None
-        top_rating = 0
-        for dest in self.destinations:
-            cur_rating = self.destinations[dest].rating.average()
-            if cur_rating >= top_rating:
-                top = dest
-                top_rating = cur_rating
-        return top
+    def get_favourites(self):
+        return sorted(
+                self.destinations,
+                key=lambda d: self.destinations[d].rating.average(),
+                reverse=True)
 
     def suggest(self, channel):
         luncher_message = "no lunchers to choose from"
@@ -197,9 +190,9 @@ class LunchBot(Bot):
             luncher_message = "it's <@{}>'s turn to choose".format(luncher)
 
         destination_message = "no destinations to choose from"
-        top = self.get_top_destination()
-        if top is not None:
-            destination_message = '{} is currently favourite'.format(top)
+        favourites = self.get_favourites()
+        if len(favourites) > 0:
+            destination_message = '{} is currently favourite'.format(favourites[0])
 
         self.send_message("{} - {}".format(luncher_message, destination_message))
 
