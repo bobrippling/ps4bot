@@ -181,13 +181,23 @@ class LunchBot(Bot):
                 reverse=True)
 
     def suggest(self, channel):
-        luncher_message = "no lunchers to choose from"
-        lunchers = channel.members
-        if len(lunchers) > 0:
-            if self.luncher_index >= len(lunchers):
-                self.luncher_index = 0
-            luncher = lunchers[self.luncher_index]
-            luncher_message = "it's <@{}>'s turn to choose".format(luncher)
+        if len(channel.members) == 0:
+            self.send_message("no lunchers to choose from")
+            return
+
+        recent_choosers = map(lambda name_time_who: name_time_who[2], self.get_recents())
+        if len(recent_choosers) >= len(channel.members):
+            # we can just choose the last person who picked
+            members_count = len(channel.members)
+            luncher = recent_choosers[members_count - 1]
+        else:
+            # we have some who picked and others who have never chosen
+            # pick someone from the list of those who've never chosen
+            new_lunchers = [x for x in channel.members if x not in recent_choosers]
+            assert len(new_lunchers) > 0
+            luncher = new_lunchers[0]
+
+        luncher_message = "it's <@{}>'s turn to choose".format(luncher)
 
         destination_message = "no destinations to choose from"
         favourites = self.get_favourites()
