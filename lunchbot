@@ -8,10 +8,10 @@ from DumpBot import DumpBot
 from DoodleBot import DoodleBot
 from SlackMonitor import SlackMonitor
 
-if len(sys.argv) != 2:
-    print >>sys.stderr, "Usage: {} channel".format(sys.argv[0])
+if len(sys.argv) < 2:
+    print >>sys.stderr, "Usage: {} channel[s...]".format(sys.argv[0])
     sys.exit(1)
-arg_channel = sys.argv[1]
+arg_channels = sys.argv[1:]
 
 # bot constants
 BOT_TOKEN = "<redacted>"
@@ -25,8 +25,9 @@ lunchbot = LunchBot(slackconnection, "lunchbot")
 doodlebot = DoodleBot(slackconnection, "doodlebot")
 
 slackmonitor = SlackMonitor(slackconnection)
-slackmonitor.add_handler_for_channel(lunchbot, arg_channel)
-slackmonitor.add_handler_for_channel(doodlebot, arg_channel)
+for channel in arg_channels:
+    slackmonitor.add_handler_for_channel(lunchbot, channel)
+    slackmonitor.add_handler_for_channel(doodlebot, channel)
 
 # catch SIGINT, cleanup before exit
 def interrupt_handler(signal, frame):
@@ -36,5 +37,5 @@ def interrupt_handler(signal, frame):
 signal.signal(signal.SIGINT, interrupt_handler)
 
 # and begin
-print "connected, watching #{}...".format(arg_channel)
+print "connected, watching {}...".format(', '.join(map(lambda c: '#{}'.format(c), arg_channels)))
 slackmonitor.run()
