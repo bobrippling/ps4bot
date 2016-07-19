@@ -6,28 +6,45 @@ import sys
 from LunchBot import LunchBot
 from DumpBot import DumpBot
 from DoodleBot import DoodleBot
+from SwiftBot import SwiftBot
 from SlackMonitor import SlackMonitor
 
-if len(sys.argv) < 2:
-    print >>sys.stderr, "Usage: {} channel[s...]".format(sys.argv[0])
+def usage():
+    print >>sys.stderr, "Usage: {} channel(s...) -- bot(s...)".format(sys.argv[0])
     sys.exit(1)
-arg_channels = sys.argv[1:]
+
+if len(sys.argv) < 4:
+    usage()
+try:
+    sep = sys.argv.index("--")
+except ValueError:
+    usage()
 
 # bot constants
 BOT_TOKEN = "<redacted>"
+bot_names_to_classes = {
+        "lunchbot": LunchBot,
+        "dumpbot": DumpBot,
+        "doodlebot": DoodleBot,
+        "swiftbot": SwiftBot,
+}
 
 # global slack connection
 slackconnection = SlackClient(BOT_TOKEN)
 
 # setup channel monitoring
-lunchbot = LunchBot(slackconnection, "lunchbot")
-#dumpbot = DumpBot(slackconnection, "dumpbot")
-doodlebot = DoodleBot(slackconnection, "doodlebot")
-
 slackmonitor = SlackMonitor(slackconnection)
-for channel in arg_channels:
-    slackmonitor.add_handler_for_channel(lunchbot, channel)
-    slackmonitor.add_handler_for_channel(doodlebot, channel)
+
+for bot_name in sys.argv[sep + 1:]:
+    try:
+        bot_ctor = bot_names_to_classes[bot_name]
+    except KeyError:
+        print >>sys.stderr, "bot \"{}\" doesn't exist".format(bot_name)
+        sys.exit(1)
+
+    bot_obj = bot_ctor(slackconnection, bot_name)
+    for channel in sys.argv[1:sep]:
+        slackmonitor.add_handler_for_channel(bot_obj, channel)
 
 # catch SIGINT, cleanup before exit
 def interrupt_handler(signal, frame):
@@ -37,5 +54,5 @@ def interrupt_handler(signal, frame):
 signal.signal(signal.SIGINT, interrupt_handler)
 
 # and begin
-print "connected, watching {}...".format(', '.join(map(lambda c: '#{}'.format(c), arg_channels)))
+print "connected, watching..."
 slackmonitor.run()
