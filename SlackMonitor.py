@@ -1,5 +1,6 @@
 import time
 import websocket
+import socket
 from SlackMessage import SlackMessage
 
 def ENCODE(s):
@@ -74,6 +75,8 @@ class SlackMonitor():
                     idle_time = 0
             except websocket._exceptions.WebSocketConnectionClosedException:
                 # slack timeout, reconnect
+                self.connect()
+            except socket.error:
                 self.connect()
 
             time.sleep(0.5)
