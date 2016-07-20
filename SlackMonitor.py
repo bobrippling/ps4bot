@@ -83,7 +83,7 @@ class SlackMonitor():
             idle_time += 0.5
 
             if idle_time >= self.idle_timeout:
-                self.iterate_bots(lambda bot: bot.idle())
+                self.iterate_bots(lambda bot: bot.idle() if bot.channel is not None else None)
                 idle_time = 0
 
     def iterate_bots(self, fn):
