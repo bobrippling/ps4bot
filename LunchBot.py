@@ -3,6 +3,7 @@ from Rating import Rating
 from Destination import Destination
 import random
 import datetime
+import re
 
 LUNCHBOT_FNAME_RATINGS = "lunchbot-ratings.txt"
 LUNCHBOT_FNAME_RATEE = "lunchbot-current.txt"
@@ -215,12 +216,19 @@ class LunchBot(Bot):
         luncher = tokens[-1]
         destination = ' '.join(tokens[:-1])
 
-        # luncher should be in slack's user format:
-        # "<@U...>"
-        luncher = luncher.lstrip('<').rstrip('>').lstrip('@')
-        if luncher not in message.channel.members:
-            self.send_message("<@{}> not a member of lunchers".format(luncher))
-            return
+        # handle both raw names and @names,
+        # which are passed to us "<@U...>"
+        slack_id = re.search('^<@(.*)>$', luncher)
+        if slack_id is None:
+            # we have a user, fine
+            pass
+        else:
+            unqualified_id = slack_id.groups()[0]
+            user = self.lookup_user(unqualified_id)
+            if user == unqualified_id:
+                self.send_message("couldn't lookup <@{}>".format(user))
+                return
+            luncher = user
 
         if not destination in self.destinations.keys():
             self.send_message("{} not a destination".format(destination))
