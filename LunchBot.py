@@ -182,19 +182,21 @@ class LunchBot(Bot):
                 reverse=True)
 
     def suggest(self, channel):
-        if len(channel.members) == 0:
+        # must convert to names so we can do comparisons with existing lunchers
+        member_names = map(lambda id: self.lookup_user(id), channel.members)
+        if len(member_names) == 0:
             self.send_message("no lunchers to choose from")
             return
 
         recent_choosers = map(lambda name_time_who: name_time_who[2], self.get_recents())
-        if len(recent_choosers) >= len(channel.members):
+        if len(recent_choosers) >= len(member_names):
             # we can just choose the last person who picked
-            members_count = len(channel.members)
+            members_count = len(member_names)
             luncher = recent_choosers[members_count - 1]
         else:
             # we have some who picked and others who have never chosen
             # pick someone from the list of those who've never chosen
-            new_lunchers = [x for x in channel.members if x not in recent_choosers]
+            new_lunchers = [x for x in member_names if x not in recent_choosers]
             assert len(new_lunchers) > 0
             luncher = new_lunchers[0]
 
