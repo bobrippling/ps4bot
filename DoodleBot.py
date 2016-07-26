@@ -71,7 +71,7 @@ def doodle_summary(self, who, args):
 def doodle_help(self, who, args):
     reply = 'Usage: ```'
     for cmd in commands:
-        reply += '  doodle {} {}\n'.format(cmd, commands[cmd]['summary'])
+        reply += '  doodlebot {} {}\n'.format(cmd, commands[cmd]['summary'])
     reply += '```'
     return reply
 
