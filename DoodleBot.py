@@ -110,6 +110,43 @@ class DoodleBot(Bot):
         Bot.__init__(self, slackconnection, botname)
         self.icon_emoji = ':bar_chart:'
         self.reset()
+        self.maybe_load()
+
+    def maybe_load(self):
+        try:
+            with open('doodlebot.txt', 'r') as f:
+                while True:
+                    line = f.readline()
+                    if line == '':
+                        break
+                    line = line.rstrip('\n')
+                    tokens = line.split(' ')
+                    if len(tokens) < 2:
+                        print "doodlebot.txt: invalid line \"{}\"".format(line)
+                        continue
+                    user = tokens[0]
+                    doodle_ok(self, user, tokens[1:])
+        except IOError:
+            pass
+
+    def save(self):
+        try:
+            with open('doodlebot.txt', 'w') as f:
+                output_users = dict()
+                for day in self.doodles:
+                    users = self.doodles[day]
+                    for user in users:
+                        if user in output_users:
+                            output_users[user].append(day)
+                        else:
+                            output_users[user] = [day]
+
+                for u in output_users:
+                    days = output_users[u]
+                    print >>f, "{} {}".format(u, ' '.join(days))
+
+        except IOError as e:
+            print >>sys.stderr, "exception saving state: {}".format(e)
 
     def reset(self):
         self.doodles = defaultdict(set) # day => [user]
@@ -144,6 +181,9 @@ class DoodleBot(Bot):
                     "THE DOGS HAVE GOTTEN LOOSE! GOODBYE FOREVER (`%s`)"
                     % (e))
             raise e
+
+    def teardown(self):
+        self.save()
 
     def idle(self):
         if self.logged_today_msg[today()]:
