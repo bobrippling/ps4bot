@@ -68,7 +68,7 @@ def doodle_summary(self, who, args):
 
     return reply
 
-def doodle_help(self, who, args):
+def doodle_usage(self, who, args):
     reply = 'Usage: ```'
     for cmd in commands:
         reply += '  doodlebot {} {}\n'.format(cmd, commands[cmd]['summary'])
@@ -91,15 +91,10 @@ commands = {
         'args': False,
         'fn': doodle_summary
     },
-    'help': {
-        'summary': '',
-        'args': False,
-        'fn': doodle_help
-    },
     'usage': {
         'summary': '',
         'args': False,
-        'fn': doodle_help
+        'fn': doodle_usage
     }
 }
 
