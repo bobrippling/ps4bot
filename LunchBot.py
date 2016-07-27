@@ -115,7 +115,7 @@ class LunchBot(Bot):
                 "  suggest",
                 "    Suggest a luncher to pick a destination, and a possible destination",
                 "  visited <destination> <luncher>",
-                "    Record destination and who chose it",
+                "    Record destination (doesn't need to be added first) and who chose it",
                 "",
                 "Other commands:",
                 "  add <destination>           - Add an unvisited destination",
@@ -233,8 +233,7 @@ class LunchBot(Bot):
             luncher = user
 
         if not destination in self.destinations.keys():
-            self.send_message("{} not a destination".format(destination))
-            return
+            self.add(destination)
 
         self.destinations[destination].add_visit(luncher)
 
@@ -273,6 +272,10 @@ class LunchBot(Bot):
         else:
             self.send_message("'{}' doesn't exist as a destination".format(destination))
 
+    def add(self, destination):
+        assert destination not in self.destinations
+        self.destinations[destination] = Destination()
+
     def handle_command(self, message, command, rest):
         if command == 'suggest':
             if len(rest) > 0:
@@ -310,7 +313,7 @@ class LunchBot(Bot):
             if destination in self.destinations.keys():
                 self.send_message("'{}' already exists".format(destination))
             else:
-                self.destinations[destination] = Destination()
+                self.add(destination)
                 self.send_message("'{}' added".format(destination))
                 self.save()
 
