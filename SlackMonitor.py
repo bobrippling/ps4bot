@@ -66,27 +66,31 @@ class SlackMonitor():
 
         return handled
 
+    def guard(self, fn):
+        reconnect = False
+        try:
+            return fn()
+        except websocket._exceptions.WebSocketConnectionClosedException:
+            # slack timeout, reconnect
+            reconnect = True
+        except socket.error:
+            reconnect = True
+
+        while reconnect:
+            try:
+                self.connect()
+                reconnect = False
+            except SlackMonitorConnectError:
+                print "reconnect failed, sleeping..."
+                time.sleep(1)
+
+
     def run(self):
         idle_time = 0
         while True:
-            reconnect = False
-            try:
-                if self.handle_slack_messages():
-                    # handled something, reset idle time
-                    idle_time = 0
-            except websocket._exceptions.WebSocketConnectionClosedException:
-                # slack timeout, reconnect
-                reconnect = True
-            except socket.error:
-                reconnect = True
-
-            while reconnect:
-                try:
-                    self.connect()
-                    reconnect = False
-                except SlackMonitorConnectError:
-                    print "reconnect failed, sleeping..."
-                    time.sleep(1)
+            if self.guard(lambda: self.handle_slack_messages()):
+                # handled something, reset idle time
+                idle_time = 0
 
             time.sleep(0.5)
             idle_time += 0.5
