@@ -12,6 +12,9 @@ class Bot():
         return id
 
     def send_message(self, text):
+        if self.channel is None:
+            return
+
         # post as BOT_NAME instead of the current user
         self.slackconnection.api_call(
                 "chat.postMessage",
