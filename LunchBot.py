@@ -188,7 +188,12 @@ class LunchBot(Bot):
             self.send_message("no lunchers to choose from")
             return
 
-        recent_choosers = map(lambda name_time_who: name_time_who[2], self.get_recents())
+        recent_choosers = filter(
+                lambda name: name in member_names,
+                map(
+                    lambda name_time_who: name_time_who[2],
+                    self.get_recents()))
+
         if len(recent_choosers) >= len(member_names):
             # we can just choose the last person who picked
             members_count = len(member_names)
