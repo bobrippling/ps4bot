@@ -21,7 +21,7 @@ class LogBot(Bot):
         when = time.gmtime()
         now_str = time.strftime('%Y-%m-%d %H:%M:%S', when)
 
-        fname = LOG_DIR + '/' + chan + '.txt'
+        fname = LOG_DIR + '/' + self.lookup_user(chan) + '.txt'
         with open(fname, 'a') as f:
             print >>f, "{}: {}: {}".format(now_str, user, text)
 

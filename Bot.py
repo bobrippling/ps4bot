@@ -1,3 +1,5 @@
+import re
+
 class Bot():
     def __init__(self, slackconnection, botname):
         self.botname = botname
@@ -6,6 +8,10 @@ class Bot():
         self.icon_emoji = None
 
     def lookup_user(self, id):
+        match = re.search('^<@(U[^>]+)>', id)
+        if match is not None:
+            id = match.group(1)
+
         for u in self.slackconnection.server.users:
             if u.id == id:
                 return u.name.encode('utf-8')
