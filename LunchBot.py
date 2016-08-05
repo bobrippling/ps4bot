@@ -230,9 +230,8 @@ class LunchBot(Bot):
             # we have a user, fine
             pass
         else:
-            unqualified_id = slack_id.groups()[0]
-            user = self.lookup_user(unqualified_id)
-            if user == unqualified_id:
+            user = self.lookup_user(slack_id)
+            if user == slack_id:
                 self.send_message("couldn't lookup <@{}>".format(user))
                 return
             luncher = user
