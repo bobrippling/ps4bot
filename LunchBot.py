@@ -181,9 +181,12 @@ class LunchBot(Bot):
                 key=lambda d: self.destinations[d].rating.average(),
                 reverse=True)
 
+    def member_names(self, channel):
+        return map(lambda id: self.lookup_user(id), channel.members)
+
     def suggest(self, channel):
         # must convert to names so we can do comparisons with existing lunchers
-        member_names = map(lambda id: self.lookup_user(id), channel.members)
+        member_names = self.member_names(channel)
         if len(member_names) == 0:
             self.send_message("no lunchers to choose from")
             return
