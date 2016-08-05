@@ -15,6 +15,7 @@ class SlackMonitor():
     def __init__(self, slackconnection):
         self.slackconnection = slackconnection
         self.handlers = dict()
+        self.allhandlers = []
         self.idle_timeout = 5 * 60 # seconds
         self.connect()
 
@@ -23,6 +24,10 @@ class SlackMonitor():
             raise SlackMonitorConnectError()
 
     def add_handler_for_channel(self, handler, channel):
+        if channel == '*':
+            self.allhandlers.append(handler)
+            return
+
         if channel not in self.handlers:
             self.handlers[channel] = []
         self.handlers[channel].append(handler)
@@ -49,17 +54,23 @@ class SlackMonitor():
             if not text or not user or not channel:
                 continue
 
-            if channel.name not in self.handlers:
-                continue
-
-            handled = True
-
             # anything from slack needs to be explicitly encoded as utf-8
             text = ENCODE(text)
             user = ENCODE(user)
             bot_id = ENCODE(bot_id)
 
             message = SlackMessage(text, user, channel, reply_to, bot_id)
+
+            for handler in self.allhandlers:
+                handled = True
+                handler.set_current_channel(channel)
+                handler.handle_message(message)
+
+            if channel.name not in self.handlers:
+                continue
+
+            handled = True
+
             for handler in self.handlers[channel.name]:
                 handler.set_current_channel(channel)
                 handler.handle_message(message)
