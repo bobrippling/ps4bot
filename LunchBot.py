@@ -228,16 +228,15 @@ class LunchBot(Bot):
 
         # handle both raw names and @names,
         # which are passed to us "<@U...>"
-        slack_id = re.search('^<@(.*)>$', luncher)
-        if slack_id is None:
-            # we have a user, fine
-            pass
-        else:
-            user = self.lookup_user(slack_id)
-            if user == slack_id:
-                self.send_message("couldn't lookup <@{}>".format(user))
+        resolved_luncher = self.lookup_user(luncher)
+        if resolved_luncher == luncher:
+            # was passed as a raw name - ensure they exist in the channel
+            if luncher not in self.member_names(message.channel):
+                self.send_message("WHO THE HECK IS \"{}\"?!".format(luncher))
                 return
-            luncher = user
+        else:
+            # was passed as @..., fine
+            luncher = resolved_luncher
 
         if not destination in self.destinations.keys():
             self.add(destination)
