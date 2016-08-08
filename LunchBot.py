@@ -112,7 +112,7 @@ class LunchBot(Bot):
         message = '\n'.join([
                 "usage: ```lunchbot [subcommand]",
                 "Common usage:",
-                "  suggest",
+                "  suggest [optional luncher candidates]",
                 "    Suggest a luncher to pick a destination, and a possible destination",
                 "  visited <destination> <luncher>",
                 "    Record destination (doesn't need to be added first) and who chose it",
@@ -184,12 +184,27 @@ class LunchBot(Bot):
     def member_names(self, channel):
         return map(lambda id: self.lookup_user(id), channel.members)
 
-    def suggest(self, channel):
+    def suggest(self, channel, optional_lunchers):
         # must convert to names so we can do comparisons with existing lunchers
-        member_names = self.member_names(channel)
-        if len(member_names) == 0:
-            self.send_message("no lunchers to choose from")
-            return
+        luncher_tokens = optional_lunchers.strip().split(' ')
+        if len(optional_lunchers) and len(luncher_tokens):
+            member_names = map(lambda l: self.lookup_user(l, ''), luncher_tokens)
+
+            # if member_names contains '', we failed to parse a user
+            try:
+                empty_index = member_names.index('')
+                self.send_message("\"{}\" DOES NOT DINE HERE!".format(luncher_tokens[empty_index]))
+                return
+            except ValueError:
+                # not found
+                pass
+
+            # member_names correctly mapped, continue
+        else:
+            member_names = self.member_names(channel)
+            if len(member_names) == 0:
+                self.send_message("no lunchers to choose from")
+                return
 
         recent_choosers = filter(
                 lambda name: name in member_names,
@@ -284,11 +299,7 @@ class LunchBot(Bot):
 
     def handle_command(self, message, command, rest):
         if command == 'suggest':
-            if len(rest) > 0:
-                self.send_usage_small(message.user)
-                return
-
-            self.suggest(message.channel)
+            self.suggest(message.channel, rest)
 
         elif command == 'visited':
             self.visited(message, rest)
