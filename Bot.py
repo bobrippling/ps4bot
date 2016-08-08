@@ -7,7 +7,7 @@ class Bot():
         self.channel = None
         self.icon_emoji = None
 
-    def lookup_user(self, id):
+    def lookup_user(self, id, alt = None):
         match = re.search('^<@(U[^>]+)>', id)
         if match is not None:
             id = match.group(1)
@@ -15,7 +15,8 @@ class Bot():
         for u in self.slackconnection.server.users:
             if u.id == id:
                 return u.name.encode('utf-8')
-        return id
+
+        return alt if alt is not None else id
 
     def send_message(self, text):
         if self.channel is None:
