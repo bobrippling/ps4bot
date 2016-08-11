@@ -5,6 +5,13 @@ import random
 import datetime
 import re
 
+def uniq(l):
+    r = []
+    for ent in l:
+        if ent not in r:
+            r.append(ent)
+    return r
+
 LUNCHBOT_FNAME_RATINGS = "lunchbot-ratings.txt"
 LUNCHBOT_FNAME_RATEE = "lunchbot-current.txt"
 
@@ -206,11 +213,12 @@ class LunchBot(Bot):
                 self.send_message("no lunchers to choose from")
                 return
 
-        recent_choosers = filter(
-                lambda name: name in member_names,
-                map(
-                    lambda name_time_who: name_time_who[2],
-                    self.get_recents()))
+        recent_choosers = uniq(
+                filter(
+                    lambda name: name in member_names,
+                    map(
+                        lambda name_time_who: name_time_who[2],
+                        self.get_recents())))
 
         if len(recent_choosers) >= len(member_names):
             # we can just choose the last person who picked
