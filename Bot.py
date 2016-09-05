@@ -8,7 +8,7 @@ class Bot():
         self.icon_emoji = None
 
     def lookup_user(self, id, alt = None):
-        match = re.search('^<@(U[^>]+)>', id)
+        match = re.search('^<@(U[^>|]+)(\|[^>]+)?>', id)
         if match is not None:
             id = match.group(1)
 
