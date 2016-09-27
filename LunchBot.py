@@ -4,6 +4,7 @@ from Destination import Destination
 import random
 import datetime
 import re
+import time
 
 def uniq(l):
     r = []
@@ -121,7 +122,7 @@ class LunchBot(Bot):
                 "Common usage:",
                 "  suggest [optional luncher candidates]",
                 "    Suggest a luncher to pick a destination, and a possible destination",
-                "  visited <destination> <luncher>",
+                "  visited --chooser <luncher> [--at YYYY-MM-DD] <destination>",
                 "    Record destination and who chose it",
                 "",
                 "Other commands:",
@@ -242,12 +243,50 @@ class LunchBot(Bot):
 
     def visited(self, message, args):
         tokens = args.split()
-        if len(tokens) < 2:
+
+        destination = None
+        luncher = ''
+        when = ''
+
+        i = 0
+        while i + 1 < len(tokens):
+            if tokens[i] == '--at':
+                i += 1
+                when = tokens[i]
+            elif tokens[i] == '--chooser':
+                i += 1
+                luncher = tokens[i]
+            else:
+                break
+            i += 1
+
+        destination = ' '.join(tokens[i:])
+
+        if len(when) == 0:
+            when_int = int(time.time())
+        else:
+            try:
+                when_date = datetime.datetime.strptime(when, '%Y-%m-%d')
+                when_int = int(time.mktime(when_date.timetuple()))
+            except ValueError:
+                try:
+                    when_int = int(when)
+                except ValueError:
+                    when_int = -1
+                    # nnnnnnnnn
+
+        err = None
+        if len(destination) == 0:
+            err = "empty destination"
+        elif len(luncher) == 0:
+            err = "no luncher"
+        elif when_int == -1:
+            err = "bad time given"
+
+        if err is not None:
+            self.send_message("%s" % err)
             self.send_usage_small(message.user)
             return
-
-        luncher = tokens[-1]
-        destination = ' '.join(tokens[:-1])
 
         # handle both raw names and @names,
         # which are passed to us "<@U...>"
@@ -265,7 +304,7 @@ class LunchBot(Bot):
             self.send_message("destination \"{}\" doesn't exist!".format(destination))
             return
 
-        self.destinations[destination].add_visit(luncher)
+        self.destinations[destination].add_visit(luncher, when_int)
 
         self.luncher_index += 1
         self.send_message(
