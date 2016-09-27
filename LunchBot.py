@@ -122,7 +122,7 @@ class LunchBot(Bot):
                 "  suggest [optional luncher candidates]",
                 "    Suggest a luncher to pick a destination, and a possible destination",
                 "  visited <destination> <luncher>",
-                "    Record destination (doesn't need to be added first) and who chose it",
+                "    Record destination and who chose it",
                 "",
                 "Other commands:",
                 "  add <destination>           - Add an unvisited destination",
@@ -262,7 +262,8 @@ class LunchBot(Bot):
             luncher = resolved_luncher
 
         if not destination in self.destinations.keys():
-            self.add(destination)
+            self.send_message("destination \"{}\" doesn't exist!".format(destination))
+            return
 
         self.destinations[destination].add_visit(luncher)
 
