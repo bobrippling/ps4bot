@@ -32,6 +32,25 @@ class SlackMonitor():
             self.handlers[channel] = []
         self.handlers[channel].append(handler)
 
+    def run_handlers(self, channel, cb):
+        handled = False
+
+        for handler in self.allhandlers:
+            handled = True
+            handler.set_current_channel(channel)
+            cb(handler)
+
+        if channel.name not in self.handlers:
+            return
+
+        handled = True
+
+        for handler in self.handlers[channel.name]:
+            handler.set_current_channel(channel)
+            cb(handler)
+
+        return handled
+
     def handle_slack_messages(self):
         handled = False
 
@@ -60,20 +79,8 @@ class SlackMonitor():
             bot_id = ENCODE(bot_id)
 
             message = SlackMessage(text, user, channel, reply_to, bot_id)
+            handled = self.run_handlers(channel, lambda handler: handler.handle_message(message))
 
-            for handler in self.allhandlers:
-                handled = True
-                handler.set_current_channel(channel)
-                handler.handle_message(message)
-
-            if channel.name not in self.handlers:
-                continue
-
-            handled = True
-
-            for handler in self.handlers[channel.name]:
-                handler.set_current_channel(channel)
-                handler.handle_message(message)
 
         return handled
 
