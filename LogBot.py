@@ -13,7 +13,7 @@ class LogBot(Bot):
     def should_log_message(self, message):
         return True
 
-    def append(self, chan, user, text):
+    def append(self, chan, text):
         try:
             os.makedirs(LOG_DIR)
         except OSError:
@@ -24,7 +24,7 @@ class LogBot(Bot):
 
         fname = LOG_DIR + '/' + self.lookup_user(chan) + '.txt'
         with open(fname, 'a') as f:
-            print >>f, "{}: {}: {}".format(now_str, user, text)
+            print >>f, "{}: {}".format(now_str, text)
 
     def replace_text(self, text):
         def user_replace(match):
@@ -45,6 +45,18 @@ class LogBot(Bot):
         text = self.replace_text(message.text)
 
         try:
-            self.append(chan, user, text)
+            self.append(chan, "{}: {}".format(user, text))
+        except IOError as e:
+            print >>sys.stderr, "couldn't save message: %s" % e
+
+    def handle_edit(self, edit):
+        chan = edit.channel.name
+        user = self.lookup_user(edit.user)
+        oldtext = self.replace_text(edit.oldtext)
+        newtext = self.replace_text(edit.newtext)
+
+        try:
+            self.append(chan, "{} --- {}".format(user, oldtext))
+            self.append(chan, "{} +++ {}".format(user, newtext))
         except IOError as e:
             print >>sys.stderr, "couldn't save message: %s" % e
