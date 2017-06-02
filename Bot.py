@@ -37,6 +37,9 @@ class Bot():
     def handle_message(self, message):
         return False # abstract
 
+    def handle_edit(self, edit):
+        return False # abstract
+
     def set_current_channel(self, channel):
         self.channel = channel
 

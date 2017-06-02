@@ -2,6 +2,7 @@ import time
 import websocket
 import socket
 from SlackMessage import SlackMessage
+from SlackEdit import SlackEdit
 
 def ENCODE(s):
     if s is None:
@@ -70,7 +71,7 @@ class SlackMonitor():
                     channel = i
                     break
 
-            if not text or not user or not channel:
+            if not channel:
                 continue
 
             # anything from slack needs to be explicitly encoded as utf-8
@@ -78,9 +79,21 @@ class SlackMonitor():
             user = ENCODE(user)
             bot_id = ENCODE(bot_id)
 
-            message = SlackMessage(text, user, channel, reply_to, bot_id)
-            handled = self.run_handlers(channel, lambda handler: handler.handle_message(message))
+            handled = False
 
+            if text and user:
+                message = SlackMessage(text, user, channel, reply_to, bot_id)
+                handled = self.run_handlers(channel, lambda handler: handler.handle_message(message))
+            elif slack_message.get("subtype") == 'message_changed':
+                new_message = slack_message.get("message")
+                new_message_text = new_message.get("text")
+                user = new_message.get("user")
+
+                old_message = slack_message.get("previous_message")
+                old_message_text = old_message.get("text")
+
+                edit = SlackEdit(user, channel, old_message_text, new_message_text)
+                handled = self.run_handlers(channel, lambda handler: handler.handle_edit(edit))
 
         return handled
 
