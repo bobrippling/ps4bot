@@ -79,8 +79,6 @@ class SlackMonitor():
             user = ENCODE(user)
             bot_id = ENCODE(bot_id)
 
-            handled = False
-
             if text and user:
                 message = SlackMessage(text, user, channel, reply_to, bot_id)
                 handled = self.run_handlers(channel, lambda handler: handler.handle_message(message))
