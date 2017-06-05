@@ -87,6 +87,9 @@ class SlackMonitor():
                 new_message_text = new_message.get("text")
                 user = new_message.get("user")
 
+                if not user:
+                    continue
+
                 old_message = slack_message.get("previous_message")
                 old_message_text = old_message.get("text")
 
