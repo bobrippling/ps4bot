@@ -92,6 +92,10 @@ class SlackMonitor():
                 old_message = slack_message.get("previous_message")
                 old_message_text = old_message.get("text")
 
+                new_message_text = ENCODE(new_message_text)
+                old_message_text = ENCODE(old_message_text)
+                user = ENCODE(user)
+
                 edit = SlackEdit(user, channel, old_message_text, new_message_text)
                 handled = self.run_handlers(channel, lambda handler: handler.handle_edit(edit))
 
