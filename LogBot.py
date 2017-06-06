@@ -55,6 +55,9 @@ class LogBot(Bot):
         oldtext = self.replace_text(edit.oldtext)
         newtext = self.replace_text(edit.newtext)
 
+        if oldtext == newtext:
+            return
+
         try:
             self.append(chan, "{} --- {}".format(user, oldtext))
             self.append(chan, "{} +++ {}".format(user, newtext))
