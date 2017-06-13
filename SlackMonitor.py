@@ -91,6 +91,8 @@ class SlackMonitor():
                     continue
 
                 old_message = slack_message.get("previous_message")
+                if old_message is None:
+                    continue
                 old_message_text = old_message.get("text")
 
                 new_message_text = ENCODE(new_message_text)
