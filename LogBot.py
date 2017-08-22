@@ -5,6 +5,7 @@ import time
 import re
 
 LOG_DIR = "logs"
+LOG_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 class LogBot(Bot):
     def __init__(self, slackconnection, botname):
@@ -20,7 +21,7 @@ class LogBot(Bot):
             pass
 
         when = time.localtime()
-        now_str = time.strftime('%Y-%m-%d %H:%M:%S', when)
+        now_str = time.strftime(LOG_TIME_FORMAT, when)
 
         fname = LOG_DIR + '/' + self.lookup_user(chan) + '.txt'
         with open(fname, 'a') as f:
