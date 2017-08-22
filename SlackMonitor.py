@@ -3,6 +3,7 @@ import websocket
 import socket
 from SlackMessage import SlackMessage
 from SlackEdit import SlackEdit
+from SlackReaction import SlackReaction
 
 def ENCODE(s):
     if s is None:
@@ -52,6 +53,29 @@ class SlackMonitor():
 
         return handled
 
+    def handle_reaction(self, slack_message, user):
+        item = slack_message.get('item')
+
+        emoji = ENCODE(slack_message.get('reaction'))
+        reacting_user = ENCODE(user)
+        original_user = ENCODE(slack_message.get('item_user'))
+
+        original_msg_time = item.get('ts')
+        channel_id = item.get('channel')
+        channel = self.lookup_channel(channel_id)
+        if channel is None:
+            return
+
+        reaction = SlackReaction(emoji, reacting_user, original_user, channel, original_msg_time)
+        handled = self.run_handlers(channel, lambda handler: handler.handle_reaction(reaction))
+        return handled
+
+    def lookup_channel(self, channel_id):
+        for i in self.slackconnection.server.channels:
+            if i.id == channel_id:
+                return i
+        return None
+
     def handle_slack_messages(self):
         handled = False
 
@@ -65,12 +89,11 @@ class SlackMonitor():
             reply_to = slack_message.get("reply_to")
             bot_id = slack_message.get("bot_id")
 
-            channel = channel_id # safe fallback
-            for i in self.slackconnection.server.channels:
-                if i.id == channel_id:
-                    channel = i
-                    break
+            if slack_message.get("type") == "reaction_added":
+                handled = self.handle_reaction(slack_message, user)
+                continue
 
+            channel = self.lookup_channel(channel_id)
             if not channel:
                 continue
 

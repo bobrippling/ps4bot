@@ -50,6 +50,17 @@ class LogBot(Bot):
         except IOError as e:
             print >>sys.stderr, "couldn't save message: %s" % e
 
+    def handle_reaction(self, reaction):
+        chan = reaction.channel.name
+        reacting_user = self.lookup_user(reaction.reacting_user)
+        original_user = self.lookup_user(reaction.original_user)
+
+        self.append(chan, "{} from {} @ {}'s message ({})".format(
+            reaction.emoji,
+            reacting_user,
+            original_user,
+            self.format_slack_time(LOG_TIME_FORMAT, float(reaction.original_msg_time))))
+
     def handle_edit(self, edit):
         chan = edit.channel.name
         user = self.lookup_user(edit.user)

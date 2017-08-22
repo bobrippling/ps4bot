@@ -1,4 +1,5 @@
 import re
+import time
 
 class Bot():
     def __init__(self, slackconnection, botname):
@@ -40,6 +41,9 @@ class Bot():
     def handle_edit(self, edit):
         return False # abstract
 
+    def handle_reaction(self, reaction):
+        return False # abstract
+
     def set_current_channel(self, channel):
         self.channel = channel
 
@@ -48,3 +52,7 @@ class Bot():
 
     def idle(self):
         pass
+
+    def format_slack_time(self, fmt, when):
+        tm = time.localtime(when)
+        return time.strftime(fmt, tm)
