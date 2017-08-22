@@ -19,7 +19,7 @@ class LogBot(Bot):
         except OSError:
             pass
 
-        when = time.gmtime()
+        when = time.localtime()
         now_str = time.strftime('%Y-%m-%d %H:%M:%S', when)
 
         fname = LOG_DIR + '/' + self.lookup_user(chan) + '.txt'
