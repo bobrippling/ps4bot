@@ -14,14 +14,13 @@ class LogBot(Bot):
     def should_log_message(self, message):
         return True
 
-    def append(self, chan, text):
+    def append(self, chan, text, when):
         try:
             os.makedirs(LOG_DIR)
         except OSError:
             pass
 
-        when = time.localtime()
-        now_str = time.strftime(LOG_TIME_FORMAT, when)
+        now_str = time.strftime(LOG_TIME_FORMAT, time.localtime(when))
 
         fname = LOG_DIR + '/' + self.lookup_user(chan) + '.txt'
         with open(fname, 'a') as f:
@@ -46,7 +45,7 @@ class LogBot(Bot):
         text = self.replace_text(message.text)
 
         try:
-            self.append(chan, "{}: {}".format(user, text))
+            self.append(chan, "{}: {}".format(user, text), message.when)
         except IOError as e:
             print >>sys.stderr, "couldn't save message: %s" % e
 
@@ -59,7 +58,8 @@ class LogBot(Bot):
             reaction.emoji,
             reacting_user,
             original_user,
-            self.format_slack_time(LOG_TIME_FORMAT, float(reaction.original_msg_time))))
+            self.format_slack_time(LOG_TIME_FORMAT, float(reaction.original_msg_time))),
+            reaction.when)
 
     def handle_edit(self, edit):
         chan = edit.channel.name
@@ -71,7 +71,7 @@ class LogBot(Bot):
             return
 
         try:
-            self.append(chan, "{} --- {}".format(user, oldtext))
-            self.append(chan, "{} +++ {}".format(user, newtext))
+            self.append(chan, "{} --- {}".format(user, oldtext), edit.when)
+            self.append(chan, "{} +++ {}".format(user, newtext), edit.when)
         except IOError as e:
             print >>sys.stderr, "couldn't save message: %s" % e

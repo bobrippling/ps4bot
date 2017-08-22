@@ -53,7 +53,7 @@ class SlackMonitor():
 
         return handled
 
-    def handle_reaction(self, slack_message, user):
+    def handle_reaction(self, slack_message, user, when):
         item = slack_message.get('item')
 
         emoji = ENCODE(slack_message.get('reaction'))
@@ -66,7 +66,7 @@ class SlackMonitor():
         if channel is None:
             return
 
-        reaction = SlackReaction(emoji, reacting_user, original_user, channel, original_msg_time)
+        reaction = SlackReaction(emoji, reacting_user, original_user, channel, original_msg_time, when)
         handled = self.run_handlers(channel, lambda handler: handler.handle_reaction(reaction))
         return handled
 
@@ -88,9 +88,13 @@ class SlackMonitor():
             channel_id = slack_message.get("channel")
             reply_to = slack_message.get("reply_to")
             bot_id = slack_message.get("bot_id")
+            try:
+                when = float(ENCODE(slack_message.get("ts")))
+            except (TypeError, ValueError):
+                when = 0
 
             if slack_message.get("type") == "reaction_added":
-                handled = self.handle_reaction(slack_message, user)
+                handled = self.handle_reaction(slack_message, user, when)
                 continue
 
             channel = self.lookup_channel(channel_id)
@@ -103,7 +107,7 @@ class SlackMonitor():
             bot_id = ENCODE(bot_id)
 
             if text and user:
-                message = SlackMessage(text, user, channel, reply_to, bot_id)
+                message = SlackMessage(text, user, channel, reply_to, bot_id, when)
                 handled = self.run_handlers(channel, lambda handler: handler.handle_message(message))
             elif slack_message.get("subtype") == 'message_changed':
                 new_message = slack_message.get("message")
@@ -122,7 +126,7 @@ class SlackMonitor():
                 old_message_text = ENCODE(old_message_text)
                 user = ENCODE(user)
 
-                edit = SlackEdit(user, channel, old_message_text, new_message_text)
+                edit = SlackEdit(user, channel, old_message_text, new_message_text, when)
                 handled = self.run_handlers(channel, lambda handler: handler.handle_edit(edit))
 
         return handled
