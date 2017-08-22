@@ -9,6 +9,7 @@ from DoodleBot import DoodleBot
 from SwiftBot import SwiftBot
 from LogBot import LogBot
 from ShutupBot import ShutupBot
+from SportBot import SportBot
 from SlackMonitor import SlackMonitor
 
 def usage():
@@ -31,6 +32,7 @@ bot_names_to_classes = {
         "swiftbot": SwiftBot,
         "logbot": LogBot,
         "shutupbot": ShutupBot,
+        "sportbot": SportBot,
 }
 
 # global slack connection
