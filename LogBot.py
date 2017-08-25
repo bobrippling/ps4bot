@@ -3,6 +3,7 @@ import os
 import datetime
 import time
 import re
+import sys
 
 LOG_DIR = "logs"
 LOG_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
