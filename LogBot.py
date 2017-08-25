@@ -53,7 +53,7 @@ class LogBot(Bot):
     def handle_reaction(self, reaction):
         chan = reaction.channel.name
         reacting_user = self.lookup_user(reaction.reacting_user)
-        original_user = self.lookup_user(reaction.original_user)
+        original_user = self.lookup_user(reaction.original_user) if reaction.original_user is not None else '<no-one>'
 
         self.append(chan, "{} from {} @ {}'s message ({})".format(
             reaction.emoji,
