@@ -43,7 +43,7 @@ class SlackMonitor():
             cb(handler)
 
         if channel.name not in self.handlers:
-            return
+            return handled
 
         handled = True
 
