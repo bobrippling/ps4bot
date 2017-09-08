@@ -1,3 +1,4 @@
+import sys
 import time
 import websocket
 import socket
@@ -34,13 +35,19 @@ class SlackMonitor():
             self.handlers[channel] = []
         self.handlers[channel].append(handler)
 
+    def run_handler(self, handler, cb):
+        try:
+            cb(handler)
+        except TypeError as e:
+            print >>sys.stderr, '\7error running handler "{}": {}'.format(handler.botname, e)
+
     def run_handlers(self, channel, cb):
         handled = False
 
         for handler in self.allhandlers:
             handled = True
             handler.set_current_channel(channel)
-            cb(handler)
+            self.run_handler(handler, cb)
 
         if channel.name not in self.handlers:
             return handled
@@ -49,7 +56,7 @@ class SlackMonitor():
 
         for handler in self.handlers[channel.name]:
             handler.set_current_channel(channel)
-            cb(handler)
+            self.run_handler(handler, cb)
 
         return handled
 

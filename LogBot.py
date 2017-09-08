@@ -81,4 +81,4 @@ class LogBot(Bot):
             print >>sys.stderr, "couldn't save edit: ", e
             print >>sys.stderr, "edit.oldtext:", edit.oldtext
             print >>sys.stderr, "edit.newtext:", edit.newtext
-            print >>sys.stderr, "\7"
+            raise e
