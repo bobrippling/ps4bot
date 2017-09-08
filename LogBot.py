@@ -64,6 +64,9 @@ class LogBot(Bot):
 
     def handle_edit(self, edit):
         try:
+            if edit.oldtext is None:
+                return # seems to be a slack bug with image uploading
+
             chan = edit.channel.name
             user = self.lookup_user(edit.user)
             oldtext = self.replace_text(edit.oldtext)
