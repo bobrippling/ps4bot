@@ -63,16 +63,22 @@ class LogBot(Bot):
             reaction.when)
 
     def handle_edit(self, edit):
-        chan = edit.channel.name
-        user = self.lookup_user(edit.user)
-        oldtext = self.replace_text(edit.oldtext)
-        newtext = self.replace_text(edit.newtext)
-
-        if oldtext == newtext:
-            return
-
         try:
-            self.append(chan, "{} --- {}".format(user, oldtext), edit.when)
-            self.append(chan, "{} +++ {}".format(user, newtext), edit.when)
-        except IOError as e:
-            print >>sys.stderr, "couldn't save message: %s" % e
+            chan = edit.channel.name
+            user = self.lookup_user(edit.user)
+            oldtext = self.replace_text(edit.oldtext)
+            newtext = self.replace_text(edit.newtext)
+
+            if oldtext == newtext:
+                return
+
+            try:
+                self.append(chan, "{} --- {}".format(user, oldtext), edit.when)
+                self.append(chan, "{} +++ {}".format(user, newtext), edit.when)
+            except IOError as e:
+                print >>sys.stderr, "couldn't save message: %s" % e
+        except TypeError as e:
+            print >>sys.stderr, "couldn't save edit: ", e
+            print >>sys.stderr, "edit.oldtext:", edit.oldtext
+            print >>sys.stderr, "edit.newtext:", edit.newtext
+            print >>sys.stderr, "\7"
