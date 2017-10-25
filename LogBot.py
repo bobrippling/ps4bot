@@ -24,8 +24,19 @@ class LogBot(Bot):
         now_str = time.strftime(LOG_TIME_FORMAT, time.localtime(when))
 
         fname = LOG_DIR + '/' + self.lookup_user(chan) + '.txt'
-        with open(fname, 'a') as f:
-            print >>f, "{}: {}".format(now_str, text)
+        tries = 3
+
+        while True:
+            try:
+                with open(fname, 'a') as f:
+                    print >>f, "{}: {}".format(now_str, text)
+                break
+            except IOError as e:
+                if tries > 0:
+                    print >>sys.stderr, "couldn't save message: %s, retrying in 3..." % e
+                    time.sleep(3)
+                else:
+                    print >>sys.stderr, "\7couldn't save message: %s, giving up" % e
 
     def replace_text(self, text):
         def user_replace(match):
@@ -45,10 +56,7 @@ class LogBot(Bot):
         user = self.lookup_user(message.user)
         text = self.replace_text(message.text)
 
-        try:
-            self.append(chan, "{}: {}".format(user, text), message.when)
-        except IOError as e:
-            print >>sys.stderr, "couldn't save message: %s" % e
+        self.append(chan, "{}: {}".format(user, text), message.when)
 
     def handle_reaction(self, reaction):
         chan = reaction.channel.name
@@ -75,11 +83,8 @@ class LogBot(Bot):
             if oldtext == newtext:
                 return
 
-            try:
-                self.append(chan, "{} --- {}".format(user, oldtext), edit.when)
-                self.append(chan, "{} +++ {}".format(user, newtext), edit.when)
-            except IOError as e:
-                print >>sys.stderr, "couldn't save message: %s" % e
+            self.append(chan, "{} --- {}".format(user, oldtext), edit.when)
+            self.append(chan, "{} +++ {}".format(user, newtext), edit.when)
         except TypeError as e:
             print >>sys.stderr, "couldn't save edit: ", e
             print >>sys.stderr, "edit.oldtext:", edit.oldtext
