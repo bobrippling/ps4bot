@@ -4,17 +4,45 @@ from slackclient import SlackClient
 import sys
 import select
 
-if len(sys.argv) != 3:
-    print >>sys.stderr, "Usage: {} [channel | --all] botname".format(sys.argv[0])
-    sys.exit(2)
+#if len(sys.argv) != 3:
+#    print >>sys.stderr, "Usage: {} [channel | --all] botname".format(sys.argv[0])
+#    sys.exit(2)
 
-channel_name = sys.argv[1]
-name = sys.argv[2]
+#channel_name = sys.argv[1]
+#name = sys.argv[2]
 
-conn = SlackClient("<redacted>")
+TOKEN_SL = "<redacted>"
+#TOKEN_HS = ""
+
+conn = SlackClient(TOKEN_SL)
 if not conn.rtm_connect():
     print >>sys.stderr, "couldn't connect"
     sys.exit(1)
+
+#for i in conn.server.channels:
+#    if i.id == i.name:
+#        print "private: %s"
+#        ret = conn.api_call("groups.info", channel = i.id)
+#        print "ret = "
+#        print ret
+
+#conn.api_call(
+#        "chat.postMessage",
+#        channel = 'flat-antics',
+#        text = 'Roll success',
+#        username = 'Almighty Rolla',
+#        as_user = False)
+
+#s = sys.argv[1]
+
+#for u in conn.server.users:
+#    if s in u.name or s in u.real_name:
+#        print "found? {} {} {}".format(u.id, u.name, u.real_name)
+#
+#sys.exit(0)
+#while True:
+#    pass
+# ------------------------------------------------------------
 
 chan = None
 
@@ -55,6 +83,11 @@ def find_user(id):
 
 def handle_slack():
     for slack_message in conn.rtm_read():
+        print "got slack message, type:"
+        print slack_message.get('type')
+        print slack_message
+        continue
+
         if slack_message.get("type") is None:
             continue
 
@@ -94,7 +127,7 @@ while True:
     ready = select.select([sys.stdin, conn.server.websocket], [], [])
     ready_in = ready[0]
 
-    if sys.stdin in ready_in:
-        handle_stdin()
+    #if sys.stdin in ready_in:
+    #    handle_stdin()
     if conn.server.websocket in ready_in:
         handle_slack()
