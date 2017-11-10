@@ -33,8 +33,9 @@ class LogBot(Bot):
                 break
             except IOError as e:
                 if tries > 0:
-                    print >>sys.stderr, "couldn't save message: %s, retrying in 3..." % e
-                    time.sleep(3)
+                    delay = 5
+                    print >>sys.stderr, "couldn't save message: %s, retrying in %d..." % (e, delay)
+                    time.sleep(delay)
                 else:
                     print >>sys.stderr, "\7couldn't save message: %s, giving up" % e
 
