@@ -64,12 +64,15 @@ class LogBot(Bot):
         reacting_user = self.lookup_user(reaction.reacting_user)
         original_user = self.lookup_user(reaction.original_user) if reaction.original_user is not None else '<no-one>'
 
-        self.append(chan, "{} from {} @ {}'s message ({})".format(
-            reaction.emoji,
-            reacting_user,
-            original_user,
-            self.format_slack_time(LOG_TIME_FORMAT, float(reaction.original_msg_time))),
-            reaction.when)
+        self.append(
+                chan,
+                "{} from {} @ {}'s message ({})".format(
+                    reaction.emoji,
+                    reacting_user,
+                    original_user,
+                    self.format_slack_time(LOG_TIME_FORMAT, float(reaction.original_msg_time))
+                ),
+                reaction.when)
 
     def handle_edit(self, edit):
         try:
