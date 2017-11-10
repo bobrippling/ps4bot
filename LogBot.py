@@ -57,7 +57,17 @@ class LogBot(Bot):
         user = self.lookup_user(message.user)
         text = self.replace_text(message.text)
 
-        self.append(chan, "{}: {}".format(user, text), message.when)
+        if message.thread_ts:
+            self.append(
+                    chan,
+                    "thread {}, {}: {}".format(
+                        self.format_slack_time(LOG_TIME_FORMAT, float(message.thread_ts)),
+                        user,
+                        text
+                    ),
+                    message.when)
+        else:
+            self.append(chan, "{}: {}".format(user, text), message.when)
 
     def handle_reaction(self, reaction):
         chan = reaction.channel.name
