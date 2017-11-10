@@ -95,6 +95,7 @@ class SlackMonitor():
             channel_id = slack_message.get("channel")
             reply_to = slack_message.get("reply_to")
             bot_id = slack_message.get("bot_id")
+            thread_ts = slack_message.get("thread_ts")
             try:
                 when = float(ENCODE(slack_message.get("ts")))
             except (TypeError, ValueError):
@@ -114,7 +115,7 @@ class SlackMonitor():
             bot_id = ENCODE(bot_id)
 
             if text and user:
-                message = SlackMessage(text, user, channel, reply_to, bot_id, when)
+                message = SlackMessage(text, user, channel, reply_to, bot_id, when, thread_ts)
                 handled = self.run_handlers(channel, lambda handler: handler.handle_message(message))
             elif slack_message.get("subtype") == 'message_changed':
                 new_message = slack_message.get("message")
