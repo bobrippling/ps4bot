@@ -24,7 +24,7 @@ class LogBot(Bot):
         now_str = time.strftime(LOG_TIME_FORMAT, time.localtime(when))
 
         fname = LOG_DIR + '/' + self.lookup_user(chan) + '.txt'
-        tries = 3
+        tries = 5
 
         while True:
             try:
