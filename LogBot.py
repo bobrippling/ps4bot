@@ -36,6 +36,7 @@ class LogBot(Bot):
                     delay = 5
                     print >>sys.stderr, "couldn't save message: %s, retrying in %d..." % (e, delay)
                     time.sleep(delay)
+                    tries -= 1
                 else:
                     print >>sys.stderr, "\7couldn't save message: %s, giving up" % e
 
