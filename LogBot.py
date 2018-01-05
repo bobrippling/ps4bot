@@ -7,6 +7,7 @@ import sys
 
 LOG_DIR = "logs"
 LOG_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+MAX_RETRIES = 5
 
 class LogBot(Bot):
     def __init__(self, slackconnection, botname):
@@ -24,12 +25,14 @@ class LogBot(Bot):
         now_str = time.strftime(LOG_TIME_FORMAT, time.localtime(when))
 
         fname = LOG_DIR + '/' + self.lookup_user(chan) + '.txt'
-        tries = 5
+        tries = MAX_RETRIES
 
         while True:
             try:
                 with open(fname, 'a') as f:
                     print >>f, "{}: {}".format(now_str, text)
+                if tries != MAX_RETRIES:
+                    print >>sys.stderr, "retry success"
                 break
             except IOError as e:
                 if tries > 0:
