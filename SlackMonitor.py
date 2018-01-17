@@ -7,10 +7,15 @@ from SlackEdit import SlackEdit
 from SlackReaction import SlackReaction
 from SlackDeletion import SlackDeletion
 
+MSG_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+
 def ENCODE(s):
     if s is None:
         return None
     return s.encode('utf-8')
+
+def log(s):
+    print time.strftime(MSG_TIME_FORMAT, time.localtime(time.time())), s
 
 class SlackMonitorConnectError():
     pass
@@ -152,22 +157,26 @@ class SlackMonitor():
         return handled
 
     def guard(self, fn):
-        reconnect = False
-        try:
-            return fn()
-        except websocket._exceptions.WebSocketConnectionClosedException:
-            # slack timeout, reconnect
-            reconnect = True
-        except socket.error:
-            reconnect = True
-
-        while reconnect:
+        while True:
+            reconnect = False
             try:
-                self.connect()
-                reconnect = False
-            except SlackMonitorConnectError:
-                print "reconnect failed, sleeping..."
-                time.sleep(1)
+                return fn()
+            except websocket._exceptions.WebSocketConnectionClosedException as e:
+                # slack timeout, reconnect
+                reconnect = True
+                log("websocket error: {}".format(e))
+            except socket.error as e:
+                reconnect = True
+                log("socket error: {}".format(e))
+
+            while reconnect:
+                try:
+                    self.connect()
+                    reconnect = False
+                    log("reconnected")
+                except SlackMonitorConnectError:
+                    log("reconnect failed, sleeping...")
+                    time.sleep(1)
 
 
     def run(self):
