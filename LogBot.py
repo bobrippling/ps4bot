@@ -88,6 +88,18 @@ class LogBot(Bot):
                 ),
                 reaction.when)
 
+    def handle_deletion(self, deletion):
+        chan = deletion.channel.name
+        user = self.lookup_user(deletion.user)
+
+        self.append(
+                chan,
+                "{} ------ deletion of: {}: {}".format(
+                    user,
+                    self.format_slack_time(LOG_TIME_FORMAT, float(deletion.deleted_when)),
+                    deletion.deleted_text),
+                deletion.when)
+
     def handle_edit(self, edit):
         try:
             if edit.oldtext is None:

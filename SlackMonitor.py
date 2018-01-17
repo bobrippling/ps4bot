@@ -5,6 +5,7 @@ import socket
 from SlackMessage import SlackMessage
 from SlackEdit import SlackEdit
 from SlackReaction import SlackReaction
+from SlackDeletion import SlackDeletion
 
 def ENCODE(s):
     if s is None:
@@ -77,6 +78,10 @@ class SlackMonitor():
         handled = self.run_handlers(channel, lambda handler: handler.handle_reaction(reaction))
         return handled
 
+    def handle_deletion(self, deleted_ts, when, user, channel, deleted_text):
+        deletion = SlackDeletion(deleted_ts, when, user, channel, deleted_text)
+        return self.run_handlers(channel, lambda handler: handler.handle_deletion(deletion))
+
     def lookup_channel(self, channel_id):
         for i in self.slackconnection.server.channels:
             if i.id == channel_id:
@@ -107,6 +112,13 @@ class SlackMonitor():
 
             channel = self.lookup_channel(channel_id)
             if not channel:
+                continue
+
+            if slack_message.get("subtype") == "message_deleted":
+                deleted_ts = ENCODE(slack_message.get("deleted_ts"))
+                user = ENCODE(slack_message.get("previous_message").get("user"))
+                deleted_text = ENCODE(slack_message.get("previous_message").get("text"))
+                handled = self.handle_deletion(deleted_ts, when, user, channel, deleted_text)
                 continue
 
             # anything from slack needs to be explicitly encoded as utf-8
