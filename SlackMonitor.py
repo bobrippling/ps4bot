@@ -123,9 +123,13 @@ class SlackMonitor():
 
             if slack_message.get("subtype") == "message_deleted":
                 deleted_ts = ENCODE(slack_message.get("deleted_ts"))
-                user = ENCODE(slack_message.get("previous_message").get("user"))
-                deleted_text = ENCODE(slack_message.get("previous_message").get("text"))
-                handled = self.handle_deletion(deleted_ts, when, user, channel, deleted_text)
+                previous_message = slack_message.get("previous_message")
+                if previous_message is not None:
+                    user = ENCODE(previous_message.get("user"))
+                    deleted_text = ENCODE(previous_message.get("text"))
+                    handled = self.handle_deletion(deleted_ts, when, user, channel, deleted_text)
+                else:
+                    log("message_deleted without previous_message: {}".format(slack_message))
                 continue
 
             # anything from slack needs to be explicitly encoded as utf-8
