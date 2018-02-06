@@ -2,6 +2,7 @@ import sys
 import time
 import websocket
 import socket
+import traceback
 from SlackMessage import SlackMessage
 from SlackEdit import SlackEdit
 from SlackReaction import SlackReaction
@@ -46,6 +47,7 @@ class SlackMonitor():
             cb(handler)
         except TypeError as e:
             print >>sys.stderr, '\7error running handler "{}": {}'.format(handler.botname, e)
+            traceback.print_exc()
 
     def run_handlers(self, channel, cb):
         handled = False
