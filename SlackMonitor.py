@@ -126,8 +126,11 @@ class SlackMonitor():
                 previous_message = slack_message.get("previous_message")
                 if previous_message is not None:
                     user = ENCODE(previous_message.get("user"))
-                    deleted_text = ENCODE(previous_message.get("text"))
-                    handled = self.handle_deletion(deleted_ts, when, user, channel, deleted_text)
+                    if user is not None:
+                        deleted_text = ENCODE(previous_message.get("text"))
+                        handled = self.handle_deletion(deleted_ts, when, user, channel, deleted_text)
+                    else:
+                        log("user is None in deletion: {}".format(slack_message))
                 else:
                     log("message_deleted without previous_message: {}".format(slack_message))
                 continue
