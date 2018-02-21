@@ -61,6 +61,9 @@ class Bot():
     def idle(self):
         pass
 
+    def timeout(self):
+        pass
+
     def format_slack_time(self, fmt, when):
         tm = time.localtime(when)
         return time.strftime(fmt, tm)

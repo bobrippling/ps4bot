@@ -27,6 +27,7 @@ class SlackMonitor():
         self.handlers = dict()
         self.allhandlers = []
         self.idle_timeout = 5 * 60 # seconds
+        self.timeout_timeout = 5 # seconds
         self.connect()
 
     def connect(self):
@@ -190,6 +191,7 @@ class SlackMonitor():
 
     def run(self):
         idle_time = 0
+        timeout_time = 0
         while True:
             if self.guard(lambda: self.handle_slack_messages()):
                 # handled something, reset idle time
@@ -197,10 +199,14 @@ class SlackMonitor():
 
             time.sleep(0.5)
             idle_time += 0.5
+            timeout_time += 0.5
 
             if idle_time >= self.idle_timeout:
                 self.guard(lambda: self.iterate_bots(lambda bot: bot.idle() if bot.channel is not None else None))
                 idle_time = 0
+            if timeout_time >= self.timeout_timeout:
+                self.guard(lambda: self.iterate_bots(lambda bot: bot.timeout()))
+                timeout_time = 0
 
     def iterate_bots(self, fn):
         for channel in self.handlers:
