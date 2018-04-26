@@ -1,7 +1,7 @@
 from Bot import Bot
 
 # FIXME: hardcoded
-memes_channel = "meme-bot"
+memes_channels = ["meme-bot", "dank-memes"]
 
 class MemeBot(Bot):
     def __init__(self, slackconnection, botname):
@@ -36,7 +36,7 @@ class MemeBot(Bot):
         self.send_message(reply)
 
     def handle_message(self, message):
-        if message.channel == memes_channel:
+        if message.channel in memes_channels:
             return
 
         text = message.text
@@ -59,6 +59,7 @@ class MemeBot(Bot):
     def timeout(self):
         if len(self.memes):
             meme = self.memes.pop()
-            self.send_message(meme, memes_channel)
+            for chan in memes_channels:
+                self.send_message(meme, chan)
 
         self.save()
