@@ -20,6 +20,9 @@ class Game:
         self.description = desc
 
 
+    def pretty(self):
+        return "{0} {1}".format(when_str(self.when), self.description)
+
 class PS4Bot(Bot):
     def __init__(self, slackconnection, botname):
         Bot.__init__(self, slackconnection, botname)
@@ -91,7 +94,7 @@ class PS4Bot(Bot):
         self.send_message("{0} game{1}:\n{2}".format(
             len(self.games),
             "" if len(self.games) == 1 else "s",
-            "\n".join(["{0} {1}".format(g.when_str(), g.description) for g in self.games])
+            "\n".join([g.pretty() for g in self.games])
         ))
 
     def handle_command(self, message, command, rest):
