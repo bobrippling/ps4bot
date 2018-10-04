@@ -11,13 +11,14 @@ def parse_time(s):
 
     return datetime.datetime.today().replace(hour = hour, minute = min, second = 0, microsecond = 0)
 
+def when_str(when):
+    return when.strftime("%H:%M")
+
 class Game:
     def __init__(self, when, desc = ""):
         self.when = when
         self.description = desc
 
-    def when_str(self):
-        return self.when.strftime("%H:%M")
 
 class PS4Bot(Bot):
     def __init__(self, slackconnection, botname):
@@ -79,7 +80,7 @@ class PS4Bot(Bot):
         game = self.find_time(when)
         if game:
             self.send_message("there's already a game at {0}{1}. rip :candle:".format(
-                game.when_str(),
+                when_str(game.when),
                 ": {0}".format(game.description) if game.description else ""))
             return
 
