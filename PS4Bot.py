@@ -1,6 +1,8 @@
 from Bot import Bot
 import datetime
 
+MAX_PLAYERS = 4
+
 def parse_time(s):
     time_parts = s.split(":")
     if len(time_parts) != 2:
@@ -18,6 +20,7 @@ class Game:
     def __init__(self, when, desc = ""):
         self.when = when
         self.description = desc
+        self.players = []
 
     def contains(self, when):
         duration = datetime.timedelta(minutes = 30)
@@ -36,7 +39,10 @@ class Game:
 
 
     def pretty(self):
-        return "{0} {1}".format(when_str(self.when), self.description)
+        return "{0} {1} {2}".format(
+                when_str(self.when),
+                self.description,
+                ", ".join(map(lambda p: "<@{0}>".format(p), self.players)))
 
 class PS4Bot(Bot):
     def __init__(self, slackconnection, botname):
@@ -53,7 +59,7 @@ class PS4Bot(Bot):
         self.send_message(message)
 
     def send_usage_small(self, to_user):
-        self.send_message("EH?!? What you on about <@{}>? (try `ps4bot hew`)".format(to_user))
+        self.send_message("EH?!? What you on about <@{}>? (try `ps4bot hew/join/games`)".format(to_user))
 
     def send_hew_usage(self):
         self.send_message("howay man! that's not how you do it, it's `hew <time> <description>`")
@@ -98,11 +104,37 @@ class PS4Bot(Bot):
             "\n".join([g.pretty() for g in self.games])
         ))
 
+    def join(self, message, rest):
+        try:
+            when = parse_time(rest)
+        except ValueError:
+            self.send_message("howay! `join <game-time>`")
+            return
+
+        found = None
+        for g in self.games:
+            if g.contains(when):
+                found = g
+                break
+
+        if not found:
+            self.send_message("<@{0}>, there isnae game at {1}".format(message.user, when))
+            return
+
+        if len(g.players) >= MAX_PLAYERS:
+            self.send_message("game's full, rip <@{0}>".format(message.user))
+            return
+
+        g.players.append(message.user)
+        self.send_message("<@{0}> has entered the game".format(message.user))
+
     def handle_command(self, message, command, rest):
         if command == 'hew':
             self.maybe_new_game(rest)
         elif command == 'games':
             self.show_games()
+        elif command == 'join':
+            self.join(message, rest)
         else:
             self.send_usage_small(message.user)
 
