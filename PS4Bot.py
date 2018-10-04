@@ -2,6 +2,7 @@ from Bot import Bot
 import datetime
 
 MAX_PLAYERS = 4
+PLAY_TIME = 30
 
 def parse_time(s):
     time_parts = s.split(":")
@@ -23,7 +24,7 @@ class Game:
         self.players = []
 
     def contains(self, when):
-        duration = datetime.timedelta(minutes = 30)
+        duration = datetime.timedelta(minutes = PLAY_TIME)
 
         low = when
         high = when + duration
