@@ -1,6 +1,16 @@
 from Bot import Bot
 import datetime
 
+def parse_time(s):
+    time_parts = s.split(":")
+    if len(time_parts) != 2:
+        raise ValueError
+
+    hour = int(time_parts[0])
+    min = int(time_parts[1])
+
+    return datetime.datetime.today().replace(hour = hour, minute = min, second = 0, microsecond = 0)
+
 class Game:
     def __init__(self, when, desc = ""):
         self.when = when
@@ -59,21 +69,12 @@ class PS4Bot(Bot):
             return
 
         time = parts[0]
-        desc = " ".join(parts[1:])
-
-        time_parts = time.split(":")
-        if len(time_parts) != 2:
-            self.send_hew_usage()
-            return
-
         try:
-            hour = int(time_parts[0])
-            min = int(time_parts[1])
+            when = parse_time(parts[0])
         except ValueError:
             self.send_hew_usage()
             return
-
-        when = datetime.datetime.today().replace(hour = hour, minute = min, second = 0, microsecond = 0)
+        desc = " ".join(parts[1:])
 
         game = self.find_time(when)
         if game:
