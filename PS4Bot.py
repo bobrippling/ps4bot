@@ -33,7 +33,7 @@ class PS4Bot(Bot):
     def send_usage(self):
         message = '\n'.join([
             "Tell me there's games by flying a hew my way:",
-            "  `ps4bot hew <time> [description]`",
+            "  `ps4bot hew <time> <description>`",
         ])
         self.send_message(message)
 
@@ -41,7 +41,7 @@ class PS4Bot(Bot):
         self.send_message("EH?!? What you on about <@{}>? (try `ps4bot hew`)".format(to_user))
 
     def send_hew_usage(self):
-        self.send_message("howay man! that's not how you do it, it's `hew <time> [description]`")
+        self.send_message("howay man! that's not how you do it, it's `hew <time> <description>`")
 
     def find_time(self, when):
         halfhour = datetime.timedelta(minutes = 30)
@@ -68,7 +68,7 @@ class PS4Bot(Bot):
 
     def maybe_new_game(self, rest):
         parts = rest.split(" ")
-        if len(parts) < 1:
+        if len(parts) < 2:
             self.send_hew_usage()
             return
 
