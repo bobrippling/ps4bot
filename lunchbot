@@ -11,6 +11,7 @@ from LogBot import LogBot
 from ShutupBot import ShutupBot
 from SportBot import SportBot
 from MemeBot import MemeBot
+from PS4Bot import PS4Bot
 from SlackMonitor import SlackMonitor
 
 def usage():
@@ -35,6 +36,7 @@ bot_names_to_classes = {
         "shutupbot": ShutupBot,
         "sportbot": SportBot,
         "memebot": MemeBot,
+        "ps4bot": PS4Bot,
 }
 
 # global slack connection
