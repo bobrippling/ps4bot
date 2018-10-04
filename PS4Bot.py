@@ -19,6 +19,21 @@ class Game:
         self.when = when
         self.description = desc
 
+    def contains(self, when):
+        duration = datetime.timedelta(minutes = 30)
+
+        low = when
+        high = when + duration
+
+        game_low = self.when
+        game_high = self.when + duration
+
+        if game_low <= low < game_high:
+            return True
+        if game_low <= high < game_high:
+            return True
+        return False
+
 
     def pretty(self):
         return "{0} {1}".format(when_str(self.when), self.description)
@@ -44,22 +59,8 @@ class PS4Bot(Bot):
         self.send_message("howay man! that's not how you do it, it's `hew <time> <description>`")
 
     def find_time(self, when):
-        halfhour = datetime.timedelta(minutes = 30)
-
-        low = when
-        high = when + halfhour
-
         for game in self.games:
-            game_low = game.when
-            game_high = game.when + halfhour
-
-            overlap = False
-            if game_low <= low < game_high:
-                overlap = True
-            elif game_low <= high < game_high:
-                overlap = True
-
-            if overlap:
+            if game.contains(when):
                 return game
         return None
 
