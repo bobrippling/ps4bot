@@ -38,6 +38,9 @@ class Game:
             return True
         return False
 
+    def add_player(self, p):
+        if p not in self.players:
+            self.players.append(p)
 
     def pretty(self):
         return "{0} {1} {2}".format(
@@ -71,7 +74,7 @@ class PS4Bot(Bot):
                     g = self.new_game(when, description)
                     for p in players:
                         if len(p):
-                            g.players.append(p)
+                            g.add_player(p)
         except IOError:
             pass
 
@@ -164,7 +167,7 @@ class PS4Bot(Bot):
             self.send_message("game's full, rip <@{0}>".format(message.user))
             return
 
-        g.players.append(message.user)
+        g.add_player(message.user)
         self.send_message("<@{0}> has entered the game".format(message.user))
 
     def handle_command(self, message, command, rest):
