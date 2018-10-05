@@ -51,6 +51,42 @@ class PS4Bot(Bot):
 
         self.icon_emoji = ':video_game:'
         self.games = []
+        self.load()
+
+    def load(self):
+        try:
+            with open("ps4-games.txt", "r") as f:
+                while True:
+                    line = f.readline()
+                    if line == "":
+                        break
+                    line = line.rstrip("\n")
+                    tokens = line.split(" ")
+                    if len(tokens) != 3:
+                        print "invalid line \"{}\"".format(line)
+                        continue
+                    str_when, str_players, description = tokens
+                    when = parse_time(str_when)
+                    players = str_players.split(",")
+                    g = self.new_game(when, description)
+                    for p in players:
+                        if len(p):
+                            g.players.append(p)
+        except IOError:
+            pass
+
+    def save(self):
+        try:
+            with open("ps4-games.txt", "w") as f:
+                for g in self.games:
+                    print >>f, "{} {} {}".format(
+                            when_str(g.when),
+                            ",".join(g.players),
+                            g.description)
+
+        except IOError as e:
+            print >>sys.stderr, "exception saving state: {}".format(e)
+
 
     def send_usage(self):
         message = '\n'.join([
@@ -72,7 +108,9 @@ class PS4Bot(Bot):
         return None
 
     def new_game(self, when, desc):
-        self.games.append(Game(when, desc))
+        g = Game(when, desc)
+        self.games.append(g)
+        return g
 
     def maybe_new_game(self, rest):
         parts = rest.split(" ")
@@ -143,8 +181,12 @@ class PS4Bot(Bot):
         now = datetime.datetime.today()
         self.games = filter(lambda g: g.when >= now, self.games)
 
+    def teardown(self):
+        self.save()
+
     def idle(self):
         self.trim_expired_games()
+        self.save()
 
     def handle_message(self, message):
         tokens = message.text.split()
