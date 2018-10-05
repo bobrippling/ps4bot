@@ -66,7 +66,7 @@ class PS4Bot(Bot):
                     if line == "":
                         break
                     line = line.rstrip("\n")
-                    tokens = line.split(" ")
+                    tokens = line.split(" ", 2)
                     if len(tokens) != 3:
                         print "invalid line \"{}\"".format(line)
                         continue
