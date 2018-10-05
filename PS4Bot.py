@@ -7,12 +7,24 @@ MAX_PLAYERS = 4
 PLAY_TIME = 30
 
 def parse_time(s):
+    am_pm = ""
+    if len(s) >= 3 and s[-1] == "m" and (s[-2] == "a" or s[-2] == "p"):
+        am_pm = s[-2]
+        s = s[:-2]
+
     time_parts = s.split(":")
-    if len(time_parts) != 2:
+    if len(time_parts) > 2:
         raise ValueError
+
+    if len(time_parts) == 1:
+        time_parts.append("00")
 
     hour = int(time_parts[0])
     min = int(time_parts[1])
+
+    if len(am_pm):
+        if am_pm == "p":
+            hour += 12
 
     return datetime.datetime.today().replace(hour = hour, minute = min, second = 0, microsecond = 0)
 
