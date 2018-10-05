@@ -183,11 +183,21 @@ class PS4Bot(Bot):
         self.new_game(when, desc)
         self.send_new_game_message(user)
 
+    def chronological_games(self):
+        def cmp_games(a, b):
+            if a.when > b.when:
+                return 1
+            if a.when < b.when:
+                return -1
+            return 0
+
+        return sorted(self.games, cmp_games)
+
     def show_games(self):
         self.send_message("{0} game{1}:\n{2}".format(
             len(self.games),
             "" if len(self.games) == 1 else "s",
-            "\n".join([g.pretty() for g in self.games])
+            "\n".join([g.pretty() for g in self.chronological_games()])
         ))
 
     def join(self, message, rest):
