@@ -39,3 +39,6 @@ joined: %s reckons they can take you all LOL
 joined: %s joined, what a mistake-a to make-a
 joined: %s should have stayed home
 joined: %s joined, another floater in the punchbowl
+joined: %s joined, quick get the nerd repellent spray
+joined: welcome to the game %s, what a [ERROR: INSULT FAILED TO LOAD]
+joined: %s joined. yeah, i heard the rumours too. still stuck in vim
