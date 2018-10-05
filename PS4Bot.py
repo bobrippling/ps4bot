@@ -1,5 +1,7 @@
 from Bot import Bot
 import datetime
+import random
+import sys
 
 MAX_PLAYERS = 4
 PLAY_TIME = 30
@@ -91,18 +93,8 @@ class PS4Bot(Bot):
             print >>sys.stderr, "exception saving state: {}".format(e)
 
 
-    def send_usage(self):
-        message = '\n'.join([
-            "Tell me there's games by flying a hew my way:",
-            "  `ps4bot hew <time> <description>`",
-        ])
-        self.send_message(message)
-
-    def send_usage_small(self, to_user):
-        self.send_message("EH?!? What you on about <@{}>? (try `ps4bot hew/join/games`)".format(to_user))
-
     def send_hew_usage(self):
-        self.send_message("howay man! that's not how you do it, it's `hew <time> <description>`")
+        self.send_message("howay! `hew <time> <description>`, GET AMONGST IT")
 
     def find_time(self, when):
         for game in self.games:
@@ -115,7 +107,45 @@ class PS4Bot(Bot):
         self.games.append(g)
         return g
 
-    def maybe_new_game(self, rest):
+    def load_banter(self, type, user):
+        try:
+            msgs = []
+            with open("ps4-banter.txt", "r") as f:
+                while True:
+                    line = f.readline()
+                    if line == "":
+                        break
+                    line = line.rstrip("\n")
+                    tokens = line.split(":", 1)
+                    if len(tokens) != 2:
+                        continue
+                    if tokens[0] != type:
+                        continue
+                    msg = tokens[1].strip()
+                    msgs.append(msg)
+
+            if len(msgs):
+                r = random.randint(0, len(msgs) - 1)
+                return msgs[r].replace("%s", "<@{}>".format(user))
+
+        except IOError as e:
+            print >>sys.stderr, "exception loading banter: {}".format(e)
+
+        if type == "joined":
+            return "<@{}> has entered the game".format(user)
+        if type == "created":
+            return "game registered, gg"
+        return "?"
+
+    def send_join_message(self, user):
+        banter = self.load_banter("joined", user)
+        self.send_message(banter)
+
+    def send_new_game_message(self, user):
+        banter = self.load_banter("created", user)
+        self.send_message(banter)
+
+    def maybe_new_game(self, user, rest):
         parts = rest.split(" ")
         if len(parts) < 2:
             self.send_hew_usage()
@@ -137,7 +167,7 @@ class PS4Bot(Bot):
             return
 
         self.new_game(when, desc)
-        self.send_message("game registered, gg");
+        self.send_new_game_message(user)
 
     def show_games(self):
         self.send_message("{0} game{1}:\n{2}".format(
@@ -168,17 +198,17 @@ class PS4Bot(Bot):
             return
 
         g.add_player(message.user)
-        self.send_message("<@{0}> has entered the game".format(message.user))
+        self.send_join_message(message.user)
 
     def handle_command(self, message, command, rest):
         if command == 'hew':
-            self.maybe_new_game(rest)
+            self.maybe_new_game(message.user, rest)
         elif command == 'games':
             self.show_games()
         elif command == 'join':
             self.join(message, rest)
         else:
-            self.send_usage_small(message.user)
+            self.send_message("EH?!? What you on about <@{}>? (try `ps4bot hew/join/games`)".format(to_user))
 
     def trim_expired_games(self):
         now = datetime.datetime.today()
