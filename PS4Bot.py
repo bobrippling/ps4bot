@@ -222,7 +222,7 @@ class PS4Bot(Bot):
         elif command == 'join':
             self.join(message, rest)
         else:
-            self.send_message("EH?!? What you on about <@{}>? (try `ps4bot hew/join/games`)".format(to_user))
+            self.send_message("EH?!? What you on about <@{}>? (try `ps4bot hew/join/games`)".format(message.user))
 
     def trim_expired_games(self):
         now = datetime.datetime.today()
