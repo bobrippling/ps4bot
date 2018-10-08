@@ -61,11 +61,20 @@ class Game:
         if p not in self.players:
             self.players.append(p)
 
+    def pretty_players(self):
+        if len(self.players) == 0:
+            return ""
+        if len(self.players) == 1:
+            return self.players[0]
+
+        return ", ".join(map(lambda p: "<@{0}>".format(p), self.players[:-1])) \
+                + " and " + self.players[-1]
+
     def pretty(self):
         return "{0} {1} {2}".format(
                 when_str(self.when),
                 self.description,
-                ", ".join(map(lambda p: "<@{0}>".format(p), self.players)))
+                self.pretty_players())
 
 class PS4Bot(Bot):
     def __init__(self, slackconnection, botname):
