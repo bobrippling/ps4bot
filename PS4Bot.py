@@ -265,15 +265,34 @@ class PS4Bot(Bot):
                 ""
             )
 
-    def trim_expired_games(self):
+    def handle_imminent_games(self):
         now = datetime.datetime.today()
-        self.games = filter(lambda g: g.when >= now, self.games)
+        fiveminutes = datetime.timedelta(minutes = 5)
+
+        def game_is_imminent(g):
+            return g.when <= now + fiveminutes
+
+        imminent = filter(game_is_imminent, self.games)
+        self.games = filter(lambda g: not game_is_imminent(g), self.games)
+
+        for g in imminent:
+            if len(g.players) == 0:
+                self.send_message("big game ({0}) about to kick off at {1}, no one wants to play?"
+                        .format(g.description, when_str(g.when)))
+                continue
+
+            banter = self.load_banter("kickoff", {
+                's': g.pretty_players(),
+                't': when_str(g.when),
+                'd': g.description,
+            })
+            self.send_message(banter)
 
     def teardown(self):
         self.save()
 
     def idle(self):
-        self.trim_expired_games()
+        self.handle_imminent_games()
         self.save()
 
     def handle_message(self, message):
