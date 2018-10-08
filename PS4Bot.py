@@ -177,18 +177,7 @@ class PS4Bot(Bot):
 
     def send_new_game_message(self, user):
         banter = self.load_banter("created", { 's': format_user(user) })
-        self.send_message(banter, attachments = '''[{
-            "text": "Join the game",
-            "fallback": "You are unable to join the game",
-            "callback_id": "join_game",
-            "attachment_type": "default",
-            "actions": [{
-                "name": "join",
-                "text": "fly me in",
-                "type": "button",
-                "value": "join"
-                }]
-            }]''')
+        self.send_message(banter)
 
     def maybe_new_game(self, user, channel, rest):
         parts = rest.split(" ")
