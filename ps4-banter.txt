@@ -22,6 +22,34 @@ created: and %s did say let their be a game... and there was one
 created: towerfall tip of the day, "anyone can catch an arrow with their face, once"
 created: tip of the day, "pressing square gets you no sympathy"
 created: tip of the day, "if you are struggling to win BIG GAMES just git gud"
+created: it's over losers, %s has the high ground
+created: game created by %s, and so the journey of 1000 wins begins
+created: game created by %s, obviously thinks they are the gREateSt 3 big games longer than they actually were
+created: game created by %s, risking their 0 win steak
+created: game created by %s, dis gon be gud
+created: game created by %s, making big moves as usual
+created: game created by %s, their future is looking very dim
+created: game created by %s, wow, it always seemed to me they would struggle to dress themselves in the morning
+created: game created by %s, typical... JUST TYPICAL
+created: game created by %s, calling their own shots, making their own rules
+created: FOR THE LOVE OF GOD GAME CREATED BY %s DO THEY HAVE NO MERCY?!!!
+created: game created by %s, about time
+created: game created by %s, lost more battles than they can count, still looking to win the war
+created: game created by %s, not sure how they escaped from my basement
+created: game created by %s, the look in their eye shows they aren't meesing around this time
+created: game created by %s, word to your mothers
+created: game created by %s, MERRY CHRISTMAS
+created: game created by %s, loser has to resign
+created: game created by %s, a victim in every walk of life, hopefully not this time though
+created: game created by %s, they are so cute when they get all aggressive
+created: game created by %s, obviously not too embarrassed to show their face here again
+created: game created by %s, maybe this is the time they can achieve something greater than a participation trophy
+created: game created by %s, they say history repeats itself
+created: games++; // %s
+created: game created by %s, BAH HUMBUG
+created: game created by %s, loser has to buy cake for the whole company
+created: game created by %s, get the body bags ready
+created: game created by %s, going to DEFCON 1
 
 joined: %s has entered the game, rek the shop
 joined: scrubadubdub, %s is up for a drubbin
@@ -31,6 +59,7 @@ joined: buckle up bois, shit just got real
 joined: %s, once a scrublord, always a scrublord
 joined: %s has arrived, may as well just quit now
 joined: %s has arrived, i was wondering what the smell was
+joined: %s has arrived, I was wondering what the smell was
 joined: %s has arrived, failures++
 joined: %s has arrived, TODO: fix the blacklist
 joined: %s has arrived, could be worse, at least it isn't James
@@ -41,4 +70,34 @@ joined: %s should have stayed home
 joined: %s joined, another floater in the punchbowl
 joined: %s joined, quick get the nerd repellent spray
 joined: welcome to the game %s, what a [ERROR: INSULT FAILED TO LOAD]
-joined: %s joined. yeah, i heard the rumours too. still stuck in vim
+joined: %s joined. yeah, I heard the rumours too. still stuck in vim
+joined: scrublords++ // add %s to the game
+joined: %s has entered the game, despite the restraining order
+joined: %s has entered the game, not an exclusive club any more
+joined: %s has entered the game, YOU HAVE NO POWER HERE!!!
+joined: %s has entered the game, only their mother could love them
+joined: next time bring donuts %s
+joined: %s has entered the game, do you know de wae?
+joined: %s has entered the game, just in time for a whupping
+joined: %s has entered the game, leaving Ezekiel to plough the fields all alone
+joined: they invented the colour purple, their biceps have their own gravitational pull... IT'S %s! :tada:
+joined: recently escaped from an asylum and live with us today, %s has entered the game
+joined: the hunchback of Salisbury Cathedral - %s - has entered the game
+joined: %s breezed in like trash blowing down the motorway
+joined: %s has entered the game. Take a good hard look at yourself in the mirror
+joined: %s has entered the game, watch them, their eyes blink sideways
+joined: %s has entered the game, keeps a photo of his iPhone in his wallet
+joined: %s has entered the game, born of a virgin under a blood moon
+joined: once wrestled a badger and lost, it's %s
+joined: %s has entered the game, famous for throwing a laptop at a tramp
+joined: %s has entered the game with the IQ of a turnip
+joined: %s has entered the game, get ready for as swift an exit
+joined: %s has joined, they don't sleep they just wait for the next big game
+joined: %s has entered the game after having invented 7 types of custard
+joined: %s has entered the game, my idol since version 7.0
+joined: %s has entered the game, RETURN OF THE KIIIIIIIIIIIIIIIIIIING!!!
+joined: %s has joined the game, escaped from the mothership to be with us all today
+joined: %s has entered the game, formally known as "Shifty McBungle"
+joined: %s has entered the game, recently escaped from a zoo
+joined: welcome to the game, %s. I didn't want to be the one to tell you but you should probably think about retirement.
+joined: %s has entered the game, once went for a swim and it looked like 22 kids having a water fight
