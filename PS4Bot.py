@@ -130,8 +130,11 @@ class PS4Bot(Bot):
                     if line == "":
                         break
                     line = line.rstrip("\n")
+                    if len(line) == 0:
+                        continue
                     tokens = line.split(":", 1)
                     if len(tokens) != 2:
+                        print >>sys.stderr, "invalid banter line %s" % line
                         continue
                     if tokens[0] != type:
                         continue
