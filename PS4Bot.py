@@ -59,6 +59,10 @@ class Game:
         if p not in self.players:
             self.players.append(p)
 
+    def remove_player(self, p):
+        if p in self.players:
+            self.players.remove(p)
+
     def pretty_players(self):
         if len(self.players) == 0:
             return ""
@@ -239,11 +243,11 @@ class PS4Bot(Bot):
 
         self.update_message(newtext, original_message = game.message)
 
-    def join(self, message, rest):
+    def join(self, message, rest, bail = False):
         try:
             when = parse_time(rest)
         except ValueError:
-            self.send_message("howay! `join <game-time>`")
+            self.send_message("howay! `join/bail <game-time>`")
             return
 
         found = None
@@ -256,12 +260,16 @@ class PS4Bot(Bot):
             self.send_message("{0}, there isnae game at {1}".format(format_user(message.user), when_str(when)))
             return
 
-        if len(g.players) >= MAX_PLAYERS:
-            self.send_message("game's full, rip {0}".format(format_user(message.user)))
-            return
+        if bail:
+            g.remove_player(message.user)
+            self.send_message(":candle: {}".format(format_user(message.user)))
+        else:
+            if len(g.players) >= MAX_PLAYERS:
+                self.send_message("game's full, rip {0}".format(format_user(message.user)))
+                return
+            g.add_player(message.user)
+            self.send_join_message(message.user, g)
 
-        g.add_player(message.user)
-        self.send_join_message(message.user, g)
         self.update_game_message(g)
 
     def handle_command(self, message, command, rest):
@@ -271,9 +279,11 @@ class PS4Bot(Bot):
             self.show_games()
         elif command == 'join':
             self.join(message, rest)
+        elif command == 'bail':
+            self.join(message, rest, bail = True)
         else:
             self.send_message(
-                "EH?!? What you on about {0}? (try `ps4bot hew/join/games`)".format(format_user(message.user)) +
+                "EH?!? What you on about {0}? (try `ps4bot hew/join/bail/games`)".format(format_user(message.user)) +
                 "\n\n:film_projector: Credits :clapper:" +
                 "\n-------------------" +
                 "\n:toilet: Barely functional codebase: <@rpilling>" +
