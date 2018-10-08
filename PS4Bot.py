@@ -166,6 +166,8 @@ class PS4Bot(Bot):
             return "welcome to the game"
         if type == "created":
             return "game registered, gg"
+        if type == "kickoff":
+            return "match kickoff is now"
         return "?"
 
     def send_join_message(self, user):
