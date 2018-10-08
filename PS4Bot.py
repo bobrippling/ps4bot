@@ -221,7 +221,7 @@ class PS4Bot(Bot):
                 break
 
         if not found:
-            self.send_message("<@{0}>, there isnae game at {1}".format(message.user, when))
+            self.send_message("<@{0}>, there isnae game at {1}".format(message.user, when_str(when)))
             return
 
         if len(g.players) >= MAX_PLAYERS:
