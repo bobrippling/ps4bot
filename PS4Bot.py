@@ -33,8 +33,11 @@ def when_str(when):
 
 def replace_dict(str, dict):
     for k in dict:
-        str = str.replace("%" + k, "<@{}>".format(dict[k]))
+        str = str.replace("%" + k, dict[k])
     return str
+
+def format_user(user):
+    return "<@{}>".format(user)
 
 class Game:
     def __init__(self, when, desc = ""):
@@ -65,10 +68,10 @@ class Game:
         if len(self.players) == 0:
             return ""
         if len(self.players) == 1:
-            return self.players[0]
+            return format_user(self.players[0])
 
-        return ", ".join(map(lambda p: "<@{0}>".format(p), self.players[:-1])) \
-                + " and " + self.players[-1]
+        return ", ".join(map(format_user, self.players[:-1])) \
+                + " and " + format_user(self.players[-1])
 
     def pretty(self):
         return "{0} {1} {2}".format(
@@ -171,11 +174,11 @@ class PS4Bot(Bot):
         return "?"
 
     def send_join_message(self, user):
-        banter = self.load_banter("joined", { 's': user })
+        banter = self.load_banter("joined", { 's': format_user(user) })
         self.send_message(banter)
 
     def send_new_game_message(self, user):
-        banter = self.load_banter("created", { 's': user })
+        banter = self.load_banter("created", { 's': format_user(user) })
         self.send_message(banter)
 
     def maybe_new_game(self, user, rest):
@@ -237,11 +240,11 @@ class PS4Bot(Bot):
                 break
 
         if not found:
-            self.send_message("<@{0}>, there isnae game at {1}".format(message.user, when_str(when)))
+            self.send_message("{0}, there isnae game at {1}".format(format_user(message.user), when_str(when)))
             return
 
         if len(g.players) >= MAX_PLAYERS:
-            self.send_message("game's full, rip <@{0}>".format(message.user))
+            self.send_message("game's full, rip {0}".format(format_user(message.user)))
             return
 
         g.add_player(message.user)
@@ -256,7 +259,7 @@ class PS4Bot(Bot):
             self.join(message, rest)
         else:
             self.send_message(
-                "EH?!? What you on about <@{}>? (try `ps4bot hew/join/games`)".format(message.user) +
+                "EH?!? What you on about {0}? (try `ps4bot hew/join/games`)".format(format_user(message.user)) +
                 "\n\n:film_projector: Credits :clapper:" +
                 "\n-------------------" +
                 "\n:toilet: Barely functional codebase: <@rpilling>" +
@@ -279,15 +282,15 @@ class PS4Bot(Bot):
 
         for g in imminent:
             if len(g.players) == 0:
-                self.send_message("big game ({0}) about to kick off at {1}, no one wants to play?"
-                        .format(g.description, when_str(g.when)))
-                continue
+                banter = "big game ({0}) about to kick off at {1}, no one wants to play?".format(
+                    g.description, when_str(g.when))
+            else:
+                banter = self.load_banter("kickoff", {
+                    's': g.pretty_players(),
+                    't': when_str(g.when),
+                    'd': g.description,
+                })
 
-            banter = self.load_banter("kickoff", {
-                's': g.pretty_players(),
-                't': when_str(g.when),
-                'd': g.description,
-            })
             self.send_message(banter)
 
     def teardown(self):
