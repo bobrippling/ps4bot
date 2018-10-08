@@ -127,3 +127,39 @@ kickoff: %s if you are reading this you are late to the BIGGET GAME OF ALL TIME 
 kickoff: Punch it chewie, RAAAAAAAAAAARRRRRR %d %s
 kickoff: Can ya'll (%s) please report to Dr Console's office. It's about %d at %t.
 kickoff: IT's TIME for the main event of the day - %d, featuring %s. Be there, %t.
+
+tip: Fire burns
+tip: Butter does not churn itself
+tip: Nobody like a tryhard
+tip: No one wants to hear about the cool new javascript framework
+tip: Size matters, so does damage and speed
+tip: Company values nominations aren't redeemable for bitcoins
+tip: Two wrongs don't make a left
+tip: Pay no attention to the man behind the curtain
+tip: Practise makes perfect, buy do you want to risk being branded a tryhard?
+tip: Two World Wars and One World Cup
+tip: Loading humorous tip of the day... please wait
+tip: You don't have enough gym badges to control me
+tip: Press Alt+F4 for a quick IQ test
+tip: FATHEEEEEEEEEEEEEEEEEEEEEEEEEEER!!!
+tip: If you are happy and you know it clap your hands
+tip: Give yourself enough room to play far from objects and people
+tip: Did you lock you front door this morning?
+tip: Humpty Dumpty was pushed
+tip: Behind you!
+tip: Watch out for the grenade danger indicator
+tip: Are we there yet?
+tip: Wipe from front to back
+tip: Use keys to open doors
+tip: Mushroom
+tip: Do not die
+tip: Keep on trying till you run out of cake
+tip: Falling off high buildings can kill you
+tip: Cultivate a stoic calmness
+tip: If at first you don't succeed uninstall and play sims
+tip: Don't eat yellow snow
+tip: Yelling fixes most problems
+tip: Got no friends? Enable bots!
+tip: Alt+F4 to unlock God Mode
+tip: Doorways are the perfect place to stand and have a chat.
+tip: There is no tip

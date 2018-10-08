@@ -133,7 +133,7 @@ class PS4Bot(Bot):
         self.games.append(g)
         return g
 
-    def load_banter(self, type, replacements):
+    def load_banter(self, type, replacements = {}):
         try:
             msgs = []
             with open("ps4-banter.txt", "r") as f:
@@ -166,6 +166,8 @@ class PS4Bot(Bot):
             return "game registered, gg"
         if type == "kickoff":
             return "match kickoff is now"
+        if type == "tip":
+            return "no tips available"
         return "?"
 
     def send_join_message(self, user, game):
@@ -289,11 +291,25 @@ class PS4Bot(Bot):
 
             self.send_message(banter, to_channel = g.channel)
 
+        return imminent
+
+    def maybe_show_tip(self):
+        if len(self.games) == 0:
+            return
+        if random.randint(0, 10) > 3:
+            return
+
+        game = self.games[random.randint(0, len(self.games) - 1)]
+        banter = self.load_banter("tip")
+        self.send_message(banter, to_channel = game.channel)
+
     def teardown(self):
         self.save()
 
     def idle(self):
-        self.handle_imminent_games()
+        imminent = self.handle_imminent_games()
+        if len(imminent) == 0:
+            self.maybe_show_tip()
         self.save()
 
     def handle_message(self, message):
