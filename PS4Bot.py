@@ -209,8 +209,10 @@ class PS4Bot(Bot):
             return
 
         game = self.new_game(when, desc, channel)
+        game.add_player(user)
         msg = self.send_new_game_message(user, when)
         game.message = msg
+        self.update_game_message(game)
 
         self.save()
 
