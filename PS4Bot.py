@@ -239,7 +239,17 @@ class PS4Bot(Bot):
         elif command == 'join':
             self.join(message, rest)
         else:
-            self.send_message("EH?!? What you on about <@{}>? (try `ps4bot hew/join/games`)".format(message.user))
+            self.send_message(
+                "EH?!? What you on about <@{}>? (try `ps4bot hew/join/games`)".format(message.user) +
+                "\n\n:film_projector: Credits :clapper:" +
+                "\n-------------------" +
+                "\n:toilet: Barely functional codebase: <@rpilling>" +
+                "\n:ship: Boom Operator: <@danallsop>" +
+                "\n:movie_camera: Cinematographer: <@danallsop>" +
+                "\n:survival-steve: Localisation: <@sjob>" +
+                "\n:scroll: Banter: <@danallsop>" +
+                ""
+            )
 
     def trim_expired_games(self):
         now = datetime.datetime.today()
