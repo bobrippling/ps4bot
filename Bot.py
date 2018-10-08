@@ -19,7 +19,7 @@ class Bot():
 
         return alt if alt is not None else id
 
-    def send_message(self, text, to_channel = None):
+    def send_message(self, text, to_channel = None, attachments = None):
         if to_channel is not None:
             channel = self.slackconnection.server.channels.find(to_channel)
         else:
@@ -35,7 +35,8 @@ class Bot():
                 text = text,
                 username = self.botname,
                 icon_emoji = self.icon_emoji,
-                as_user = False)
+                as_user = False,
+                attachments = attachments)
 
     def send_list(self, prefix, list):
         self.send_message("{}: {}".format(prefix, ', '.join(list)))
