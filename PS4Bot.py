@@ -49,17 +49,10 @@ class Game:
     def contains(self, when):
         duration = datetime.timedelta(minutes = PLAY_TIME)
 
-        low = when
-        high = when + duration
+        game_start = self.when
+        game_end = self.when + duration
 
-        game_low = self.when
-        game_high = self.when + duration
-
-        if game_low <= low < game_high:
-            return True
-        if game_low <= high < game_high:
-            return True
-        return False
+        return game_start <= when < game_end
 
     def add_player(self, p):
         if p not in self.players:
