@@ -1,5 +1,6 @@
 import re
 import time
+from SlackPostedMessage import SlackPostedMessage
 
 class Bot():
     def __init__(self, slackconnection, botname):
@@ -29,13 +30,24 @@ class Bot():
             return
 
         # post as BOT_NAME instead of the current user
-        self.slackconnection.api_call(
+        response = self.slackconnection.api_call(
                 "chat.postMessage",
                 channel = channel.id,
                 text = text,
                 username = self.botname,
                 icon_emoji = self.icon_emoji,
                 as_user = False)
+
+        return SlackPostedMessage(response["channel"], response["ts"], text)
+
+    def update_message(self, text, original_message):
+        self.slackconnection.api_call(
+                "chat.update",
+                channel = original_message.channel,
+                ts = original_message.timestamp,
+                username = self.botname,
+                as_user = False,
+                text = text)
 
     def send_list(self, prefix, list):
         self.send_message("{}: {}".format(prefix, ', '.join(list)))
