@@ -197,6 +197,10 @@ class PS4Bot(Bot):
         return sorted(self.games, cmp_games)
 
     def show_games(self):
+        if len(self.games) == 0:
+            self.send_message("no games, are people actually doing work??")
+            return
+
         self.send_message("{0} game{1}:\n{2}".format(
             len(self.games),
             "" if len(self.games) == 1 else "s",
