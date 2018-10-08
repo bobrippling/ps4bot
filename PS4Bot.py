@@ -40,10 +40,11 @@ def format_user(user):
     return "<@{}>".format(user)
 
 class Game:
-    def __init__(self, when, desc = ""):
+    def __init__(self, when, desc, channel):
         self.when = when
         self.description = desc
         self.players = []
+        self.channel = channel
 
     def contains(self, when):
         duration = datetime.timedelta(minutes = PLAY_TIME)
@@ -97,14 +98,14 @@ class PS4Bot(Bot):
                     line = line.rstrip("\n")
                     if len(line) == 0:
                         continue
-                    tokens = line.split(" ", 2)
-                    if len(tokens) != 3:
+                    tokens = line.split(" ", 3)
+                    if len(tokens) != 4:
                         print "invalid line \"{}\"".format(line)
                         continue
-                    str_when, str_players, description = tokens
+                    str_when, channel, str_players, description = tokens
                     when = parse_time(str_when)
                     players = str_players.split(",")
-                    g = self.new_game(when, description)
+                    g = self.new_game(when, description, channel)
                     for p in players:
                         if len(p):
                             g.add_player(p)
@@ -115,8 +116,9 @@ class PS4Bot(Bot):
         try:
             with open("ps4-games.txt", "w") as f:
                 for g in self.games:
-                    print >>f, "{} {} {}".format(
+                    print >>f, "{} {} {} {}".format(
                             when_str(g.when),
+                            g.channel,
                             ",".join(g.players),
                             g.description)
 
@@ -133,8 +135,8 @@ class PS4Bot(Bot):
                 return game
         return None
 
-    def new_game(self, when, desc):
-        g = Game(when, desc)
+    def new_game(self, when, desc, channel):
+        g = Game(when, desc, channel)
         self.games.append(g)
         return g
 
@@ -181,7 +183,7 @@ class PS4Bot(Bot):
         banter = self.load_banter("created", { 's': format_user(user) })
         self.send_message(banter)
 
-    def maybe_new_game(self, user, rest):
+    def maybe_new_game(self, user, channel, rest):
         parts = rest.split(" ")
         if len(parts) < 2:
             self.send_hew_usage()
@@ -202,7 +204,7 @@ class PS4Bot(Bot):
                 ": {0}".format(game.description) if game.description else ""))
             return
 
-        self.new_game(when, desc)
+        self.new_game(when, desc, channel)
         self.send_new_game_message(user)
 
     def chronological_games(self):
@@ -252,7 +254,7 @@ class PS4Bot(Bot):
 
     def handle_command(self, message, command, rest):
         if command == 'hew':
-            self.maybe_new_game(message.user, rest)
+            self.maybe_new_game(message.user, message.channel.name, rest)
         elif command == 'games':
             self.show_games()
         elif command == 'join':
@@ -291,7 +293,7 @@ class PS4Bot(Bot):
                     'd': g.description,
                 })
 
-            self.send_message(banter)
+            self.send_message(banter, to_channel = g.channel)
 
     def teardown(self):
         self.save()
