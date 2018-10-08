@@ -45,6 +45,7 @@ class Game:
         self.description = desc
         self.players = []
         self.channel = channel
+        self.message = None
 
     def contains(self, when):
         duration = datetime.timedelta(minutes = PLAY_TIME)
@@ -177,7 +178,7 @@ class PS4Bot(Bot):
 
     def send_new_game_message(self, user):
         banter = self.load_banter("created", { 's': format_user(user) })
-        self.send_message(banter)
+        return self.send_message(banter)
 
     def maybe_new_game(self, user, channel, rest):
         parts = rest.split(" ")
@@ -200,8 +201,10 @@ class PS4Bot(Bot):
                 ": {0}".format(game.description) if game.description else ""))
             return
 
-        self.new_game(when, desc, channel)
-        self.send_new_game_message(user)
+        game = self.new_game(when, desc, channel)
+        msg = self.send_new_game_message(user)
+        game.message = msg
+
         self.save()
 
     def chronological_games(self):
@@ -224,6 +227,17 @@ class PS4Bot(Bot):
             "" if len(self.games) == 1 else "s",
             "\n".join([g.pretty() for g in self.chronological_games()])
         ))
+
+    def update_game_message(self, game):
+        if not game.message:
+            return
+
+        players = ""
+        if len(game.players):
+            players = "\nplayers: " + game.pretty_players()
+        newtext = game.message.text + players
+
+        self.update_message(newtext, original_message = game.message)
 
     def join(self, message, rest):
         try:
@@ -248,6 +262,7 @@ class PS4Bot(Bot):
 
         g.add_player(message.user)
         self.send_join_message(message.user, g)
+        self.update_game_message(g)
 
     def handle_command(self, message, command, rest):
         if command == 'hew':
