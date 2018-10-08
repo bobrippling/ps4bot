@@ -79,6 +79,7 @@ class PS4Bot(Bot):
 
         self.icon_emoji = ':video_game:'
         self.games = []
+        self.want_tip = False
         self.load()
 
     def load(self):
@@ -268,6 +269,8 @@ class PS4Bot(Bot):
                 ""
             )
 
+        self.want_tip = True
+
     def handle_imminent_games(self):
         now = datetime.datetime.today()
         fiveminutes = datetime.timedelta(minutes = 5)
@@ -294,6 +297,8 @@ class PS4Bot(Bot):
         return imminent
 
     def maybe_show_tip(self):
+        if not self.want_tip:
+            return
         if len(self.games) == 0:
             return
         if random.randint(0, 10) > 3:
