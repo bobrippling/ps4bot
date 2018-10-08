@@ -168,8 +168,8 @@ class PS4Bot(Bot):
             return "match kickoff is now"
         return "?"
 
-    def send_join_message(self, user):
-        banter = self.load_banter("joined", { 's': format_user(user) })
+    def send_join_message(self, user, game):
+        banter = self.load_banter("joined", { 's': format_user(user), 'd': game.description })
         self.send_message(banter)
 
     def send_new_game_message(self, user):
@@ -243,7 +243,7 @@ class PS4Bot(Bot):
             return
 
         g.add_player(message.user)
-        self.send_join_message(message.user)
+        self.send_join_message(message.user, g)
 
     def handle_command(self, message, command, rest):
         if command == 'hew':
