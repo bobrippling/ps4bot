@@ -31,6 +31,11 @@ def parse_time(s):
 def when_str(when):
     return when.strftime("%H:%M")
 
+def replace_dict(str, dict):
+    for k in dict:
+        str = str.replace("%" + k, "<@{}>".format(dict[k]))
+    return str
+
 class Game:
     def __init__(self, when, desc = ""):
         self.when = when
@@ -121,7 +126,7 @@ class PS4Bot(Bot):
         self.games.append(g)
         return g
 
-    def load_banter(self, type, user):
+    def load_banter(self, type, replacements):
         try:
             msgs = []
             with open("ps4-banter.txt", "r") as f:
@@ -143,23 +148,23 @@ class PS4Bot(Bot):
 
             if len(msgs):
                 r = random.randint(0, len(msgs) - 1)
-                return msgs[r].replace("%s", "<@{}>".format(user))
+                return replace_dict(msgs[r], replacements)
 
         except IOError as e:
             print >>sys.stderr, "exception loading banter: {}".format(e)
 
         if type == "joined":
-            return "<@{}> has entered the game".format(user)
+            return "welcome to the game"
         if type == "created":
             return "game registered, gg"
         return "?"
 
     def send_join_message(self, user):
-        banter = self.load_banter("joined", user)
+        banter = self.load_banter("joined", { 's': user })
         self.send_message(banter)
 
     def send_new_game_message(self, user):
-        banter = self.load_banter("created", user)
+        banter = self.load_banter("created", { 's': user })
         self.send_message(banter)
 
     def maybe_new_game(self, user, rest):
