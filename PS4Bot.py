@@ -199,6 +199,7 @@ class PS4Bot(Bot):
 
         self.new_game(when, desc, channel)
         self.send_new_game_message(user)
+        self.save()
 
     def chronological_games(self):
         def cmp_games(a, b):
