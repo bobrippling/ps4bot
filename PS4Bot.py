@@ -2,9 +2,11 @@ from Bot import Bot
 import datetime
 import random
 import sys
+import re
 
 MAX_PLAYERS = 4
 PLAY_TIME = 30
+NEW_GAME_RE = re.compile("(?P<pre>.*)(?P<time>[0-9]+(:[0-9]+)?([ap]m))(?P<post>.*)")
 
 def parse_time(s):
     am_pm = ""
@@ -126,7 +128,7 @@ class PS4Bot(Bot):
 
 
     def send_hew_usage(self):
-        self.send_message("howay! `hew <time> <description>`, GET AMONGST IT")
+        self.send_message("howay! `hew` needs a time and description, GET AMONGST IT")
 
     def find_time(self, when):
         for game in self.games:
@@ -189,18 +191,21 @@ class PS4Bot(Bot):
                 + "time: " + when_str(when))
 
     def maybe_new_game(self, user, channel, rest):
-        parts = rest.split(" ")
-        if len(parts) < 2:
+        match = NEW_GAME_RE.match(rest.strip())
+        if not match:
             self.send_hew_usage()
             return
 
-        time = parts[0]
+        time = match.group("time")
+        desc = (match.group("pre") + match.group("post")).strip()
+        if len(desc) == 0:
+            desc = "big game"
+
         try:
-            when = parse_time(parts[0])
+            when = parse_time(time)
         except ValueError:
             self.send_hew_usage()
             return
-        desc = " ".join(parts[1:])
 
         game = self.find_time(when)
         if game:
