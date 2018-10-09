@@ -243,7 +243,7 @@ class PS4Bot(Bot):
 
         players = ""
         if len(game.players):
-            players = "\nplayers: " + game.pretty_players()
+            players = "\nplayers: {} `{}`".format(game.pretty_players(), len(game.players))
         newtext = game.message.text + players
 
         self.update_message(newtext, original_message = game.message)
