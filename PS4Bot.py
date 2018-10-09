@@ -7,7 +7,6 @@ import re
 
 MAX_PLAYERS = 4
 PLAY_TIME = 30
-NEW_GAME_RE = re.compile("(?P<pre>.*)(?P<time>[0-9]+(:[0-9]+)?([ap]m))(?P<post>.*)")
 
 def parse_time(s):
     am_pm = ""
@@ -41,6 +40,28 @@ def replace_dict(str, dict):
 
 def format_user(user):
     return "<@{}>".format(user)
+
+def parse_hew(str):
+    parts = str.split(" ")
+
+    def is_time(part):
+       return re.match('^[0-9]+(:[0-9]+)?([ap]m)?$', part)
+    time_prefixes = ["at"]
+
+    time_parts = []
+    desc_parts = []
+    for part in parts:
+        if is_time(part):
+            time_parts.append(part)
+            if desc_parts[-1] in time_prefixes:
+                desc_parts.pop()
+        else:
+            desc_parts.append(part)
+
+    if len(time_parts) != 1:
+        return None
+
+    return time_parts[0], " ".join(desc_parts)
 
 class Game:
     def __init__(self, when, desc, channel, msg):
@@ -220,13 +241,12 @@ class PS4Bot(Bot):
                 + "time: " + when_str(when))
 
     def maybe_new_game(self, user, channel, rest):
-        match = NEW_GAME_RE.match(rest.strip())
-        if not match:
+        parsed = parse_hew(rest)
+        if not parsed:
             self.send_hew_usage()
             return
 
-        time = match.group("time")
-        desc = (match.group("pre") + match.group("post")).strip()
+        time, desc = parsed
         if len(desc) == 0:
             desc = "big game"
 
