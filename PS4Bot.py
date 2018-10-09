@@ -180,11 +180,12 @@ class PS4Bot(Bot):
         banter = self.load_banter("joined", { 's': format_user(user), 'd': game.description })
         self.send_message(banter)
 
-    def send_new_game_message(self, user, when):
+    def send_new_game_message(self, user, when, desc):
         banter = self.load_banter("created", { 's': format_user(user) })
         return self.send_message(
                 ">>> :desktop_computer::loud_sound::video_game::joystick::game_die:\n"
                 + banter + "\n"
+                + desc + "\n"
                 + "time: " + when_str(when))
 
     def maybe_new_game(self, user, channel, rest):
@@ -210,7 +211,7 @@ class PS4Bot(Bot):
 
         game = self.new_game(when, desc, channel)
         game.add_player(user)
-        msg = self.send_new_game_message(user, when)
+        msg = self.send_new_game_message(user, when, desc)
         game.message = msg
         self.update_game_message(game)
 
