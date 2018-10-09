@@ -369,6 +369,7 @@ class PS4Bot(Bot):
         if random.randint(0, 10) > 3:
             return
 
+        self.want_tip = False
         game = self.games[random.randint(0, len(self.games) - 1)]
         banter = self.load_banter("tip")
         self.send_message(banter, to_channel = game.channel)
