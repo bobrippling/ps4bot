@@ -1,4 +1,5 @@
 from Bot import Bot
+from SlackPostedMessage import SlackPostedMessage
 import datetime
 import random
 import sys
@@ -42,12 +43,12 @@ def format_user(user):
     return "<@{}>".format(user)
 
 class Game:
-    def __init__(self, when, desc, channel):
+    def __init__(self, when, desc, channel, msg):
         self.when = when
         self.description = desc
         self.players = []
         self.channel = channel
-        self.message = None
+        self.message = msg
 
     def contains(self, when):
         duration = datetime.timedelta(minutes = PLAY_TIME)
@@ -103,10 +104,34 @@ class PS4Bot(Bot):
                     if len(tokens) != 4:
                         print "invalid line \"{}\"".format(line)
                         continue
+
                     str_when, channel, str_players, description = tokens
+                    timestamp_str = f.readline()
+                    if timestamp_str == "":
+                        print "early EOF"
+                        break
+                    timestamp_str = timestamp_str.rstrip("\n")
+
+                    msg_channel = f.readline()
+                    if msg_channel == "":
+                        print "early EOF"
+                        break
+                    msg_channel = msg_channel.rstrip("\n")
+
+                    extra_text = []
+                    line = f.readline()
+                    while line != "":
+                        line = line.rstrip("\n")
+                        if len(line) == 0:
+                            break
+                        extra_text.append(line)
+                        line = f.readline()
+
                     when = parse_time(str_when)
                     players = str_players.split(",")
-                    g = self.new_game(when, description, channel)
+                    message = SlackPostedMessage(msg_channel, timestamp_str, "\n".join(extra_text))
+
+                    g = self.new_game(when, description, channel, message)
                     for p in players:
                         if len(p):
                             g.add_player(p)
@@ -123,6 +148,10 @@ class PS4Bot(Bot):
                             ",".join(g.players),
                             g.description)
 
+                    msg = g.message
+                    print >>f, "{}\n{}\n{}".format(msg.timestamp, msg.channel, msg.text)
+                    print >>f, ""
+
         except IOError as e:
             print >>sys.stderr, "exception saving state: {}".format(e)
 
@@ -136,8 +165,8 @@ class PS4Bot(Bot):
                 return game
         return None
 
-    def new_game(self, when, desc, channel):
-        g = Game(when, desc, channel)
+    def new_game(self, when, desc, channel, msg):
+        g = Game(when, desc, channel, msg)
         self.games.append(g)
         return g
 
@@ -214,10 +243,10 @@ class PS4Bot(Bot):
                 ": {0}".format(game.description) if game.description else ""))
             return
 
-        game = self.new_game(when, desc, channel)
-        game.add_player(user)
         msg = self.send_new_game_message(user, when, desc)
-        game.message = msg
+
+        game = self.new_game(when, desc, channel, msg)
+        game.add_player(user)
         self.update_game_message(game)
 
         self.save()
