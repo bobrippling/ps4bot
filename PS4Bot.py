@@ -351,19 +351,18 @@ class PS4Bot(Bot):
         elif command == "bail" or command == "flyout":
             self.join_or_bail(message, rest, bail = True)
         else:
-            self.send_message(
-                "EH?!? What you on about {0}? (try `{1} hew/join/flyin/bail/flyout/games`)".format(
-                    format_user(message.user), NAME) +
+            self.send_message((
+                "Hew {0}, here's what I listen to: `{1} hew/join/flyin/bail/flyout/games`," +
+                "\nor try adding a :+1: to a game invite." +
                 "\n\n:film_projector: Credits :clapper:" +
                 "\n-------------------" +
                 "\n:toilet: Barely functional codebase: <@rpilling>" +
                 "\n:ship: Boom Operator: <@danallsop>" +
-                "\n:movie_camera: Cinematographer: <@danallsop>" +
-                "\n:muscle: Localisation: <@morchard>" +
                 "\n:survival-steve: Localisation: <@sjob>" +
+                "\n:movie_camera: Cinematographer: <@danallsop>" +
+                "\n:muscle: More localisation: <@morchard>" +
                 "\n:scroll: Banter: <@danallsop>" +
-                ""
-            )
+                "").format(format_user(message.user), NAME))
 
         self.want_tip = True
 
