@@ -289,14 +289,14 @@ class PS4Bot(Bot):
             "\n".join([g.pretty() for g in self.chronological_games()])
         ))
 
-    def update_game_message(self, game):
+    def update_game_message(self, game, subtle_addition = None):
         if not game.message:
             return
 
         players = ""
         if len(game.players):
             players = "\nplayers: {} `{}`".format(game.pretty_players(), len(game.players))
-        newtext = game.message.text + players
+        newtext = game.message.text + players + ("\n" + subtle_addition if subtle_addition else "")
 
         self.update_message(newtext, original_message = game.message)
 
@@ -322,20 +322,24 @@ class PS4Bot(Bot):
         else:
             self.add_user_to_game(message.user, g)
 
-    def add_user_to_game(self, user, game):
+    def add_user_to_game(self, user, game, subtle_message = False):
         if len(game.players) >= MAX_PLAYERS:
             self.send_message("game's full, rip {0}".format(format_user(user)))
             return
         game.add_player(user)
-        banter = self.load_banter("joined", { "s": format_user(user), "d": game.description })
-        self.send_message(banter)
-        self.update_game_message(game)
 
-    def remove_user_from_game(self, user, game):
+        banter = self.load_banter("joined", { "s": format_user(user), "d": game.description })
+        if not subtle_message:
+            self.send_message(banter)
+        self.update_game_message(game, banter if subtle_message else None)
+
+    def remove_user_from_game(self, user, game, subtle_message = False):
         game.remove_player(user)
+
         banter = ":candle: {}".format(format_user(user))
-        self.send_message(banter)
-        self.update_game_message(game)
+        if not subtle_message:
+            self.send_message(banter)
+        self.update_game_message(game, banter if subtle_message else None)
 
     def handle_command(self, message, command, rest):
         if command == "hew":
@@ -428,9 +432,9 @@ class PS4Bot(Bot):
         join_emojis = ["+1", "thumbsup", "plus1" "heavy_plus_sign"]
         if emoji in join_emojis:
             if removed:
-                self.remove_user_from_game(reacting_user, game)
+                self.remove_user_from_game(reacting_user, game, subtle_message = True)
             else:
-                self.add_user_to_game(reacting_user, game)
+                self.add_user_to_game(reacting_user, game, subtle_message = True)
 
     def handle_unreaction(self, reaction):
         self.handle_reaction(reaction, removed = True)
