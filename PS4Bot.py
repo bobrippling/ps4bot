@@ -307,7 +307,7 @@ class PS4Bot(Bot):
         try:
             when = parse_time(rest)
         except ValueError:
-            self.send_message("howay! `join/bail <game-time>`")
+            self.send_message("howay! `flyin/join/flyout/bail <game-time>`")
             return
 
         found = None
@@ -337,18 +337,19 @@ class PS4Bot(Bot):
             self.maybe_new_game(message.user, message.channel.name, rest)
         elif command == "games":
             self.show_games()
-        elif command == "join":
+        elif command == "join" or command == "flyin":
             self.join(message, rest)
-        elif command == "bail":
+        elif command == "bail" or command == "flyout":
             self.join(message, rest, bail = True)
         else:
             self.send_message(
-                "EH?!? What you on about {0}? (try `ps4bot hew/join/bail/games`)".format(format_user(message.user)) +
+                "EH?!? What you on about {0}? (try `ps4bot hew/join/flyin/bail/flyout/games`)".format(format_user(message.user)) +
                 "\n\n:film_projector: Credits :clapper:" +
                 "\n-------------------" +
                 "\n:toilet: Barely functional codebase: <@rpilling>" +
                 "\n:ship: Boom Operator: <@danallsop>" +
                 "\n:movie_camera: Cinematographer: <@danallsop>" +
+                "\n:muscle: Localisation: <@morchard>" +
                 "\n:survival-steve: Localisation: <@sjob>" +
                 "\n:scroll: Banter: <@danallsop>" +
                 ""
