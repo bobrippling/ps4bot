@@ -343,9 +343,33 @@ class PS4Bot(Bot):
             self.send_message(banter)
         self.update_game_message(game, banter if subtle_message else None)
 
+    def maybe_cancel_game(self, user, rest):
+        try:
+            when = parse_time(rest)
+        except ValueError:
+            self.send_message("scrubadubdub, when's this game you want to cancel?".format(rest))
+            return
+
+        game = self.find_time(when)
+        if not game:
+            self.send_message("scrubadubdub, there's no game at {}".format(when_str(when)))
+            return
+
+        if game.creator != user:
+            self.send_message("scrubadubdub, only {} can cancel {} ({})".format(
+                format_user(game.creator), game.description, when_str(game.when)))
+            return
+
+        self.games = filter(lambda g: g != game, self.games)
+        self.send_message(":candle: for {}'s {} ({}), {} has flown out the whole game".format(
+            game.channel, game.description, when_str(game.when), user))
+
+
     def handle_command(self, message, command, rest):
         if command == "hew":
             self.maybe_new_game(message.user, message.channel.name, rest)
+        elif command == "divant":
+            self.maybe_cancel_game(message.user, rest)
         elif command == "games":
             self.show_games()
         elif command == "join" or command == "flyin":
@@ -354,7 +378,7 @@ class PS4Bot(Bot):
             self.join_or_bail(message, rest, bail = True)
         else:
             self.send_message((
-                "Hew {0}, here's what I listen to: `{1} hew/join/flyin/bail/flyout/games`," +
+                "Hew {0}, here's what I listen to: `{1} hew/join/flyin/bail/flyout/divant/games`," +
                 "\nor try adding a :+1: to a game invite." +
                 "\n\n:film_projector: Credits :clapper:" +
                 "\n-------------------" +
