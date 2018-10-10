@@ -304,7 +304,7 @@ class PS4Bot(Bot):
 
         self.update_message(newtext, original_message = game.message)
 
-    def join(self, message, rest, bail = False):
+    def join_or_bail(self, message, rest, bail = False):
         try:
             when = parse_time(rest)
         except ValueError:
@@ -342,9 +342,9 @@ class PS4Bot(Bot):
         elif command == "games":
             self.show_games()
         elif command == "join" or command == "flyin":
-            self.join(message, rest)
+            self.join_or_bail(message, rest)
         elif command == "bail" or command == "flyout":
-            self.join(message, rest, bail = True)
+            self.join_or_bail(message, rest, bail = True)
         else:
             self.send_message(
                 "EH?!? What you on about {0}? (try `{1} hew/join/flyin/bail/flyout/games`)".format(
