@@ -61,6 +61,9 @@ class Bot():
     def handle_reaction(self, reaction):
         return False # abstract
 
+    def handle_unreaction(self, reaction):
+        return False # abstract
+
     def handle_deletion(self, deletion):
         return False # abstract
 

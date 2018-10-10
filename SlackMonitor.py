@@ -69,7 +69,7 @@ class SlackMonitor():
 
         return handled
 
-    def handle_reaction(self, slack_message, user, when):
+    def handle_reaction(self, slack_message, user, when, removed = False):
         item = slack_message.get('item')
 
         emoji = ENCODE(slack_message.get('reaction'))
@@ -83,7 +83,14 @@ class SlackMonitor():
             return
 
         reaction = SlackReaction(emoji, reacting_user, original_user, channel, original_msg_time, when)
-        handled = self.run_handlers(channel, lambda handler: handler.handle_reaction(reaction))
+
+        def dispatch(handler):
+            if removed:
+                handler.handle_unreaction(reaction)
+            else:
+                handler.handle_reaction(reaction)
+
+        handled = self.run_handlers(channel, dispatch)
         return handled
 
     def handle_deletion(self, deleted_ts, when, user, channel, deleted_text):
@@ -116,6 +123,10 @@ class SlackMonitor():
 
             if slack_message.get("type") == "reaction_added":
                 handled = self.handle_reaction(slack_message, user, when)
+                continue
+
+            if slack_message.get("type") == "reaction_removed":
+                handled = self.handle_reaction(slack_message, user, when, removed = True)
                 continue
 
             channel = self.lookup_channel(channel_id)
