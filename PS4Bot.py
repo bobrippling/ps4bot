@@ -229,10 +229,6 @@ class PS4Bot(Bot):
             return "no tips available"
         return "?"
 
-    def send_join_message(self, user, game):
-        banter = self.load_banter("joined", { "s": format_user(user), "d": game.description })
-        self.send_message(banter)
-
     def send_new_game_message(self, user, when, desc):
         banter = self.load_banter("created", { "s": format_user(user) })
         return self.send_message(
@@ -331,12 +327,14 @@ class PS4Bot(Bot):
             self.send_message("game's full, rip {0}".format(format_user(user)))
             return
         game.add_player(user)
-        self.send_join_message(user, game)
+        banter = self.load_banter("joined", { "s": format_user(user), "d": game.description })
+        self.send_message(banter)
         self.update_game_message(game)
 
     def remove_user_from_game(self, user, game):
         game.remove_player(user)
-        self.send_message(":candle: {}".format(format_user(user)))
+        banter = ":candle: {}".format(format_user(user))
+        self.send_message(banter)
         self.update_game_message(game)
 
     def handle_command(self, message, command, rest):
