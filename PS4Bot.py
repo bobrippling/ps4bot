@@ -68,12 +68,13 @@ def parse_hew(str):
     return time_parts[0], " ".join(desc_parts)
 
 class Game:
-    def __init__(self, when, desc, channel, msg):
+    def __init__(self, when, desc, channel, creator, msg):
         self.when = when
         self.description = desc
         self.players = []
         self.channel = channel
         self.message = msg
+        self.creator = creator
 
     def contains(self, when):
         duration = datetime.timedelta(minutes = PLAY_TIME)
@@ -126,12 +127,12 @@ class PS4Bot(Bot):
                     line = line.rstrip("\n")
                     if len(line) == 0:
                         continue
-                    tokens = line.split(" ", 3)
-                    if len(tokens) != 4:
+                    tokens = line.split(" ", 4)
+                    if len(tokens) != 5:
                         print "invalid line \"{}\"".format(line)
                         continue
 
-                    str_when, channel, str_players, description = tokens
+                    str_when, channel, creator, str_players, description = tokens
                     timestamp_str = f.readline()
                     if timestamp_str == "":
                         print "early EOF"
@@ -157,7 +158,7 @@ class PS4Bot(Bot):
                     players = str_players.split(",")
                     message = SlackPostedMessage(msg_channel, timestamp_str, "\n".join(extra_text))
 
-                    g = self.new_game(when, description, channel, message)
+                    g = self.new_game(when, description, channel, creator, message)
                     for p in players:
                         if len(p):
                             g.add_player(p)
@@ -168,9 +169,10 @@ class PS4Bot(Bot):
         try:
             with open("ps4-games.txt", "w") as f:
                 for g in self.games:
-                    print >>f, "{} {} {} {}".format(
+                    print >>f, "{} {} {} {} {}".format(
                             when_str(g.when),
                             g.channel,
+                            g.creator,
                             ",".join(g.players),
                             g.description)
 
@@ -191,8 +193,8 @@ class PS4Bot(Bot):
                 return game
         return None
 
-    def new_game(self, when, desc, channel, msg):
-        g = Game(when, desc, channel, msg)
+    def new_game(self, when, desc, channel, creator, msg):
+        g = Game(when, desc, channel, creator, msg)
         self.games.append(g)
         return g
 
@@ -267,7 +269,7 @@ class PS4Bot(Bot):
 
         msg = self.send_new_game_message(user, when, desc)
 
-        game = self.new_game(when, desc, channel, msg)
+        game = self.new_game(when, desc, channel, user, msg)
         game.add_player(user)
         self.update_game_message(game)
 
