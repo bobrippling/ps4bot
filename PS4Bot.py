@@ -256,9 +256,10 @@ class PS4Bot(Bot):
 
         game = self.find_time(when)
         if game:
-            self.send_message("there's already a game at {0}{1}. rip :candle:".format(
+            self.send_message("there's already a {} game at {}: {}. rip :candle:".format(
+                game.channel,
                 when_str(game.when),
-                ": {0}".format(game.description) if game.description else ""))
+                game.description))
             return
 
         msg = self.send_new_game_message(user, when, desc)
