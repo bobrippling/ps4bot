@@ -366,8 +366,17 @@ class PS4Bot(Bot):
             return
 
         self.games = filter(lambda g: g != game, self.games)
-        self.send_message(":candle: for {}'s {} ({}), {} has flown out the whole game".format(
-            game.channel, game.description, when_str(game.when), user))
+
+        rip_players = game.pretty_players(with_creator = False)
+        rip_players_message = " (just burn some time on kimble instead {})".format(rip_players) \
+            if len(rip_players) else ""
+
+        self.send_message(":candle: {}'s {} ({}) has been flown out by {}{}".format(
+            game.channel,
+            game.description,
+            when_str(game.when),
+            format_user(user),
+            rip_players_message))
 
 
     def handle_command(self, message, command, rest):
