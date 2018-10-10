@@ -409,9 +409,12 @@ class PS4Bot(Bot):
             self.maybe_show_tip()
         self.save()
 
+    def is_message_for_me(self, msg):
+        return msg.lower() == NAME
+
     def handle_message(self, message):
         tokens = message.text.split()
-        if len(tokens) < 1 or tokens[0] != NAME:
+        if len(tokens) < 1 or not self.is_message_for_me(tokens[0]):
             return False
 
         try:
