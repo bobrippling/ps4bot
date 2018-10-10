@@ -7,6 +7,7 @@ import re
 
 MAX_PLAYERS = 4
 PLAY_TIME = 30
+NAME = "ps4bot"
 
 def parse_time(s):
     am_pm = ""
@@ -343,7 +344,8 @@ class PS4Bot(Bot):
             self.join(message, rest, bail = True)
         else:
             self.send_message(
-                "EH?!? What you on about {0}? (try `ps4bot hew/join/flyin/bail/flyout/games`)".format(format_user(message.user)) +
+                "EH?!? What you on about {0}? (try `{1} hew/join/flyin/bail/flyout/games`)".format(
+                    format_user(message.user), NAME) +
                 "\n\n:film_projector: Credits :clapper:" +
                 "\n-------------------" +
                 "\n:toilet: Barely functional codebase: <@rpilling>" +
@@ -406,7 +408,7 @@ class PS4Bot(Bot):
 
     def handle_message(self, message):
         tokens = message.text.split()
-        if len(tokens) < 1 or tokens[0] != "ps4bot":
+        if len(tokens) < 1 or tokens[0] != NAME:
             return False
 
         try:
@@ -414,5 +416,5 @@ class PS4Bot(Bot):
             message.user = self.lookup_user(message.user)
             self.handle_command(message, tokens[1] if len(tokens) > 1 else "", " ".join(tokens[2:]))
         except Exception as e:
-            self.send_message("ps4bot's massive computer membrane has ruptured")
+            self.send_message("{}'s massive computer membrane has ruptured".format(NAME))
             raise e
