@@ -20,6 +20,9 @@ def parse_time(s):
         raise ValueError
 
     if len(time_parts) == 1:
+        time_parts = s.split(".")
+
+    if len(time_parts) == 1:
         time_parts.append("00")
 
     hour = int(time_parts[0])
@@ -46,7 +49,7 @@ def parse_hew(str):
     parts = str.split(" ")
 
     def is_time(part):
-       return re.match("^[0-9]+(:[0-9]+)?([ap]m)?$", part)
+       return re.match("^[0-9]+([:.][0-9]+)?([ap]m)?$", part)
     time_prefixes = ["at"]
 
     time_parts = []
