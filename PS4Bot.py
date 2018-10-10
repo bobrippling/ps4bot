@@ -54,7 +54,7 @@ def parse_hew(str):
     for part in parts:
         if is_time(part):
             time_parts.append(part)
-            if desc_parts[-1] in time_prefixes:
+            if len(desc_parts) and desc_parts[-1] in time_prefixes:
                 desc_parts.pop()
         else:
             desc_parts.append(part)
