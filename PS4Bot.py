@@ -45,7 +45,7 @@ def parse_hew(str):
     parts = str.split(" ")
 
     def is_time(part):
-       return re.match('^[0-9]+(:[0-9]+)?([ap]m)?$', part)
+       return re.match("^[0-9]+(:[0-9]+)?([ap]m)?$", part)
     time_prefixes = ["at"]
 
     time_parts = []
@@ -106,7 +106,7 @@ class PS4Bot(Bot):
     def __init__(self, slackconnection, botname):
         Bot.__init__(self, slackconnection, botname)
 
-        self.icon_emoji = ':video_game:'
+        self.icon_emoji = ":video_game:"
         self.games = []
         self.want_tip = False
         self.load()
@@ -229,11 +229,11 @@ class PS4Bot(Bot):
         return "?"
 
     def send_join_message(self, user, game):
-        banter = self.load_banter("joined", { 's': format_user(user), 'd': game.description })
+        banter = self.load_banter("joined", { "s": format_user(user), "d": game.description })
         self.send_message(banter)
 
     def send_new_game_message(self, user, when, desc):
-        banter = self.load_banter("created", { 's': format_user(user) })
+        banter = self.load_banter("created", { "s": format_user(user) })
         return self.send_message(
                 ">>> :desktop_computer::loud_sound::video_game::joystick::game_die:\n"
                 + banter + "\n"
@@ -333,13 +333,13 @@ class PS4Bot(Bot):
         self.update_game_message(g)
 
     def handle_command(self, message, command, rest):
-        if command == 'hew':
+        if command == "hew":
             self.maybe_new_game(message.user, message.channel.name, rest)
-        elif command == 'games':
+        elif command == "games":
             self.show_games()
-        elif command == 'join':
+        elif command == "join":
             self.join(message, rest)
-        elif command == 'bail':
+        elif command == "bail":
             self.join(message, rest, bail = True)
         else:
             self.send_message(
@@ -372,9 +372,9 @@ class PS4Bot(Bot):
                     g.description, when_str(g.when))
             else:
                 banter = self.load_banter("kickoff", {
-                    's': g.pretty_players(),
-                    't': when_str(g.when),
-                    'd': g.description,
+                    "s": g.pretty_players(),
+                    "t": when_str(g.when),
+                    "d": g.description,
                 })
 
             self.send_message(banter, to_channel = g.channel)
@@ -411,7 +411,7 @@ class PS4Bot(Bot):
         try:
             # lookup message.user
             message.user = self.lookup_user(message.user)
-            self.handle_command(message, tokens[1] if len(tokens) > 1 else '', ' '.join(tokens[2:]))
+            self.handle_command(message, tokens[1] if len(tokens) > 1 else "", " ".join(tokens[2:]))
         except Exception as e:
             self.send_message("ps4bot's massive computer membrane has ruptured")
             raise e
