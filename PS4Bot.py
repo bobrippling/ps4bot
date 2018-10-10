@@ -394,7 +394,7 @@ class PS4Bot(Bot):
             self.join_or_bail(message, rest, bail = True)
         else:
             self.send_message((
-                "Hew {0}, here's what I listen to: `{1} hew/join/flyin/bail/flyout/divant/games`," +
+                "Hew {0}, here's what I listen to: `{1} hew/flyin/flyout/divant/games`," +
                 "\nor try adding a :+1: to a game invite." +
                 "\n\n:film_projector: Credits :clapper:" +
                 "\n-------------------" +
