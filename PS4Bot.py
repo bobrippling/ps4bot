@@ -98,8 +98,9 @@ class Game:
                 + " and " + format_user(self.players[-1])
 
     def pretty(self):
-        return "{0} {1} {2}".format(
+        return "{}, {}, {} {}".format(
                 when_str(self.when),
+                self.channel,
                 self.description,
                 self.pretty_players())
 
