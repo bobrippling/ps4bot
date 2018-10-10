@@ -4,4 +4,6 @@
 
 # Running
 
-`./lunchbot channel-name`
+`./lunchbot channels... -- bots...`
+
+This runs those bots, listening on the specified channels.
