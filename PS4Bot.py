@@ -324,14 +324,17 @@ class PS4Bot(Bot):
         if bail:
             g.remove_player(message.user)
             self.send_message(":candle: {}".format(format_user(message.user)))
+            self.update_game_message(g)
         else:
-            if len(g.players) >= MAX_PLAYERS:
-                self.send_message("game's full, rip {0}".format(format_user(message.user)))
-                return
-            g.add_player(message.user)
-            self.send_join_message(message.user, g)
+            self.add_user_to_game(message.user, g)
 
-        self.update_game_message(g)
+    def add_user_to_game(self, user, game):
+        if len(game.players) >= MAX_PLAYERS:
+            self.send_message("game's full, rip {0}".format(format_user(user)))
+            return
+        game.add_player(user)
+        self.send_join_message(user, game)
+        self.update_game_message(game)
 
     def handle_command(self, message, command, rest):
         if command == "hew":
