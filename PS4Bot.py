@@ -314,20 +314,15 @@ class PS4Bot(Bot):
             self.send_message("howay! `flyin/join/flyout/bail <game-time>`")
             return
 
-        found = None
-        for g in self.games:
-            if g.contains(when):
-                found = g
-                break
-
-        if not found:
+        game = self.find_time(when)
+        if not game:
             self.send_message("{0}, there isnae game at {1}".format(format_user(message.user), when_str(when)))
             return
 
         if bail:
-            self.remove_user_from_game(message.user, g)
+            self.remove_user_from_game(message.user, game)
         else:
-            self.add_user_to_game(message.user, g)
+            self.add_user_to_game(message.user, game)
 
     def add_user_to_game(self, user, game, subtle_message = False):
         if len(game.players) >= MAX_PLAYERS:
