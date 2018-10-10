@@ -378,6 +378,8 @@ class PS4Bot(Bot):
             format_user(user),
             rip_players_message))
 
+        newtext = game.message.text + "\n:warning: Cancelled :warning: :candle::candle:"
+        self.update_message(newtext, original_message = game.message)
 
     def handle_command(self, message, command, rest):
         if command == "hew":
