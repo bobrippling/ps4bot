@@ -27,7 +27,7 @@ class SlackMonitor():
         self.handlers = dict()
         self.allhandlers = []
         self.idle_timeout = 5 * 60 # seconds
-        self.timeout_timeout = 5 # seconds
+        self.timeout_timeout = 3 * 60 # seconds
         self.connect()
 
     def connect(self):
