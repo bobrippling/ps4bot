@@ -449,7 +449,7 @@ class PS4Bot(Bot):
     def teardown(self):
         self.save()
 
-    def idle(self):
+    def timeout(self):
         imminent = self.handle_imminent_games()
         if len(imminent) == 0:
             self.maybe_show_tip()
