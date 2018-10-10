@@ -322,9 +322,7 @@ class PS4Bot(Bot):
             return
 
         if bail:
-            g.remove_player(message.user)
-            self.send_message(":candle: {}".format(format_user(message.user)))
-            self.update_game_message(g)
+            self.remove_user_from_game(message.user, g)
         else:
             self.add_user_to_game(message.user, g)
 
@@ -334,6 +332,11 @@ class PS4Bot(Bot):
             return
         game.add_player(user)
         self.send_join_message(user, game)
+        self.update_game_message(game)
+
+    def remove_user_from_game(self, user, game):
+        game.remove_player(user)
+        self.send_message(":candle: {}".format(format_user(user)))
         self.update_game_message(game)
 
     def handle_command(self, message, command, rest):
