@@ -412,6 +412,31 @@ class PS4Bot(Bot):
             self.maybe_show_tip()
         self.save()
 
+    def handle_reaction(self, reaction, removed = False):
+        channel = reaction.channel.name
+        emoji = reaction.emoji
+        msg_when = reaction.original_msg_time
+        reacting_user = self.lookup_user(reaction.reacting_user)
+
+        game = None
+        for g in self.games:
+            if g.message.timestamp == msg_when:
+                game = g
+                break
+
+        if game is None:
+            return
+
+        join_emojis = ["+1", "thumbsup", "plus1" "heavy_plus_sign"]
+        if emoji in join_emojis:
+            if removed:
+                self.remove_user_from_game(reacting_user, game)
+            else:
+                self.add_user_to_game(reacting_user, game)
+
+    def handle_unreaction(self, reaction):
+        self.handle_reaction(reaction, removed = True)
+
     def is_message_for_me(self, msg):
         return msg.lower() == NAME
 
