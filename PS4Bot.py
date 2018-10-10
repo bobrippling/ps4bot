@@ -92,14 +92,19 @@ class Game:
         if p in self.players:
             self.players.remove(p)
 
-    def pretty_players(self):
-        if len(self.players) == 0:
-            return ""
-        if len(self.players) == 1:
-            return format_user(self.players[0])
+    def pretty_players(self, with_creator = True):
+        if with_creator:
+            players = self.players
+        else:
+            players = filter(lambda p: p != self.creator, self.players)
 
-        return ", ".join(map(format_user, self.players[:-1])) \
-                + " and " + format_user(self.players[-1])
+        if len(players) == 0:
+            return ""
+        if len(players) == 1:
+            return format_user(players[0])
+
+        return ", ".join(map(format_user, players[:-1])) \
+                + " and " + format_user(players[-1])
 
     def pretty(self):
         return "{}, {}, {} {}".format(
