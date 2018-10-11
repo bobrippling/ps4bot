@@ -119,7 +119,6 @@ class PS4Bot(Bot):
 
         self.icon_emoji = ":video_game:"
         self.games = []
-        self.want_tip = False
         self.load()
 
     def load(self):
@@ -236,8 +235,6 @@ class PS4Bot(Bot):
             return "game registered, gg"
         if type == "kickoff":
             return "match kickoff is now"
-        if type == "tip":
-            return "no tips available"
         return "?"
 
     def send_new_game_message(self, user, when, desc):
@@ -406,8 +403,6 @@ class PS4Bot(Bot):
                 "\n:scroll: Banter: <@danallsop>" +
                 "").format(format_user(message.user), NAME))
 
-        self.want_tip = True
-
     def handle_imminent_games(self):
         now = datetime.datetime.today()
         fiveminutes = datetime.timedelta(minutes = 5)
@@ -431,29 +426,11 @@ class PS4Bot(Bot):
 
             self.send_message(banter, to_channel = g.channel)
 
-        return imminent
-
-    def maybe_show_tip(self):
-        if not self.want_tip:
-            return
-        self.want_tip = False
-
-        if len(self.games) == 0:
-            return
-        if random.randint(0, 10) > 7:
-            return
-
-        game = self.games[random.randint(0, len(self.games) - 1)]
-        banter = self.load_banter("tip")
-        self.send_message(banter, to_channel = game.channel)
-
     def teardown(self):
         self.save()
 
     def timeout(self):
-        imminent = self.handle_imminent_games()
-        if len(imminent) == 0:
-            self.maybe_show_tip()
+        self.handle_imminent_games()
         self.save()
 
     def handle_reaction(self, reaction, removed = False):
