@@ -1,0 +1,19 @@
+Tasks for PS4Bot:
+
+Localisation:
+	Usage:
+		- not using join/bail properly (e.g. no time given, no description given) ["howay! `flyin/join/flyout/bail <game-time>`"]
+		- invalid time input ["scrubadubdub, when's this game you want to cancel?", etc]
+		- not using hew properly ["howay! `hew` needs a time and description, GET AMONGST IT"]
+
+	Invalid Attempts:
+		- double-book attempt ["there's already a {channel} game at {when}: {description}. rip :candle:"]
+		- game not found (ps4bot join/bail) ["{user}, there isnae game at {when}", "scrubadubdub, there's no game at {when}"]
+		- game's full ["game's full, rip {user}"]
+		- no games when asked (ps4bot games) ["no games, are people actually doing work??"]
+
+	Actions:
+		- player leaves game [":candle: {user}"]
+		- attempt to cancel another player's game ["scrubadubdub, only {owner} can cancel {description} ({when})"]
+		- game cancelled [":candle: {channel}'s {description} ({when}) has been flown out by {user} (just burn some time on kimble instead {other_players})"]
+		- game empty at kickoff ["big game ({description}) about to kick off at {when}, no one wants to play?"]
