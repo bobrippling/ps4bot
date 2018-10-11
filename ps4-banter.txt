@@ -103,9 +103,9 @@ joined: %s has entered the ''%d' game, recently escaped from a zoo
 joined: welcome to %d, %s. I didn't want to be the one to tell you but you should probably think about retirement.
 joined: %s has entered the '%d' game, once went for a swim and it looked like 22 kids having a water fight
 
-kickoff: FLY YOU FOOLS!!! %t %d - %s
-kickoff: %s: DING DING DING round 1 %d
-kickoff: 5... 4... 3... 2... 1... BIG GAME IS GO! %d %s
+kickoff: fly you fools! %t %d - %s
+kickoff: %s: ding ding ding round 1 %d
+kickoff: 5... 4... 3... 2... 1... big game is go! %d %s
 kickoff: Well done, you're all late for the beginning of %d %s
 kickoff: You are all late. Can you suckers even tell the time? %d %s
 kickoff: printf("%d\n"); // TODO: big game for %s
@@ -117,15 +117,15 @@ kickoff: Place your bets for %d %s
 kickoff: Will %s please make their way to the PS4 for %d?
 kickoff: %s %d reminder++
 kickoff: Match has begun, be there and be square %s (%d)
-kickoff: GET TO DA CONSOLE!!! %s %d
+kickoff: get to da console! %s %d
 kickoff: Get moving %d nerds %s
 kickoff: Head 'em up, move 'em on, rawhide. Wrangling these simpletons (%s) like I have a PhD in Nerd Herding for %d
 kickoff: Time to show up to the %d showdown because the show is on %s
 kickoff: new BigGame("%d", %s).start = Date.now()
-kickoff: %s if you are reading this you are late to the BIGGEST GAME OF ALL TIME %d
+kickoff: %s if you are reading this you are late to the biggest game of all time, %d
 kickoff: Punch it chewie, RAAAAAAAAAAARRRRRR %d %s
 kickoff: Can ya'll (%s) please report to Dr Console's office. It's about %d at %t.
-kickoff: IT's TIME for the main event of the day - %d, featuring %s. Be there, %t.
+kickoff: it's time for the main event of the day - %d, featuring %s. Be there, %t.
 
 tip: Fire burns
 tip: Butter does not churn itself
