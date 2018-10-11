@@ -76,12 +76,13 @@ class Game:
         self.message = msg
         self.creator = creator
 
-    def contains(self, when):
+    def endtime(self):
         duration = datetime.timedelta(minutes = PLAY_TIME)
+        return self.when + duration
 
+    def contains(self, when):
         game_start = self.when
-        game_end = self.when + duration
-
+        game_end = self.endtime()
         return game_start <= when < game_end
 
     def add_player(self, p):
