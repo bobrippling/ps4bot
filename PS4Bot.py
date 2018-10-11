@@ -68,13 +68,14 @@ def parse_hew(str):
     return time_parts[0], " ".join(desc_parts)
 
 class Game:
-    def __init__(self, when, desc, channel, creator, msg):
+    def __init__(self, when, desc, channel, creator, msg, notified):
         self.when = when
         self.description = desc
         self.players = []
         self.channel = channel
         self.message = msg
         self.creator = creator
+        self.notified = notified
 
     def endtime(self):
         duration = datetime.timedelta(minutes = PLAY_TIME)
@@ -132,12 +133,12 @@ class PS4Bot(Bot):
                     line = line.rstrip("\n")
                     if len(line) == 0:
                         continue
-                    tokens = line.split(" ", 4)
-                    if len(tokens) != 5:
+                    tokens = line.split(" ", 5)
+                    if len(tokens) != 6:
                         print "invalid line \"{}\"".format(line)
                         continue
 
-                    str_when, channel, creator, str_players, description = tokens
+                    str_when, channel, creator, str_notified, str_players, description = tokens
                     timestamp_str = f.readline()
                     if timestamp_str == "":
                         print "early EOF"
@@ -160,10 +161,11 @@ class PS4Bot(Bot):
                         line = f.readline()
 
                     when = parse_time(str_when)
+                    notified = str_notified == "True"
                     players = str_players.split(",")
                     message = SlackPostedMessage(msg_channel, timestamp_str, "\n".join(extra_text))
 
-                    g = self.new_game(when, description, channel, creator, message)
+                    g = self.new_game(when, description, channel, creator, message, notified)
                     for p in players:
                         if len(p):
                             g.add_player(p)
@@ -174,10 +176,11 @@ class PS4Bot(Bot):
         try:
             with open("ps4-games.txt", "w") as f:
                 for g in self.games:
-                    print >>f, "{} {} {} {} {}".format(
+                    print >>f, "{} {} {} {} {} {}".format(
                             when_str(g.when),
                             g.channel,
                             g.creator,
+                            g.notified,
                             ",".join(g.players),
                             g.description)
 
@@ -198,8 +201,8 @@ class PS4Bot(Bot):
                 return game
         return None
 
-    def new_game(self, when, desc, channel, creator, msg):
-        g = Game(when, desc, channel, creator, msg)
+    def new_game(self, when, desc, channel, creator, msg, notified = False):
+        g = Game(when, desc, channel, creator, msg, notified)
         self.games.append(g)
         return g
 
@@ -409,10 +412,13 @@ class PS4Bot(Bot):
         fiveminutes = datetime.timedelta(minutes = 5)
 
         def game_is_imminent(g):
-            return g.when <= now + fiveminutes
+            return not g.notified and g.when <= now + fiveminutes
+
+        def game_has_expired(g):
+            return g.endtime() < now
 
         imminent = filter(game_is_imminent, self.games)
-        self.games = filter(lambda g: not game_is_imminent(g), self.games)
+        self.games = filter(game_has_expired, self.games)
 
         for g in imminent:
             if len(g.players) == 0:
@@ -426,6 +432,7 @@ class PS4Bot(Bot):
                 })
 
             self.send_message(banter, to_channel = g.channel)
+            g.notified = True
 
     def teardown(self):
         self.save()
