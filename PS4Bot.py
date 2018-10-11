@@ -414,11 +414,11 @@ class PS4Bot(Bot):
         def game_is_imminent(g):
             return not g.notified and g.when <= now + fiveminutes
 
-        def game_has_expired(g):
-            return g.endtime() < now
+        def game_active_or_scheduled(g):
+            return now < g.endtime()
 
         imminent = filter(game_is_imminent, self.games)
-        self.games = filter(game_has_expired, self.games)
+        self.games = filter(game_active_or_scheduled, self.games)
 
         for g in imminent:
             if len(g.players) == 0:
