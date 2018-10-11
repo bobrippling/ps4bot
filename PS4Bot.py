@@ -109,11 +109,12 @@ class Game:
                 + " and " + format_user(players[-1])
 
     def pretty(self):
-        return "{}, {}, {} {}".format(
+        return "{}{}, {}'s {}, with {}".format(
                 when_str(self.when),
+                " (in progress)" if self.notified else "",
                 self.channel,
                 self.description,
-                self.pretty_players())
+                self.pretty_players() if len(self.players) else "nobody")
 
 class PS4Bot(Bot):
     def __init__(self, slackconnection, botname):
