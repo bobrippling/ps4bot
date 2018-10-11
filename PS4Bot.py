@@ -384,7 +384,7 @@ class PS4Bot(Bot):
     def handle_command(self, message, command, rest):
         if command == "hew":
             self.maybe_new_game(message.user, message.channel.name, rest)
-        elif command == "divant":
+        elif command == "nar":
             self.maybe_cancel_game(message.user, rest)
         elif command == "games":
             self.show_games()
@@ -394,7 +394,7 @@ class PS4Bot(Bot):
             self.join_or_bail(message, rest, bail = True)
         else:
             self.send_message((
-                "Hew {0}, here's what I listen to: `{1} hew/flyin/flyout/divant/games`," +
+                "Hew {0}, here's what I listen to: `{1} hew/flyin/flyout/nar/games`," +
                 "\nor try adding a :+1: to a game invite." +
                 "\n\n:film_projector: Credits :clapper:" +
                 "\n-------------------" +
