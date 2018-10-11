@@ -46,7 +46,7 @@ class SlackMonitor():
     def run_handler(self, handler, cb):
         try:
             cb(handler)
-        except TypeError as e:
+        except Exception as e:
             print >>sys.stderr, '\7error running handler "{}": {}'.format(handler.botname, e)
             traceback.print_exc()
 
