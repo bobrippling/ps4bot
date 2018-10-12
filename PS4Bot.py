@@ -406,6 +406,7 @@ class PS4Bot(Bot):
                 "\n:movie_camera: Cinematographer: <@danallsop>" +
                 "\n:muscle: More localisation: <@morchard>" +
                 "\n:scroll: Banter: <@danallsop>" +
+                "\n:javascript: More banter: <@craigayre>" +
                 "").format(format_user(message.user), NAME))
 
     def handle_imminent_games(self):
