@@ -1,5 +1,10 @@
 Tasks for PS4Bot:
 
+Messaging:
+	Update all "ps4bot games" messages when a game changes
+	Only show "game's full" as a channel-message if requested from a channel message
+	If a game isn't full 10 minutes beforehand, send a "@here" requesting additional players
+
 Localisation:
 	Usage:
 		- not using join/bail properly (e.g. no time given, no description given) ["howay! `flyin/join/flyout/bail <game-time>`"]
