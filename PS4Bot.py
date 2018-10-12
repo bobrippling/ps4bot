@@ -310,7 +310,7 @@ class PS4Bot(Bot):
         players = ""
         if len(game.players):
             players = "\nplayers: {} `{}`".format(game.pretty_players(), len(game.players))
-        newtext = game.message.text + players + ("\n" + subtle_addition if subtle_addition else "")
+        newtext = game.message.text + players + ("\nlatest news: " + subtle_addition if subtle_addition else "")
 
         self.update_message(newtext, original_message = game.message)
 
