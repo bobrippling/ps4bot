@@ -109,11 +109,12 @@ class Game:
                 + " and " + format_user(players[-1])
 
     def pretty(self):
-        return "{}{}, {}'s {}, with {}".format(
+        return "{}{}, {}'s {} from {}, with {}".format(
                 when_str(self.when),
                 " (in progress)" if self.notified else "",
-                self.channel,
+                format_user(self.creator),
                 self.description,
+                self.channel,
                 self.pretty_players() if len(self.players) else "nobody")
 
 class PS4Bot(Bot):
