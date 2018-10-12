@@ -18,6 +18,9 @@ def ENCODE(s):
 def log(s):
     print time.strftime(MSG_TIME_FORMAT, time.localtime(time.time())), s
 
+def filter_emoji(emoji):
+    return emoji.split(":")[0]
+
 class SlackMonitorConnectError():
     pass
 
@@ -72,7 +75,7 @@ class SlackMonitor():
     def handle_reaction(self, slack_message, user, when, removed = False):
         item = slack_message.get('item')
 
-        emoji = ENCODE(slack_message.get('reaction'))
+        emoji = filter_emoji(ENCODE(slack_message.get('reaction')))
         reacting_user = ENCODE(user)
         original_user = ENCODE(slack_message.get('item_user'))
 
