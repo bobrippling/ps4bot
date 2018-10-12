@@ -31,6 +31,10 @@ def parse_time(s):
     if len(am_pm):
         if am_pm == "p":
             hour += 12
+    else:
+        # no am/pm specified, if it's before 8:00, assume they mean afternoon
+        if hour < 8:
+            hour += 12
 
     return datetime.datetime.today().replace(hour = hour, minute = min, second = 0, microsecond = 0)
 
