@@ -175,7 +175,7 @@ class SlackMonitor():
                 old_message_text = ENCODE(old_message_text)
                 user = ENCODE(user)
 
-                edit = SlackEdit(user, channel, old_message_text, new_message_text, when)
+                edit = SlackEdit(user, channel, old_message_text, new_message_text, when, thread_ts)
                 handled = self.run_handlers(channel, lambda handler: handler.handle_edit(edit))
 
         return handled
