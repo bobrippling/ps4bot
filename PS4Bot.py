@@ -204,7 +204,7 @@ class PS4Bot(Bot):
 
 
     def send_hew_usage(self):
-        self.send_message("howay! `hew` needs a time and description, GET AMONGST IT")
+        self.send_message(":warning: howay! `hew` needs a time and description, GET AMONGST IT")
 
     def find_time(self, when):
         for game in self.games:
@@ -278,7 +278,7 @@ class PS4Bot(Bot):
 
         game = self.find_time(when)
         if game:
-            self.send_message("there's already a {} game at {}: {}. rip :candle:".format(
+            self.send_message(":warning: there's already a {} game at {}: {}. rip :candle:".format(
                 game.channel,
                 when_str(game.when),
                 game.description))
@@ -304,7 +304,7 @@ class PS4Bot(Bot):
 
     def show_games(self):
         if len(self.games) == 0:
-            self.send_message("no games, are people actually doing work??")
+            self.send_message(":warning: no games, are people actually doing work??")
             return
 
         self.send_message("{0} game{1}:\n{2}".format(
@@ -328,12 +328,12 @@ class PS4Bot(Bot):
         try:
             when = parse_time(rest)
         except ValueError:
-            self.send_message("howay! `flyin/join/flyout/bail <game-time>`")
+            self.send_message(":warning: howay! `flyin/join/flyout/bail <game-time>`")
             return
 
         game = self.find_time(when)
         if not game:
-            self.send_message("{0}, there isnae game at {1}".format(format_user(message.user), when_str(when)))
+            self.send_message(":warning: {0}, there isnae game at {1}".format(format_user(message.user), when_str(when)))
             return
 
         if bail:
@@ -343,7 +343,7 @@ class PS4Bot(Bot):
 
     def add_user_to_game(self, user, game, subtle_message = False):
         if len(game.players) >= MAX_PLAYERS:
-            self.send_message("game's full, rip {0}".format(format_user(user)))
+            self.send_message(":warning: game's full, rip {0}".format(format_user(user)))
             return
 
         if not game.add_player(user):
@@ -372,16 +372,16 @@ class PS4Bot(Bot):
         try:
             when = parse_time(rest)
         except ValueError:
-            self.send_message("scrubadubdub, when's this game you want to cancel?".format(rest))
+            self.send_message(":warning: scrubadubdub, when's this game you want to cancel?".format(rest))
             return
 
         game = self.find_time(when)
         if not game:
-            self.send_message("scrubadubdub, there's no game at {}".format(when_str(when)))
+            self.send_message(":warning: scrubadubdub, there's no game at {}".format(when_str(when)))
             return
 
         if game.creator != user:
-            self.send_message("scrubadubdub, only {} can cancel {} ({})".format(
+            self.send_message(":warning: scrubadubdub, only {} can cancel {} ({})".format(
                 format_user(game.creator), game.description, when_str(game.when)))
             return
 
@@ -414,7 +414,7 @@ class PS4Bot(Bot):
             self.join_or_bail(message, rest, bail = True)
         else:
             self.send_message((
-                "Hew {0}, here's what I listen to: `{1} hew/flyin/flyout/nar/games`," +
+                ":warning: Hew {0}, here's what I listen to: `{1} hew/flyin/flyout/nar/games`," +
                 "\nor try adding a :+1: to a game invite." +
                 "\n\n:film_projector: Credits :clapper:" +
                 "\n-------------------" +
@@ -499,5 +499,5 @@ class PS4Bot(Bot):
             message.user = self.lookup_user(message.user)
             self.handle_command(message, tokens[1] if len(tokens) > 1 else "", " ".join(tokens[2:]))
         except Exception as e:
-            self.send_message("{}'s massive computer membrane has ruptured".format(NAME))
+            self.send_message(":rotating_light: {}'s massive computer membrane has ruptured".format(NAME))
             raise e
