@@ -489,6 +489,9 @@ class PS4Bot(Bot):
     def is_message_for_me(self, msg):
         return msg.lower() == NAME
 
+    def handle_edit(self, edit):
+        self.handle_message(edit.toMessage())
+
     def handle_message(self, message):
         tokens = message.text.split()
         if len(tokens) < 1 or not self.is_message_for_me(tokens[0]):
