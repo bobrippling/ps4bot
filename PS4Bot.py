@@ -345,9 +345,12 @@ class PS4Bot(Bot):
         if len(game.players) >= MAX_PLAYERS:
             self.send_message("game's full, rip {0}".format(format_user(user)))
             return
-        game.add_player(user)
 
-        banter = self.load_banter("joined", { "s": format_user(user), "d": game.description })
+        if not game.add_player(user):
+            banter = "you're already in the '{}' game {}".format(game.description, format_user(user))
+        else:
+            banter = self.load_banter("joined", { "s": format_user(user), "d": game.description })
+
         if not subtle_message:
             self.send_message(banter)
         self.update_game_message(game, banter if subtle_message else None)
