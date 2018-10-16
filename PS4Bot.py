@@ -8,7 +8,7 @@ import re
 MAX_PLAYERS = 4
 PLAY_TIME = 30
 NAME = "ps4bot"
-DIALECT = ["here", "areet"]
+DIALECT = ["here", "hew", "areet"]
 
 def parse_time(s):
     am_pm = ""
@@ -215,9 +215,6 @@ class PS4Bot(Bot):
             print >>sys.stderr, "exception saving state: {}".format(e)
 
 
-    def send_hew_usage(self):
-        self.send_message(":warning: howay! `hew` needs a time and description, GET AMONGST IT")
-
     def find_time(self, when, ignoring = None):
         for game in self.games:
             if game != ignoring and game.contains(when):
@@ -265,10 +262,13 @@ class PS4Bot(Bot):
         return "?"
 
     def maybe_new_game(self, user, channel, rest):
+        """
+        Attempts to create a new game from freeform text
+        Returns True on parse success (even if game creation failed)
+        """
         parsed = parse_hew(rest)
         if not parsed:
-            self.send_hew_usage()
-            return
+            return False
 
         time, desc = parsed
         if len(desc) == 0:
@@ -277,13 +277,12 @@ class PS4Bot(Bot):
         try:
             when = parse_time(time)
         except ValueError:
-            self.send_hew_usage()
-            return
+            return True
 
         game = self.find_time(when)
         if game:
             self.send_duplicate_game_message(game)
-            return
+            return True
 
         banter = self.load_banter("created", { "s": format_user(user) })
         message = Game.create_message(banter, desc, when)
@@ -294,6 +293,7 @@ class PS4Bot(Bot):
         self.update_game_message(game)
 
         self.save()
+        return True
 
     def chronological_games(self):
         def cmp_games(a, b):
@@ -464,9 +464,7 @@ class PS4Bot(Bot):
             format_user(message.user)))
 
     def handle_command(self, message, command, rest):
-        if command == "hew":
-            self.maybe_new_game(message.user, message.channel.name, rest)
-        elif command == "nar":
+        if command == "nar":
             self.maybe_cancel_game(message.user, rest)
         elif command == "games":
             self.show_games()
@@ -476,9 +474,10 @@ class PS4Bot(Bot):
             self.join_or_bail(message, rest, bail = True)
         elif command == "scuttle":
             self.maybe_scuttle_game(message, rest)
-        else:
+        # attempt to parse a big game, if unsuccessful, show usage:
+        elif not self.maybe_new_game(message.user, message.channel.name, command + " " + rest):
             self.send_message((
-                ":warning: Hew {0}, here's what I listen to: `{1} hew/flyin/flyout/nar/scuttle/games`," +
+                ":warning: Hew {0}, here's what I listen to: `{1} flyin/flyout/nar/scuttle/games`," +
                 "\nor try adding a :+1: to a game invite." +
                 "\n\n:film_projector: Credits :clapper:" +
                 "\n-------------------" +
