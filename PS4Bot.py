@@ -259,6 +259,8 @@ class PS4Bot(Bot):
             return "game registered, gg"
         if type == "kickoff":
             return "match kickoff is now"
+        if type == "dialect":
+            return "areet"
         return "?"
 
     def maybe_new_game(self, user, channel, rest):
@@ -463,8 +465,14 @@ class PS4Bot(Bot):
             when_str(when_to),
             format_user(message.user)))
 
+    def send_dialect_reply(self, message):
+        reply = self.load_banter("dialect", { "u": format_user(message.user) })
+        self.send_message(reply)
+
     def handle_command(self, message, command, rest):
-        if command == "nar":
+        if len(command.strip()) == 0 and len(rest) == 0:
+            self.send_dialect_reply(message)
+        elif command == "nar":
             self.maybe_cancel_game(message.user, rest)
         elif command == "games":
             self.show_games()
