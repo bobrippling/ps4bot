@@ -95,8 +95,11 @@ class Game:
             self.players.append(p)
 
     def remove_player(self, p):
-        if p in self.players:
-            self.players.remove(p)
+        if p not in self.players:
+            return False
+
+        self.players.remove(p)
+        return True
 
     def pretty_players(self, with_creator = True):
         if with_creator:
