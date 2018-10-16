@@ -213,9 +213,9 @@ class PS4Bot(Bot):
     def send_hew_usage(self):
         self.send_message(":warning: howay! `hew` needs a time and description, GET AMONGST IT")
 
-    def find_time(self, when):
+    def find_time(self, when, ignoring = None):
         for game in self.games:
-            if game.contains(when):
+            if game != ignoring and game.contains(when):
                 return game
         return None
 
