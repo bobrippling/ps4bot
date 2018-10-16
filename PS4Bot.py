@@ -110,6 +110,10 @@ class Game:
         self.players.remove(p)
         return True
 
+    def update_when(self, new_when, new_banter):
+        self.when = new_when
+        self.message.text = Game.create_message(new_banter, self.description, self.when)
+
     def pretty_players(self, with_creator = True):
         if with_creator:
             players = self.players
@@ -372,6 +376,9 @@ class PS4Bot(Bot):
         else:
             self.send_message(":warning: scrubadubdub, there's no game at {}".format(when_str(when)))
 
+    def send_scuttle_usage(self):
+        self.send_message(":warning: scrubadubdub, try something like \"scuttle 16:00 to 3:30pm\"")
+
     def send_duplicate_game_message(self, game):
         self.send_message(":warning: there's already a {} game at {}: {}. rip :candle:".format(
             game.channel,
@@ -411,6 +418,50 @@ class PS4Bot(Bot):
         newtext = game.message.text + "\n:warning: Cancelled :warning: :candle::candle:"
         self.update_message(newtext, original_message = game.message)
 
+
+    def maybe_scuttle_game(self, message, rest):
+        tokens = rest.split(" ")
+        if len(tokens) != 3 or tokens[1] != "to":
+            self.send_scuttle_usage()
+            return
+
+        try:
+            when_from = parse_time(tokens[0])
+            when_to = parse_time(tokens[2])
+        except ValueError:
+            self.send_scuttle_usage()
+            return
+
+        game_to_move = self.find_time(when_from)
+        if not game_to_move:
+            self.send_game_not_found(when_from, message.user)
+            return
+
+        if game_to_move.creator != message.user:
+            self.send_message(":warning: scrubadubdub, only {} can scuttle the {} {}".format(
+                format_user(game_to_move.creator),
+                when_str(game_to_move.when),
+                game_to_move.description))
+            return
+
+        game_in_slot = self.find_time(when_to, game_to_move)
+        if game_in_slot:
+            self.send_duplicate_game_message(game_in_slot)
+            return
+
+        banter = self.load_banter("created", { "s": format_user(message.user) })
+        game_to_move.update_when(when_to, banter)
+        self.update_game_message(game_to_move, "moved by {} to {}".format(
+            format_user(message.user), when_str(when_to)))
+
+        pretty_players = game_to_move.pretty_players(with_creator = False)
+        self.send_message(":alarm_clock: {}{} moved from {} to {} by {}".format(
+            pretty_players + " - " if len(pretty_players) else "",
+            game_to_move.description,
+            when_str(when_from),
+            when_str(when_to),
+            format_user(message.user)))
+
     def handle_command(self, message, command, rest):
         if command == "hew":
             self.maybe_new_game(message.user, message.channel.name, rest)
@@ -422,9 +473,11 @@ class PS4Bot(Bot):
             self.join_or_bail(message, rest)
         elif command == "bail" or command == "flyout":
             self.join_or_bail(message, rest, bail = True)
+        elif command == "scuttle":
+            self.maybe_scuttle_game(message, rest)
         else:
             self.send_message((
-                ":warning: Hew {0}, here's what I listen to: `{1} hew/flyin/flyout/nar/games`," +
+                ":warning: Hew {0}, here's what I listen to: `{1} hew/flyin/flyout/nar/scuttle/games`," +
                 "\nor try adding a :+1: to a game invite." +
                 "\n\n:film_projector: Credits :clapper:" +
                 "\n-------------------" +
