@@ -9,6 +9,7 @@ MAX_PLAYERS = 4
 PLAY_TIME = 30
 NAME = "ps4bot"
 DIALECT = ["here", "hew", "areet"]
+BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
 
 def parse_time(s):
     am_pm = ""
@@ -570,7 +571,10 @@ class PS4Bot(Bot):
     def handle_message(self, message):
         tokens = message.text.split()
         if len(tokens) < 1 or not self.is_message_for_me(tokens[0]):
-            return False
+            biggame = BIG_GAME_REGEX.match(message.text, re.IGNORECASE)
+            if biggame:
+                self.send_message("... did someone mention a {} game?".format(biggame.groups(0)[0]))
+            return
 
         try:
             # lookup message.user
