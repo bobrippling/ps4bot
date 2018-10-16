@@ -348,7 +348,11 @@ class PS4Bot(Bot):
 
     def add_user_to_game(self, user, game, subtle_message = False):
         if len(game.players) >= MAX_PLAYERS:
-            self.send_message(":warning: game's full, rip {0}".format(format_user(user)))
+            banter = ":warning: game's full, rip {0}".format(format_user(user))
+            if subtle_message:
+                self.update_game_message(game, banter)
+            else:
+                self.send_message(banter)
             return
 
         if not game.add_player(user):
