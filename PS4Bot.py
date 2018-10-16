@@ -351,9 +351,14 @@ class PS4Bot(Bot):
         self.update_game_message(game, banter if subtle_message else None)
 
     def remove_user_from_game(self, user, game, subtle_message = False):
-        game.remove_player(user)
+        if game.remove_player(user):
+            banter = ":candle: {}".format(format_user(user))
+        else:
+            banter = ":warning: you're not in the {} game {} (\"{}\")".format(
+                    when_str(game.when),
+                    format_user(user),
+                    game.description)
 
-        banter = ":candle: {}".format(format_user(user))
         if not subtle_message:
             self.send_message(banter)
         self.update_game_message(game, banter if subtle_message else None)
