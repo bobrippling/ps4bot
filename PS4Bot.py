@@ -278,10 +278,7 @@ class PS4Bot(Bot):
 
         game = self.find_time(when)
         if game:
-            self.send_message(":warning: there's already a {} game at {}: {}. rip :candle:".format(
-                game.channel,
-                when_str(game.when),
-                game.description))
+            self.send_duplicate_game_message(game)
             return
 
         msg = self.send_new_game_message(user, when, desc)
@@ -333,7 +330,7 @@ class PS4Bot(Bot):
 
         game = self.find_time(when)
         if not game:
-            self.send_message(":warning: {0}, there isnae game at {1}".format(format_user(message.user), when_str(when)))
+            self.send_game_not_found(when, message.user)
             return
 
         if bail:
@@ -368,6 +365,18 @@ class PS4Bot(Bot):
             self.send_message(banter)
         self.update_game_message(game, banter if subtle_message else None)
 
+    def send_game_not_found(self, when, user):
+        if random.randint(0, 1) == 0:
+            self.send_message(":warning: {0}, there isnae game at {1}".format(format_user(user), when_str(when)))
+        else:
+            self.send_message(":warning: scrubadubdub, there's no game at {}".format(when_str(when)))
+
+    def send_duplicate_game_message(self, game):
+        self.send_message(":warning: there's already a {} game at {}: {}. rip :candle:".format(
+            game.channel,
+            when_str(game.when),
+            game.description))
+
     def maybe_cancel_game(self, user, rest):
         try:
             when = parse_time(rest)
@@ -377,7 +386,7 @@ class PS4Bot(Bot):
 
         game = self.find_time(when)
         if not game:
-            self.send_message(":warning: scrubadubdub, there's no game at {}".format(when_str(when)))
+            self.send_game_not_found(when, user)
             return
 
         if game.creator != user:
