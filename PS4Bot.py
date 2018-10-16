@@ -91,8 +91,10 @@ class Game:
         return game_start <= when < game_end
 
     def add_player(self, p):
-        if p not in self.players:
-            self.players.append(p)
+        if p in self.players:
+            return False
+        self.players.append(p)
+        return True
 
     def remove_player(self, p):
         if p not in self.players:
