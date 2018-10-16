@@ -72,6 +72,13 @@ def parse_hew(str):
     return time_parts[0], " ".join(desc_parts)
 
 class Game:
+    @staticmethod
+    def create_message(banter, desc, when):
+        return ">>> :desktop_computer::loud_sound::video_game::joystick::game_die:\n" \
+                + banter + "\n" \
+                + desc + "\n" \
+                + "time: " + when_str(when)
+
     def __init__(self, when, desc, channel, creator, msg, notified):
         self.when = when
         self.description = desc
@@ -252,14 +259,6 @@ class PS4Bot(Bot):
             return "match kickoff is now"
         return "?"
 
-    def send_new_game_message(self, user, when, desc):
-        banter = self.load_banter("created", { "s": format_user(user) })
-        return self.send_message(
-                ">>> :desktop_computer::loud_sound::video_game::joystick::game_die:\n"
-                + banter + "\n"
-                + desc + "\n"
-                + "time: " + when_str(when))
-
     def maybe_new_game(self, user, channel, rest):
         parsed = parse_hew(rest)
         if not parsed:
@@ -281,9 +280,11 @@ class PS4Bot(Bot):
             self.send_duplicate_game_message(game)
             return
 
-        msg = self.send_new_game_message(user, when, desc)
+        banter = self.load_banter("created", { "s": format_user(user) })
+        message = Game.create_message(banter, desc, when)
+        posted_message = self.send_message(message)
 
-        game = self.new_game(when, desc, channel, user, msg)
+        game = self.new_game(when, desc, channel, user, posted_message)
         game.add_player(user)
         self.update_game_message(game)
 
