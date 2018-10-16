@@ -8,6 +8,7 @@ import re
 MAX_PLAYERS = 4
 PLAY_TIME = 30
 NAME = "ps4bot"
+DIALECT = ["here", "areet"]
 
 def parse_time(s):
     am_pm = ""
@@ -563,6 +564,11 @@ class PS4Bot(Bot):
         try:
             # lookup message.user
             message.user = self.lookup_user(message.user)
+
+            # ignore leading dialect bits, e.g. "ps4bot here hew big game" --> "ps4bot big game"
+            while len(tokens) > 1 and tokens[1] in DIALECT:
+                tokens = [tokens[0]] + tokens[2:]
+
             self.handle_command(message, tokens[1] if len(tokens) > 1 else "", " ".join(tokens[2:]))
         except Exception as e:
             self.send_message(":rotating_light: {}'s massive computer membrane has ruptured".format(NAME))
