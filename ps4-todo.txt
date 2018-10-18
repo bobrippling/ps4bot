@@ -6,6 +6,8 @@ Messaging:
 	Update all "ps4bot games" messages when a game changes
 	If a game isn't full 10 minutes beforehand, send a "@here" requesting additional players
 	Move tips category into others
+	Handle "ps4bot scuttle 3pm" - look for games by said user, if there's only one, move it to <time>
+	Linkify mentions of a channel
 
 Localisation:
 	Usage:
