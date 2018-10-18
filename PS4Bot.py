@@ -456,8 +456,8 @@ class PS4Bot(Bot):
             return
 
         if game.creator != user:
-            self.send_message(":warning: scrubadubdub, only {} can cancel {} ({})".format(
-                format_user(game.creator), game.description, when_str(game.when)))
+            self.send_message(":warning: scrubadubdub, only {} can cancel the {} {}".format(
+                format_user(game.creator), when_str(game.when), game.description))
             return
 
         self.games = filter(lambda g: g != game, self.games)
