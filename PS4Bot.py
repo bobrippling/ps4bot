@@ -5,7 +5,7 @@ import random
 import sys
 import re
 
-MAX_PLAYERS = 4
+DEFAULT_MAX_PLAYERS = 4
 PLAY_TIME = 30
 NAME = "ps4bot"
 DIALECT = ["here", "hew", "areet"]
@@ -60,6 +60,7 @@ def parse_game_initiation(str):
 
     time_parts = []
     desc_parts = []
+    player_count = DEFAULT_MAX_PLAYERS
     for part in parts:
         if is_time(part):
             time_parts.append(part)
@@ -71,7 +72,7 @@ def parse_game_initiation(str):
     if len(time_parts) != 1:
         return None
 
-    return time_parts[0], " ".join(desc_parts)
+    return time_parts[0], " ".join(desc_parts), player_count
 
 class Game:
     @staticmethod
@@ -81,7 +82,7 @@ class Game:
                 + desc + "\n" \
                 + "time: " + when_str(when)
 
-    def __init__(self, when, desc, channel, creator, msg, notified):
+    def __init__(self, when, desc, channel, creator, msg, max_player_count, notified):
         self.when = when
         self.description = desc
         self.players = []
@@ -89,6 +90,7 @@ class Game:
         self.message = msg
         self.creator = creator
         self.notified = notified
+        self.max_player_count = max_player_count
 
     def endtime(self):
         duration = datetime.timedelta(minutes = PLAY_TIME)
@@ -157,12 +159,13 @@ class PS4Bot(Bot):
                     line = line.rstrip("\n")
                     if len(line) == 0:
                         continue
-                    tokens = line.split(" ", 5)
-                    if len(tokens) != 6:
+                    tokens = line.split(" ", 6)
+                    if len(tokens) != 7:
                         print "invalid line \"{}\"".format(line)
                         continue
 
-                    str_when, channel, creator, str_notified, str_players, description = tokens
+                    str_when, channel, creator, str_notified, \
+                            str_players, str_max_player_count, description = tokens
                     timestamp_str = f.readline()
                     if timestamp_str == "":
                         print "early EOF"
@@ -185,11 +188,16 @@ class PS4Bot(Bot):
                         line = f.readline()
 
                     when = parse_time(str_when)
+                    try:
+                        max_player_count = int(str_max_player_count)
+                    except ValueError:
+                        print "invalid max player count \"{}\"".format(str_max_player_count)
+                        continue
                     notified = str_notified == "True"
                     players = str_players.split(",")
                     message = SlackPostedMessage(msg_channel, timestamp_str, "\n".join(extra_text))
 
-                    g = self.new_game(when, description, channel, creator, message, notified)
+                    g = self.new_game(when, description, channel, creator, message, max_player_count, notified)
                     for p in players:
                         if len(p):
                             g.add_player(p)
@@ -200,12 +208,13 @@ class PS4Bot(Bot):
         try:
             with open("ps4-games.txt", "w") as f:
                 for g in self.games:
-                    print >>f, "{} {} {} {} {} {}".format(
+                    print >>f, "{} {} {} {} {} {} {}".format(
                             when_str(g.when),
                             g.channel,
                             g.creator,
                             g.notified,
                             ",".join(g.players),
+                            g.max_player_count,
                             g.description)
 
                     msg = g.message
@@ -222,8 +231,8 @@ class PS4Bot(Bot):
                 return game
         return None
 
-    def new_game(self, when, desc, channel, creator, msg, notified = False):
-        g = Game(when, desc, channel, creator, msg, notified)
+    def new_game(self, when, desc, channel, creator, msg, max_players, notified = False):
+        g = Game(when, desc, channel, creator, msg, max_players, notified)
         self.games.append(g)
         return g
 
@@ -273,7 +282,7 @@ class PS4Bot(Bot):
         if not parsed:
             return False
 
-        time, desc = parsed
+        time, desc, max_player_count = parsed
         if len(desc) == 0:
             desc = "big game"
 
@@ -291,7 +300,7 @@ class PS4Bot(Bot):
         message = Game.create_message(banter, desc, when)
         posted_message = self.send_message(message)
 
-        game = self.new_game(when, desc, channel, user, posted_message)
+        game = self.new_game(when, desc, channel, user, posted_message, max_player_count)
         game.add_player(user)
         self.update_game_message(game)
 
@@ -348,7 +357,7 @@ class PS4Bot(Bot):
             self.add_user_to_game(message.user, game)
 
     def add_user_to_game(self, user, game, subtle_message = False):
-        if len(game.players) >= MAX_PLAYERS:
+        if len(game.players) >= game.max_player_count:
             banter = ":warning: game's full, rip {0}".format(format_user(user))
             if subtle_message:
                 self.update_game_message(game, banter)
