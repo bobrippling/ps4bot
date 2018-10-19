@@ -56,6 +56,10 @@ def parse_game_initiation(str):
 
     def is_time(part):
        return re.match("^[0-9]+([:.][0-9]+)?([ap]m)?$", part)
+    def player_count_spec(part):
+       if part == "sextuple":
+           return 6
+       return None
     time_prefixes = ["at"]
 
     time_parts = []
@@ -67,7 +71,11 @@ def parse_game_initiation(str):
             if len(desc_parts) and desc_parts[-1] in time_prefixes:
                 desc_parts.pop()
         else:
-            desc_parts.append(part)
+            new_player_count = player_count_spec(part)
+            if new_player_count:
+                player_count = new_player_count
+            else:
+                desc_parts.append(part)
 
     if len(time_parts) != 1:
         return None
@@ -76,10 +84,12 @@ def parse_game_initiation(str):
 
 class Game:
     @staticmethod
-    def create_message(banter, desc, when):
+    def create_message(banter, desc, when, max_player_count):
         return ">>> :desktop_computer::loud_sound::video_game::joystick::game_die:\n" \
                 + banter + "\n" \
                 + desc + "\n" \
+                + ("max players: {} (HUGE GAME)\n".format(max_player_count)
+                        if max_player_count != DEFAULT_MAX_PLAYERS else "") \
                 + "time: " + when_str(when)
 
     def __init__(self, when, desc, channel, creator, msg, max_player_count, notified):
@@ -116,7 +126,7 @@ class Game:
 
     def update_when(self, new_when, new_banter):
         self.when = new_when
-        self.message.text = Game.create_message(new_banter, self.description, self.when)
+        self.message.text = Game.create_message(new_banter, self.description, self.when, self.max_player_count)
 
     def pretty_players(self, with_creator = True):
         if with_creator:
@@ -297,7 +307,7 @@ class PS4Bot(Bot):
             return True
 
         banter = self.load_banter("created", { "s": format_user(user) })
-        message = Game.create_message(banter, desc, when)
+        message = Game.create_message(banter, desc, when, max_player_count)
         posted_message = self.send_message(message)
 
         game = self.new_game(when, desc, channel, user, posted_message, max_player_count)
