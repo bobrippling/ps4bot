@@ -51,7 +51,7 @@ def replace_dict(str, dict):
 def format_user(user):
     return "<@{}>".format(user)
 
-def parse_hew(str):
+def parse_game_initiation(str):
     parts = str.split(" ")
 
     def is_time(part):
@@ -269,7 +269,7 @@ class PS4Bot(Bot):
         Attempts to create a new game from freeform text
         Returns True on parse success (even if game creation failed)
         """
-        parsed = parse_hew(rest)
+        parsed = parse_game_initiation(rest)
         if not parsed:
             return False
 
