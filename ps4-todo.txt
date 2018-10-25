@@ -5,6 +5,7 @@ Fix loading games - don't parse time, or save with explicit am/pm
 Messaging:
 	Update all "ps4bot games" messages when a game changes
 	If a game isn't full 10 minutes beforehand, send a "@here" requesting additional players
+	Move tips category into others
 
 Localisation:
 	Usage:
