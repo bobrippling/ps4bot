@@ -541,7 +541,7 @@ class PS4Bot(Bot):
         elif not self.maybe_new_game(message.user, message.channel.name, command + " " + rest):
             self.send_message((
                 ":warning: Hew {0}, here's what I listen to: `{1} flyin/flyout/nar/scuttle/games`," +
-                "\nor try adding a :+1: to a game invite." +
+                "\nor try adding a :+1: to a game invite (or typing `+:+1:` as a response)." +
                 "\n\n:film_projector: Credits :clapper:" +
                 "\n-------------------" +
                 "\n:toilet: Barely functional codebase: <@rpilling>" +
