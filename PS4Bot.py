@@ -55,25 +55,37 @@ def parse_game_initiation(str):
     parts = str.split(" ")
 
     def is_time(part):
-        match = re.match("^[0-9]+([:.][0-9]+)?([ap]m)?$", part)
+        match = re.match("^([0-9]+)([:.]([0-9]+))?([ap]m)?$", part)
         if not match:
             return False
+        hours = match.group(1)
+        minutes = match.group(3)
+        ampm = match.group(4)
 
-        ampm = match.group(2)
         if len(ampm):
             # we have am/pm, definitely a time
             return True
 
-        minutes = match.group(1)
-        if len(minutes):
-            return True
-
-        time_str = match.group()
+        if len(minutes) != 2:
+            return False
         try:
-            time = int(time_str)
+            min = int(minutes)
         except ValueError:
             return False
-        return time < 24
+        if min > 60:
+            return False
+
+        if len(hours) > 2:
+            return False
+        try:
+            hr = int(hours)
+        except ValueError:
+            return False
+        if hr >= 24:
+            return False
+
+        # minutes is good, hours is good, it's probably a time
+        return True
 
     def player_count_spec(part):
        if part == "sextuple":
