@@ -1,6 +1,9 @@
 Tasks for PS4Bot:
 
-Fix loading games - don't parse time, or save with explicit am/pm
+Usage:
+	Fix loading games - don't parse time, or save with explicit am/pm
+	Scuttling a game resets its .notified/in progress status
+	Games can't be created before the current time (within reason)
 
 Messaging:
 	Update all "ps4bot games" messages when a game changes
@@ -8,6 +11,9 @@ Messaging:
 	Move tips category into others
 	Handle "ps4bot scuttle 3pm" - look for games by said user, if there's only one, move it to <time>
 	Linkify mentions of a channel
+	Notify all players when a game is scuttled
+	Allow "ps4" prefix
+	Add "ps4bot thanks"
 
 Localisation:
 	Usage:
