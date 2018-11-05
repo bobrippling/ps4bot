@@ -4,6 +4,7 @@ import datetime
 import random
 import sys
 import re
+import traceback
 
 DEFAULT_MAX_PLAYERS = 4
 PLAY_TIME = 30
@@ -623,4 +624,5 @@ class PS4Bot(Bot):
             self.handle_command(message, tokens[1] if len(tokens) > 1 else "", " ".join(tokens[2:]))
         except Exception as e:
             self.send_message(":rotating_light: {}'s massive computer membrane has ruptured".format(NAME))
+            traceback.print_exc()
             raise e
