@@ -169,7 +169,7 @@ class Game:
     def pretty(self):
         return "{}{}, {}'s {} from {}, with {}".format(
                 when_str(self.when),
-                " (in progress)" if self.notified else "",
+                " (in progress :hourglass_flowing_sand:)" if self.notified else "",
                 format_user(self.creator),
                 self.description,
                 self.channel,
