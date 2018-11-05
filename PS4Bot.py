@@ -149,6 +149,7 @@ class Game:
 
     def update_when(self, new_when, new_banter):
         self.when = new_when
+        self.notified = False
         self.message.text = Game.create_message(new_banter, self.description, self.when, self.max_player_count)
 
     def pretty_players(self, with_creator = True):
