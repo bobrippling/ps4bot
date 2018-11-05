@@ -15,7 +15,7 @@ class Bot():
             id = match.group(1)
 
         for u in self.slackconnection.server.users:
-            if u.id == id:
+            if hasattr(u, 'id') and u.id == id:
                 return u.name.encode('utf-8')
 
         return alt if alt is not None else id
