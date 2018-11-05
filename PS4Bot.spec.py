@@ -1,7 +1,8 @@
 import unittest
 import datetime
 
-from PS4Bot import parse_game_initiation, Game, today_at
+from PS4Bot import parse_game_initiation, Game, today_at, PS4Bot
+from SlackMessage import SlackMessage
 
 def parse(time, hour = None, minute = None):
 	got = parse_game_initiation(time)
@@ -88,5 +89,38 @@ class TestGame(unittest.TestCase):
 		self.assertTrue(g.contains(today_at(11, 43)))
 		self.assertTrue(g.contains(today_at(12, 12)))
 		self.assertFalse(g.contains(today_at(12, 13)))
+
+
+def noop(*args):
+	pass
+
+class DummyChannel:
+	def __init__(self, name):
+		self.name = name
+
+class TestPS4Bot(unittest.TestCase):
+	def __init__(self, *args):
+		unittest.TestCase.__init__(self, *args)
+
+		def record_message(*args):
+			self.messages.append(args)
+		self.messages = []
+
+		PS4Bot.save = noop
+		PS4Bot.load = noop
+		PS4Bot.lookup_user = lambda self, a: a
+		PS4Bot.send_message = record_message
+
+	def test_ps4bot_game_overlap(self):
+		dummychannel = DummyChannel("games")
+
+		ps4bot = PS4Bot(None, "ps4bot")
+		ps4bot.handle_message(SlackMessage("ps4bot new game at 3pm", "user", dummychannel, None, None, None, None))
+
+		self.messages = []
+		ps4bot.handle_message(SlackMessage("ps4bot new game at 3:15", "user", dummychannel, None, None, None, None))
+
+		self.assertEqual(len(self.messages), 1)
+		self.assertEqual(self.messages[0][1], ":warning: there's already a games game at 15:00: new game. rip :candle:")
 
 unittest.main()
