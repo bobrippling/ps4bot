@@ -11,6 +11,13 @@ NAME = "ps4bot"
 DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
 
+def today_at(hour, min):
+    return datetime.datetime.today().replace(
+                    hour = hour,
+                    minute = min,
+                    second = 0,
+                    microsecond = 0)
+
 def parse_time(s):
     am_pm = ""
     if len(s) >= 3 and s[-1] == "m" and (s[-2] == "a" or s[-2] == "p"):
@@ -26,11 +33,18 @@ def parse_time(s):
 
     if len(time_parts) == 1:
         time_parts.append("00")
+    elif len(time_parts[1]) != 2:
+        raise ValueError
 
     hour = int(time_parts[0])
     min = int(time_parts[1])
 
+    if hour < 0 or min < 0:
+        raise ValueError
+
     if len(am_pm):
+        if hour > 12:
+            raise ValueError
         if am_pm == "p":
             hour += 12
     else:
@@ -38,7 +52,13 @@ def parse_time(s):
         if hour < 8:
             hour += 12
 
-    return datetime.datetime.today().replace(hour = hour, minute = min, second = 0, microsecond = 0)
+    return today_at(hour, min)
+
+def maybe_parse_time(s):
+    try:
+        return parse_time(s)
+    except ValueError:
+        return None
 
 def when_str(when):
     return when.strftime("%H:%M")
@@ -54,51 +74,22 @@ def format_user(user):
 def parse_game_initiation(str):
     parts = str.split(" ")
 
-    def is_time(part):
-        match = re.match("^([0-9]+)([:.]([0-9]+))?([ap]m)?$", part)
-        if not match:
-            return False
-        hours = match.group(1)
-        minutes = match.group(3)
-        ampm = match.group(4)
-
-        if len(ampm):
-            # we have am/pm, definitely a time
-            return True
-
-        if len(minutes) != 2:
-            return False
-        try:
-            min = int(minutes)
-        except ValueError:
-            return False
-        if min > 60:
-            return False
-
-        if len(hours) > 2:
-            return False
-        try:
-            hr = int(hours)
-        except ValueError:
-            return False
-        if hr >= 24:
-            return False
-
-        # minutes is good, hours is good, it's probably a time
-        return True
-
     def player_count_spec(part):
        if part == "sextuple":
            return 6
        return None
     time_prefixes = ["at"]
 
-    time_parts = []
+    when = None
     desc_parts = []
     player_count = DEFAULT_MAX_PLAYERS
     for part in parts:
-        if is_time(part):
-            time_parts.append(part)
+        maybe_when = maybe_parse_time(part)
+        if maybe_when:
+            if when:
+                return None
+
+            when = maybe_when
             if len(desc_parts) and desc_parts[-1] in time_prefixes:
                 desc_parts.pop()
         else:
@@ -108,10 +99,10 @@ def parse_game_initiation(str):
             else:
                 desc_parts.append(part)
 
-    if len(time_parts) != 1:
+    if not when:
         return None
 
-    return time_parts[0], " ".join(desc_parts), player_count
+    return when, " ".join(desc_parts), player_count
 
 class Game:
     @staticmethod
@@ -323,14 +314,9 @@ class PS4Bot(Bot):
         if not parsed:
             return False
 
-        time, desc, max_player_count = parsed
+        when, desc, max_player_count = parsed
         if len(desc) == 0:
             desc = "big game"
-
-        try:
-            when = parse_time(time)
-        except ValueError:
-            return True
 
         game = self.find_time(when)
         if game:
