@@ -401,6 +401,7 @@ class PS4Bot(Bot):
         if not subtle_message:
             self.send_message(banter)
         self.update_game_message(game, banter if subtle_message else None)
+        self.save()
 
     def remove_user_from_game(self, user, game, subtle_message = False):
         if game.remove_player(user):
@@ -414,6 +415,7 @@ class PS4Bot(Bot):
         if not subtle_message:
             self.send_message(banter)
         self.update_game_message(game, banter if subtle_message else None)
+        self.save()
 
     def send_game_not_found(self, when, user):
         if random.randint(0, 1) == 0:
@@ -463,6 +465,7 @@ class PS4Bot(Bot):
         newtext = game.message.text + "\n:warning: Cancelled :warning: :candle::candle:"
         self.update_message(newtext, original_message = game.message)
 
+        self.save()
 
     def maybe_scuttle_game(self, message, rest):
         tokens = rest.split(" ")
@@ -506,6 +509,8 @@ class PS4Bot(Bot):
             when_str(when_from),
             when_str(when_to),
             format_user(message.user)))
+
+        self.save()
 
     def send_dialect_reply(self, message):
         reply = self.load_banter("dialect", { "u": format_user(message.user) })
