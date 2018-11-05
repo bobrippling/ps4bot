@@ -1,179 +1,24 @@
-from Bot import Bot
-from SlackPostedMessage import SlackPostedMessage
 import datetime
 import random
 import sys
 import re
 import traceback
 
-DEFAULT_MAX_PLAYERS = 4
-PLAY_TIME = 30
+from Bot import Bot
+from SlackPostedMessage import SlackPostedMessage
+from PS4Game import Game
+from PS4Formatting import format_user, when_str
+from PS4Config import DEFAULT_MAX_PLAYERS
+from PS4Parsing import parse_time, parse_game_initiation
+
 NAME = "ps4bot"
 DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
-
-def today_at(hour, min):
-    return datetime.datetime.today().replace(
-                    hour = hour,
-                    minute = min,
-                    second = 0,
-                    microsecond = 0)
-
-def parse_time(s):
-    am_pm = ""
-    if len(s) >= 3 and s[-1] == "m" and (s[-2] == "a" or s[-2] == "p"):
-        am_pm = s[-2]
-        s = s[:-2]
-
-    time_parts = s.split(":")
-    if len(time_parts) > 2:
-        raise ValueError
-
-    if len(time_parts) == 1:
-        time_parts = s.split(".")
-
-    if len(time_parts) == 1:
-        time_parts.append("00")
-    elif len(time_parts[1]) != 2:
-        raise ValueError
-
-    hour = int(time_parts[0])
-    min = int(time_parts[1])
-
-    if hour < 0 or min < 0:
-        raise ValueError
-
-    if len(am_pm):
-        if hour > 12:
-            raise ValueError
-        if am_pm == "p":
-            hour += 12
-    else:
-        # no am/pm specified, if it's before 8:00, assume they mean afternoon
-        if hour < 8:
-            hour += 12
-
-    return today_at(hour, min)
-
-def maybe_parse_time(s):
-    try:
-        return parse_time(s)
-    except ValueError:
-        return None
-
-def when_str(when):
-    return when.strftime("%H:%M")
 
 def replace_dict(str, dict):
     for k in dict:
         str = str.replace("%" + k, dict[k])
     return str
-
-def format_user(user):
-    return "<@{}>".format(user)
-
-def parse_game_initiation(str):
-    parts = str.split(" ")
-
-    def player_count_spec(part):
-       if part == "sextuple":
-           return 6
-       return None
-    time_prefixes = ["at"]
-
-    when = None
-    desc_parts = []
-    player_count = DEFAULT_MAX_PLAYERS
-    for part in parts:
-        maybe_when = maybe_parse_time(part)
-        if maybe_when:
-            if when:
-                return None
-
-            when = maybe_when
-            if len(desc_parts) and desc_parts[-1] in time_prefixes:
-                desc_parts.pop()
-        else:
-            new_player_count = player_count_spec(part)
-            if new_player_count:
-                player_count = new_player_count
-            else:
-                desc_parts.append(part)
-
-    if not when:
-        return None
-
-    return when, " ".join(desc_parts), player_count
-
-class Game:
-    @staticmethod
-    def create_message(banter, desc, when, max_player_count):
-        return ">>> :desktop_computer::loud_sound::video_game::joystick::game_die:\n" \
-                + banter + "\n" \
-                + desc + "\n" \
-                + ("max players: {} (HUGE GAME)\n".format(max_player_count)
-                        if max_player_count != DEFAULT_MAX_PLAYERS else "") \
-                + "time: " + when_str(when)
-
-    def __init__(self, when, desc, channel, creator, msg, max_player_count, notified):
-        self.when = when
-        self.description = desc
-        self.players = []
-        self.channel = channel
-        self.message = msg
-        self.creator = creator
-        self.notified = notified
-        self.max_player_count = max_player_count
-
-    def endtime(self):
-        duration = datetime.timedelta(minutes = PLAY_TIME)
-        return self.when + duration
-
-    def contains(self, when):
-        game_start = self.when
-        game_end = self.endtime()
-        return game_start <= when < game_end
-
-    def add_player(self, p):
-        if p in self.players:
-            return False
-        self.players.append(p)
-        return True
-
-    def remove_player(self, p):
-        if p not in self.players:
-            return False
-
-        self.players.remove(p)
-        return True
-
-    def update_when(self, new_when, new_banter):
-        self.when = new_when
-        self.notified = False
-        self.message.text = Game.create_message(new_banter, self.description, self.when, self.max_player_count)
-
-    def pretty_players(self, with_creator = True):
-        if with_creator:
-            players = self.players
-        else:
-            players = filter(lambda p: p != self.creator, self.players)
-
-        if len(players) == 0:
-            return ""
-        if len(players) == 1:
-            return format_user(players[0])
-
-        return ", ".join(map(format_user, players[:-1])) \
-                + " and " + format_user(players[-1])
-
-    def pretty(self):
-        return "{}{}, {}'s {} from {}, with {}".format(
-                when_str(self.when),
-                " (in progress :hourglass_flowing_sand:)" if self.notified else "",
-                format_user(self.creator),
-                self.description,
-                self.channel,
-                self.pretty_players() if len(self.players) else "nobody")
 
 class PS4Bot(Bot):
     def __init__(self, slackconnection, botname):

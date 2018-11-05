@@ -1,7 +1,8 @@
 import unittest
 import datetime
 
-from PS4Bot import parse_game_initiation, Game, today_at, PS4Bot
+from PS4Parsing import parse_game_initiation, today_at
+from PS4Bot import Game, PS4Bot
 from SlackMessage import SlackMessage
 
 def parse(time, hour = None, minute = None):
