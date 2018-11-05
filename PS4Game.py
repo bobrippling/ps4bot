@@ -64,9 +64,10 @@ class Game:
                 + " and " + format_user(players[-1])
 
     def pretty(self):
+        currentTime = datetime.datetime.now()
         return "{}{}, {}'s {} from {}, with {}".format(
                 when_str(self.when),
-                " (in progress :hourglass_flowing_sand:)" if self.notified else "",
+                " (in progress :hourglass_flowing_sand:)" if self.when <= currentTime and self.endtime() >= currentTime else "",
                 format_user(self.creator),
                 self.description,
                 self.channel,
