@@ -7,3 +7,9 @@
 `./lunchbot channels... -- bots...`
 
 This runs those bots, listening on the specified channels.
+
+Note that lunchbot is written in python2.7.
+
+# Slack
+
+Get your slack token [here](https://api.slack.com/custom-integrations/legacy-tokens)
