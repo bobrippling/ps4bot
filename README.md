@@ -2,7 +2,7 @@
 
 `pip install slackclient`
 
-Create a config file /config.py with the following  
+Create a config file ./config.py with the following
 ```slack_token = "YOUR_TOKEN_HERE"```
 
 # Running
