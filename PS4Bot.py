@@ -122,6 +122,9 @@ class PS4Bot(Bot):
                 return game
         return None
 
+    def games_created_by(self, user):
+        return filter(lambda g: g.creator == user, self.games)
+
     def new_game(self, when, desc, channel, creator, msg, max_players, notified = False):
         g = Game(when, desc, channel, creator, msg, max_players, notified)
         self.games.append(g)
@@ -329,33 +332,56 @@ class PS4Bot(Bot):
 
     def maybe_scuttle_game(self, message, rest):
         tokens = rest.split(" ")
-        if len(tokens) != 3 or tokens[1] != "to":
+
+        if len(tokens) == 3 and tokens[1] == "to":
+            str_from = tokens[0]
+            str_to = tokens[2]
+        elif len(tokens) == 1:
+            str_from = None
+            str_to = tokens[0]
+        else:
             self.send_scuttle_usage()
             return
 
         try:
-            when_from = parse_time(tokens[0])
-            when_to = parse_time(tokens[2])
+            when_from = parse_time(str_from) if str_from else None
+            when_to = parse_time(str_to)
         except ValueError:
             self.send_scuttle_usage()
             return
 
-        game_to_move = self.game_occuring_at(when_from)
-        if not game_to_move:
-            self.send_game_not_found(when_from, message.user)
-            return
+        if when_from:
+            # we've been given an explicit game to move
+            game_to_move = self.game_occuring_at(when_from)
+            if not game_to_move:
+                self.send_game_not_found(when_from, message.user)
+                return
 
-        if game_to_move.creator != message.user:
-            self.send_message(":warning: scrubadubdub, only {} can scuttle the {} {}".format(
-                format_user(game_to_move.creator),
-                when_str(game_to_move.when),
-                game_to_move.description))
-            return
+            if game_to_move.creator != message.user:
+                self.send_message(":warning: scrubadubdub, only {} can scuttle the {} {}".format(
+                    format_user(game_to_move.creator),
+                    when_str(game_to_move.when),
+                    game_to_move.description))
+                return
+        else:
+            # no explicit game to move, if the user has just one, move it
+            created_games = self.games_created_by(message.user)
+            if len(created_games) > 1:
+                self.send_message(":warning: scrubadubdub, which of your {} game{} do you want to move?".format(
+                        len(created_games),
+                        plural(len(created_games))))
+                return
+            if len(created_games) == 0:
+                self.send_message(":warning: scrubadubdub, you've got no games to move")
+                return
+            game_to_move = created_games[0]
 
         game_in_slot = self.game_overlapping(when_to, ignoring = game_to_move)
         if game_in_slot:
             self.send_duplicate_game_message(game_in_slot)
             return
+
+        old_when = game_to_move.when
 
         banter = self.load_banter("created", { "s": format_user(message.user) })
         game_to_move.update_when(when_to, banter)
@@ -366,7 +392,7 @@ class PS4Bot(Bot):
         self.send_message(":alarm_clock: {}{} moved from {} to {} by {}".format(
             pretty_players + " - " if len(pretty_players) else "",
             game_to_move.description,
-            when_str(when_from),
+            when_str(old_when),
             when_str(when_to),
             format_user(message.user)))
 
