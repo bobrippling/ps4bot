@@ -2,6 +2,9 @@
 
 `pip install slackclient`
 
+Create a config file /config.py with the following  
+```slack_token = "YOUR_TOKEN_HERE"```
+
 # Running
 
 `./lunchbot channels... -- bots...`
