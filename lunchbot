@@ -3,6 +3,7 @@
 from slackclient import SlackClient
 import signal
 import sys
+import config
 from LunchBot import LunchBot
 from DumpBot import DumpBot
 from DoodleBot import DoodleBot
@@ -26,7 +27,7 @@ except ValueError:
     usage()
 
 # bot constants
-BOT_TOKEN = "<redacted>"
+BOT_TOKEN = config.slack_token
 bot_names_to_classes = {
         "lunchbot": LunchBot,
         "dumpbot": DumpBot,
