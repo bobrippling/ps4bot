@@ -1,1 +1,4 @@
 *.pyc
+config.py
+.vscode
+ps4-games.txt
