@@ -8,7 +8,7 @@ from Bot import Bot
 from SlackPostedMessage import SlackPostedMessage
 from PS4Game import Game
 from PS4Formatting import format_user, when_str
-from PS4Config import DEFAULT_MAX_PLAYERS
+from PS4Config import DEFAULT_MAX_PLAYERS, PLAY_TIME
 from PS4Parsing import parse_time, parse_game_initiation
 
 NAME = "ps4bot"
@@ -104,9 +104,18 @@ class PS4Bot(Bot):
             print >>sys.stderr, "exception saving state: {}".format(e)
 
 
-    def find_time(self, when, ignoring = None):
+    def game_occuring_at(self, when):
         for game in self.games:
-            if game != ignoring and game.contains(when):
+            if game.contains(when):
+                return game
+        return None
+
+    def game_overlapping(self, when, ignoring = None):
+        when_end = when + datetime.timedelta(minutes = PLAY_TIME)
+        for game in self.games:
+            if game == ignoring:
+                continue
+            if game.contains(when) or game.contains(when_end):
                 return game
         return None
 
@@ -165,7 +174,7 @@ class PS4Bot(Bot):
         if len(desc) == 0:
             desc = "big game"
 
-        game = self.find_time(when)
+        game = self.game_overlapping(when)
         if game:
             self.send_duplicate_game_message(game)
             return True
@@ -220,7 +229,7 @@ class PS4Bot(Bot):
             self.send_message(":warning: howay! `flyin/join/flyout/bail <game-time>`")
             return
 
-        game = self.find_time(when)
+        game = self.game_occuring_at(when)
         if not game:
             self.send_game_not_found(when, message.user)
             return
@@ -285,7 +294,7 @@ class PS4Bot(Bot):
             self.send_message(":warning: scrubadubdub, when's this game you want to cancel?".format(rest))
             return
 
-        game = self.find_time(when)
+        game = self.game_occuring_at(when)
         if not game:
             self.send_game_not_found(when, user)
             return
@@ -326,7 +335,7 @@ class PS4Bot(Bot):
             self.send_scuttle_usage()
             return
 
-        game_to_move = self.find_time(when_from)
+        game_to_move = self.game_occuring_at(when_from)
         if not game_to_move:
             self.send_game_not_found(when_from, message.user)
             return
@@ -338,7 +347,7 @@ class PS4Bot(Bot):
                 game_to_move.description))
             return
 
-        game_in_slot = self.find_time(when_to, game_to_move)
+        game_in_slot = self.game_overlapping(when_to, ignoring = game_to_move)
         if game_in_slot:
             self.send_duplicate_game_message(game_in_slot)
             return
@@ -383,6 +392,7 @@ class PS4Bot(Bot):
                 "\n\n:film_projector: Credits :clapper:" +
                 "\n-------------------" +
                 "\n:toilet: Barely functional codebase: <@rpilling>" +
+                "\n:bee: Codebase fluffer: <@joshpearce>" +
                 "\n:ship: Boom Operator: <@danallsop>" +
                 "\n:survival-steve: Localisation: <@sjob>" +
                 "\n:movie_camera: Cinematographer: <@danallsop>" +

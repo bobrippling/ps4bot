@@ -3,6 +3,7 @@
 from slackclient import SlackClient
 import sys
 import select
+import config
 
 #if len(sys.argv) != 3:
 #    print >>sys.stderr, "Usage: {} [channel | --all] botname".format(sys.argv[0])
@@ -11,7 +12,7 @@ import select
 #channel_name = sys.argv[1]
 #name = sys.argv[2]
 
-TOKEN_SL = "<redacted>"
+TOKEN_SL = config.slack_token
 #TOKEN_HS = ""
 
 conn = SlackClient(TOKEN_SL)

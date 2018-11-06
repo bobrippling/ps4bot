@@ -91,7 +91,6 @@ class TestGame(unittest.TestCase):
 		self.assertTrue(g.contains(today_at(12, 12)))
 		self.assertFalse(g.contains(today_at(12, 13)))
 
-
 def noop(*args):
 	pass
 
@@ -103,25 +102,44 @@ class TestPS4Bot(unittest.TestCase):
 	def __init__(self, *args):
 		unittest.TestCase.__init__(self, *args)
 
-		def record_message(*args):
-			self.messages.append(args)
-		self.messages = []
-
 		PS4Bot.save = noop
 		PS4Bot.load = noop
 		PS4Bot.lookup_user = lambda self, a: a
-		PS4Bot.send_message = record_message
 
-	def test_ps4bot_game_overlap(self):
-		dummychannel = DummyChannel("games")
+	def create_ps4bot(self):
+		self.messages = []
 
 		ps4bot = PS4Bot(None, "ps4bot")
+		ps4bot.send_message = lambda msg: self.messages.append(msg)
+		return ps4bot
+
+	def test_ps4bot_game_overlap_after(self):
+		dummychannel = DummyChannel("games")
+
+		ps4bot = self.create_ps4bot()
+
 		ps4bot.handle_message(SlackMessage("ps4bot new game at 3pm", "user", dummychannel, None, None, None, None))
 
+		self.assertEqual(len(self.messages), 1)
 		self.messages = []
+
 		ps4bot.handle_message(SlackMessage("ps4bot new game at 3:15", "user", dummychannel, None, None, None, None))
 
 		self.assertEqual(len(self.messages), 1)
-		self.assertEqual(self.messages[0][1], ":warning: there's already a games game at 15:00: new game. rip :candle:")
+		self.assertEqual(self.messages[0], ":warning: there's already a games game at 15:00: new game. rip :candle:")
+
+	def test_ps4bot_game_overlap_before(self):
+		dummychannel = DummyChannel("games")
+
+		ps4bot = self.create_ps4bot()
+		ps4bot.handle_message(SlackMessage("ps4bot test game at 2.30pm", "user", dummychannel, None, None, None, None))
+
+		self.assertEqual(len(self.messages), 1)
+		self.messages = []
+
+		ps4bot.handle_message(SlackMessage("ps4bot test game2 at 2:20", "user", dummychannel, None, None, None, None))
+
+		self.assertEqual(len(self.messages), 1)
+		self.assertEqual(self.messages[0], ":warning: there's already a games game at 14:30: test game. rip :candle:")
 
 unittest.main()
