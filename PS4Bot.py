@@ -372,6 +372,8 @@ class PS4Bot(Bot):
         self.send_message(reply)
 
     def handle_command(self, message, command, rest):
+        command = command.lower()
+
         if len(command.strip()) == 0 and len(rest) == 0:
             self.send_dialect_reply(message)
         elif command == "nar":
@@ -384,6 +386,8 @@ class PS4Bot(Bot):
             self.join_or_bail(message, rest, bail = True)
         elif command == "scuttle":
             self.maybe_scuttle_game(message, rest)
+        elif command == "thanks" or command == "thankyou" or command == "thank you" or command == "ta" or command == "cheers":
+            self.send_message(("Nee bother {0}, you flippin' big lad!").format(format_user(message.user)))
         # attempt to parse a big game, if unsuccessful, show usage:
         elif not self.maybe_new_game(message.user, message.channel.name, command + " " + rest):
             self.send_message((
