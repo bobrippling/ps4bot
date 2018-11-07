@@ -159,6 +159,8 @@ class PS4Bot(Bot):
             return "match kickoff is now"
         if type == "dialect":
             return "areet"
+        if type == "thanked":
+            return "nee bother"
         return "?"
 
     def maybe_new_game(self, user, channel, rest):
@@ -371,6 +373,10 @@ class PS4Bot(Bot):
         reply = self.load_banter("dialect", { "u": format_user(message.user) })
         self.send_message(reply)
 
+    def send_thanks_reply(self, message):
+        reply = self.load_banter("thanked", { "s": format_user(message.user) })
+        self.send_message(reply)
+
     def handle_command(self, message, command, rest):
         command = command.lower()
         
@@ -386,8 +392,8 @@ class PS4Bot(Bot):
             self.join_or_bail(message, rest, bail = True)
         elif command == "scuttle":
             self.maybe_scuttle_game(message, rest)
-        elif command == "thanks" or command == "thankyou" or command == "thank you" or command == "ta" or command == "cheers":
-            self.send_message(("Nee bother {0}, you flippin' big lad!").format(format_user(message.user)))
+        elif command == "thanks" or command == "thankyou" or command == "ta" or command == "cheers":
+            self.send_thanks_reply(message)
         # attempt to parse a big game, if unsuccessful, show usage:
         elif not self.maybe_new_game(message.user, message.channel.name, command + " " + rest):
             self.send_message((

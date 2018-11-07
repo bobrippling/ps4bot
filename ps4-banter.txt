@@ -169,3 +169,5 @@ tip: violence, speed and aggression
 dialect: areet
 dialect: calm doon m8
 dialect: hew
+
+thanked: Nee botha %s, ya flippin' big lad
