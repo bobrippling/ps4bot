@@ -20,6 +20,9 @@ def replace_dict(str, dict):
         str = str.replace("%" + k, dict[k])
     return str
 
+def plural(int):
+    return "" if int == 1 else "s"
+
 class PS4Bot(Bot):
     def __init__(self, slackconnection, botname):
         Bot.__init__(self, slackconnection, botname)
@@ -209,7 +212,7 @@ class PS4Bot(Bot):
 
         self.send_message("{0} game{1}:\n{2}".format(
             len(self.games),
-            "" if len(self.games) == 1 else "s",
+            plural(self.games),
             "\n".join([g.pretty() for g in self.chronological_games()])
         ))
 
