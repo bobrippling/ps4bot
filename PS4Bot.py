@@ -402,7 +402,7 @@ class PS4Bot(Bot):
                 "\n\n:film_projector: Credits :clapper:" +
                 "\n-------------------" +
                 "\n:toilet: Barely functional codebase: <@rpilling>" +
-                "\n:bee: Codebase fluffer: <@joshpearce>" +
+                "\n:bee: Codebase fluffer: <@jpearce>" +
                 "\n:ship: Boom Operator: <@danallsop>" +
                 "\n:survival-steve: Localisation: <@sjob>" +
                 "\n:movie_camera: Cinematographer: <@danallsop>" +
