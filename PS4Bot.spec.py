@@ -98,6 +98,9 @@ class TestGame(unittest.TestCase):
 def noop(*args):
 	pass
 
+def update_message_stub(self, text, original_message):
+	pass
+
 class DummyChannel:
 	def __init__(self, name):
 		self.name = name
@@ -109,12 +112,18 @@ class TestPS4Bot(unittest.TestCase):
 		PS4Bot.save = noop
 		PS4Bot.load = noop
 		PS4Bot.lookup_user = lambda self, a: a
+		PS4Bot.update_message = update_message_stub
 
 	def create_ps4bot(self):
 		self.messages = []
 
+		def send_message_stub(msg):
+			self.messages.append(msg)
+			dummy_when = today_at(11, 43)
+			return SlackMessage(msg, "user", None, None, None, dummy_when, None)
+
 		ps4bot = PS4Bot(None, "ps4bot")
-		ps4bot.send_message = lambda msg: self.messages.append(msg)
+		ps4bot.send_message = send_message_stub
 		return ps4bot
 
 	def test_ps4bot_game_overlap_after(self):
@@ -145,5 +154,33 @@ class TestPS4Bot(unittest.TestCase):
 
 		self.assertEqual(len(self.messages), 1)
 		self.assertEqual(self.messages[0], ":warning: there's already a games game at 14:30: test game. rip :candle:")
+
+	def test_ps4bot_scuttle_via_two_times(self):
+		dummychannel = DummyChannel("games")
+
+		ps4bot = self.create_ps4bot()
+		ps4bot.handle_message(SlackMessage("ps4bot test game at 1", "user", dummychannel, None, None, None, None))
+
+		self.assertEqual(len(self.messages), 1)
+		self.messages = []
+
+		ps4bot.handle_message(SlackMessage("ps4bot scuttle 1pm to 3", "user", dummychannel, None, None, None, None))
+
+		self.assertEqual(len(self.messages), 1)
+		self.assertEqual(self.messages[0], ":alarm_clock: test game moved from 13:00 to 15:00 by <@user>")
+
+	def test_ps4bot_scuttle_via_single_time(self):
+		dummychannel = DummyChannel("games")
+
+		ps4bot = self.create_ps4bot()
+		ps4bot.handle_message(SlackMessage("ps4bot test game at 1", "user", dummychannel, None, None, None, None))
+
+		self.assertEqual(len(self.messages), 1)
+		self.messages = []
+
+		ps4bot.handle_message(SlackMessage("ps4bot scuttle 3", "user", dummychannel, None, None, None, None))
+
+		self.assertEqual(len(self.messages), 1)
+		self.assertEqual(self.messages[0], ":alarm_clock: test game moved from 13:00 to 15:00 by <@user>")
 
 unittest.main()
