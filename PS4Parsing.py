@@ -2,6 +2,7 @@ import datetime
 
 from PS4Config import DEFAULT_MAX_PLAYERS
 
+punctuation = [".", "?", ","]
 time_prefixes = ["at"]
 
 def today_at(hour, min):
@@ -65,6 +66,9 @@ def parse_game_initiation(str):
     desc_parts = []
     player_count = DEFAULT_MAX_PLAYERS
     for part in parts:
+        while len(part) and part[-1] in punctuation:
+            part = part[:-1]
+
         maybe_when = maybe_parse_time(part)
         if maybe_when:
             if when:

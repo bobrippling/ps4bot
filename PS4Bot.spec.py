@@ -73,6 +73,10 @@ class TestParseGameInitiation(unittest.TestCase):
 		self.assertTrue(parse_desc_and_count("match at 3", "match", 4))
 		self.assertTrue(parse_desc_and_count("2 game", "game", 4))
 
+	def test_punctuation_handling(self):
+		self.assertTrue(parse_desc("game at 3?", "game"))
+		self.assertTrue(parse("game at 3?", 15, 00))
+
 class TestGame(unittest.TestCase):
 	def test_game_contains(self):
 		dummy_when = today_at(11, 43)
