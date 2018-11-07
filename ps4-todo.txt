@@ -6,11 +6,10 @@ Usage:
 
 Messaging:
 	[large] Update all "ps4bot games" messages when a game changes
-	[medium] If a game isn't full 10 minutes beforehand, send a "@here" requesting additional players
-	[small] Move tips category into others
 	[medium] Handle "ps4bot scuttle 3pm" - look for games by said user, if there's only one, move it to <time>
+	[medium] If a game isn't full 10 minutes beforehand, send a "@here" requesting additional players
 	[small] Allow "ps4" prefix
-	[small] Add "ps4bot thanks"
+	[small] Move tips category into others
 
 Localisation:
 	Usage:
