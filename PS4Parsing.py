@@ -2,6 +2,8 @@ import datetime
 
 from PS4Config import DEFAULT_MAX_PLAYERS
 
+time_prefixes = ["at"]
+
 def today_at(hour, min):
     return datetime.datetime.today().replace(
                     hour = hour,
@@ -58,7 +60,6 @@ def parse_game_initiation(str):
        if part == "sextuple":
            return 6
        return None
-    time_prefixes = ["at"]
 
     when = None
     desc_parts = []
