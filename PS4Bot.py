@@ -122,6 +122,12 @@ class PS4Bot(Bot):
                 return game
         return None
 
+    def game_straight_after(self, previous):
+        for game in self.games:
+            if previous.endtime() == game.when:
+                return game
+        return None
+
     def games_created_by(self, user):
         return filter(lambda g: g.creator == user, self.games)
 
@@ -463,6 +469,18 @@ class PS4Bot(Bot):
                     "t": when_str(g.when),
                     "d": g.description,
                 })
+
+            nextgame = self.game_straight_after(g)
+            if nextgame:
+                banter += (
+                    "\n({}'s {} ({}) is straight after - feel free to leave the PS4 on, "
+                    + "or turn if off if you dislike {})"
+                ).format(
+                    format_user(nextgame.creator),
+                    nextgame.description,
+                    nextgame.channel,
+                    format_user(nextgame.creator)
+                )
 
             self.send_message(banter, to_channel = g.channel)
             g.notified = True
