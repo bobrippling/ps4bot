@@ -74,7 +74,10 @@ class PS4History:
             statdict[stat] = []
 
         if removed:
-            statdict[stat].remove(user)
+            try:
+                statdict[stat].remove(user)
+            except ValueError:
+                pass
         else:
             statdict[stat].append(user)
 
