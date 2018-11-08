@@ -278,6 +278,10 @@ class PS4Bot(Bot):
         if game.remove_player(user):
             banter = ":candle: {}".format(format_user(user))
         else:
+            if subtle_message:
+                # don't say anything - they're silently removing their failed join-attmept-emoji
+                return
+
             banter = ":warning: you're not in the {} game {} (\"{}\")".format(
                     when_str(game.when),
                     format_user(user),
