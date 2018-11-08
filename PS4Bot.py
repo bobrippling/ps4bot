@@ -9,7 +9,7 @@ from Functional import find
 from Bot import Bot
 from SlackPostedMessage import SlackPostedMessage
 from PS4Game import Game
-from PS4Formatting import format_user, when_str
+from PS4Formatting import format_user, when_str, number_emojis
 from PS4Config import DEFAULT_MAX_PLAYERS
 from PS4Parsing import parse_time, parse_game_initiation
 from PS4History import PS4History
@@ -452,6 +452,8 @@ class PS4Bot(Bot):
             self.history.register_stat(gametime, user, removed, "towerfall.lastmanstanding");
         elif emoji in teams:
             self.history.register_stat(gametime, user, removed, "towerfall.teams");
+        elif emoji in number_emojis:
+            self.history.register_stat(gametime, user, removed, "towerfall.scrub." + emoji.replace(":", ""));
 
     def handle_reaction(self, reaction, removed = False):
         emoji = reaction.emoji

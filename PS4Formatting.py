@@ -1,5 +1,7 @@
 import datetime
 
+number_emojis = ["one", "two", "three", "four", "five", "six"]
+
 WHEN_FORMAT = "%H:%M"
 
 def when_str(when):
