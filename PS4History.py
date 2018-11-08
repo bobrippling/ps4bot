@@ -60,6 +60,8 @@ class PS4History:
         self.games = games
 
     def add_game(self, game):
+        if find(lambda g: g.message_timestamp == game.message.timestamp, self.games):
+            return
         self.games.append(game.to_historic())
 
     def register_stat(self, gametime, user, removed, stat):
