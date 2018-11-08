@@ -3,6 +3,7 @@ import unittest
 import sys
 sys.modules['datetime'] = __import__('mock_datetime')
 
+import datetime
 from PS4Parsing import parse_game_initiation, today_at
 from PS4Bot import Game, PS4Bot
 from SlackMessage import SlackMessage
@@ -119,7 +120,7 @@ class TestPS4Bot(unittest.TestCase):
 	def create_ps4bot(self):
 		self.messages = []
 
-		def send_message_stub(msg):
+		def send_message_stub(msg, to_channel = None):
 			self.messages.append(msg)
 			dummy_when = today_at(11, 43)
 			return SlackMessage(msg, "user", None, None, None, dummy_when, None)
@@ -184,5 +185,25 @@ class TestPS4Bot(unittest.TestCase):
 
 		self.assertEqual(len(self.messages), 1)
 		self.assertEqual(self.messages[0], ":alarm_clock: test game moved from 13:00 to 15:00 by <@user>")
+
+	def test_ps4bot_ps4on_hint(self):
+		dummychannel = DummyChannel("games")
+
+		ps4bot = self.create_ps4bot()
+                ps4bot.handle_message(SlackMessage("ps4bot test game at 9:00", "user", dummychannel, None, None, None, None))
+
+		self.assertEqual(len(self.messages), 1)
+		self.messages = []
+
+                ps4bot.handle_message(SlackMessage("ps4bot test game at 9:30", "user", dummychannel, None, None, None, None))
+
+		self.assertEqual(len(self.messages), 1)
+                self.messages = []
+
+                ps4bot.timeout()
+
+		self.assertEqual(len(self.messages), 1)
+		self.assertTrue("is straight after" in self.messages[0])
+
 
 unittest.main()
