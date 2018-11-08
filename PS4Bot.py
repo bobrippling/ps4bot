@@ -443,7 +443,7 @@ class PS4Bot(Bot):
 
     def maybe_record_stat(self, gametime, user, emoji, removed):
         headhunters = ["headhunters", "skull_and_crossbones", "crossed_swords"]
-        last_man_standing = ["last-man-standing", "bomb", "one"]
+        last_man_standing = ["last-man-standing", "bomb"]
         teams = ["team-deathmatch", "man_and_woman_holding_hands", "man-man-boy-boy"]
 
         if emoji in headhunters:
