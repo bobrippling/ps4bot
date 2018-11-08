@@ -1,3 +1,10 @@
 *.pyc
 config.py
+
+# state files:
 ps4-games.txt
+doodlebot.txt
+lunchbot-current.txt
+lunchbot-ratings.txt
+logs/
+sportbot-state.txt
