@@ -14,6 +14,7 @@ from PS4Parsing import parse_time, parse_game_initiation
 NAME = "ps4bot"
 DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
+SAVE_FILE = "ps4-games.txt"
 
 def replace_dict(str, dict):
     for k in dict:
@@ -30,7 +31,7 @@ class PS4Bot(Bot):
 
     def load(self):
         try:
-            with open("ps4-games.txt", "r") as f:
+            with open(SAVE_FILE, "r") as f:
                 while True:
                     line = f.readline()
                     if line == "":
@@ -85,7 +86,7 @@ class PS4Bot(Bot):
 
     def save(self):
         try:
-            with open("ps4-games.txt", "w") as f:
+            with open(SAVE_FILE, "w") as f:
                 for g in self.games:
                     print >>f, "{} {} {} {} {} {} {}".format(
                             when_str(g.when),
