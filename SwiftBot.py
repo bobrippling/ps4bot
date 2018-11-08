@@ -10,7 +10,7 @@ class SwiftBot(Bot):
         self.send_message(reply)
 
     def handle_message(self, message):
-        where = message.text.find('@swiftbot')
+        where = message.text.find('@{}'.format(self.botname))
         if where == -1:
             return
 

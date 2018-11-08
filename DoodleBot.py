@@ -71,7 +71,7 @@ def doodle_summary(self, who, args):
 def doodle_usage(self, who, args):
     reply = 'Usage: ```'
     for cmd in commands:
-        reply += '  doodlebot {} {}\n'.format(cmd, commands[cmd]['summary'])
+        reply += '  {} {} {}\n'.format(self.botname, cmd, commands[cmd]['summary'])
     reply += '```'
     return reply
 
@@ -151,7 +151,7 @@ class DoodleBot(Bot):
         who = message.user
 
         if command not in commands:
-            return '<@{}>... just WHAT are you ON ABOUT??? (`doodlebot usage`)'.format(who)
+            return '<@{}>... just WHAT are you ON ABOUT??? (`{} usage`)'.format(who, self.botname)
 
         return commands[command]['fn'](self, who, tokens)
 
@@ -161,7 +161,7 @@ class DoodleBot(Bot):
 
     def handle_message(self, message):
         tokens = message.text.split()
-        if len(tokens) == 0 or tokens[0] != "doodlebot":
+        if len(tokens) == 0 or tokens[0] != self.botname:
             return False
 
         try:

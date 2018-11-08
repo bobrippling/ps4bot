@@ -62,7 +62,7 @@ class SportBot(Bot):
         self.send_message("EH?!? What you on about <@{}>?".format(to_user))
 
     def handle_admin_message(self, message):
-        if message.text == 'sportbot reset':
+        if message.text == '{} reset'.format(self.botname):
             self.players = []
             self.send_message("reset sporting state")
             return

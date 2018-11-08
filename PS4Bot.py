@@ -16,7 +16,6 @@ from PS4Parsing import parse_time, parse_game_initiation
 from PS4History import PS4History
 from PS4GameCategory import channel_is_towerfall, vote_message, Stats
 
-NAME = "ps4bot"
 DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
 SAVE_FILE = "ps4-games.txt"
@@ -555,7 +554,7 @@ class PS4Bot(Bot):
                 "\n:muscle: More localisation: <@morchard>" +
                 "\n:scroll: Banter: <@danallsop>" +
                 "\n:javascript: More banter: <@craigayre>" +
-                "").format(format_user(message.user), NAME))
+                "").format(format_user(message.user), self.botname))
 
     def handle_imminent_games(self):
         now = datetime.datetime.today()
@@ -676,7 +675,7 @@ class PS4Bot(Bot):
         self.handle_reaction(reaction, removed = True)
 
     def is_message_for_me(self, msg):
-        return msg.lower() == NAME
+        return msg.lower() == self.botname
 
     def handle_edit(self, edit):
         self.handle_message(edit.toMessage())
@@ -699,6 +698,6 @@ class PS4Bot(Bot):
 
             self.handle_command(message, tokens[1] if len(tokens) > 1 else "", " ".join(tokens[2:]))
         except Exception as e:
-            self.send_message(":rotating_light: {}'s massive computer membrane has ruptured".format(NAME))
+            self.send_message(":rotating_light: {}'s massive computer membrane has ruptured".format(self.botname))
             traceback.print_exc()
             raise e

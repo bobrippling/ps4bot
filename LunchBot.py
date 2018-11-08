@@ -119,7 +119,7 @@ class LunchBot(Bot):
 
     def send_usage(self):
         message = '\n'.join([
-                "usage: ```lunchbot [subcommand]",
+                "usage: ```{} [subcommand]".format(self.botname),
                 "Common usage:",
                 "  suggest [optional luncher candidates]",
                 "    Suggest a luncher to pick a destination, and a possible destination",
@@ -138,7 +138,7 @@ class LunchBot(Bot):
         self.send_message(message)
 
     def send_usage_small(self, to_user):
-        self.send_message("EH?!? What you on about <@{}>? (try `lunchbot usage`)".format(to_user))
+        self.send_message("EH?!? What you on about <@{}>? (try `{} usage`)".format(to_user, self.botname))
 
     def get_recents(self):
         # returns [(name, time, who)]
@@ -391,7 +391,7 @@ class LunchBot(Bot):
 
     def handle_message(self, message):
         tokens = message.text.split()
-        if len(tokens) < 1 or tokens[0] != "lunchbot":
+        if len(tokens) < 1 or tokens[0] != self.botname:
             return False
 
         try:
