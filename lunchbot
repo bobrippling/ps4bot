@@ -47,13 +47,19 @@ slackconnection = SlackClient(BOT_TOKEN)
 slackmonitor = SlackMonitor(slackconnection)
 
 for bot_name in sys.argv[sep + 1:]:
+    alias = bot_name
+    colon = bot_name.find(":")
+    if colon != -1:
+        alias = bot_name[:colon]
+        bot_name = bot_name[colon+1:]
+
     try:
         bot_ctor = bot_names_to_classes[bot_name]
     except KeyError:
         print >>sys.stderr, "bot \"{}\" doesn't exist".format(bot_name)
         sys.exit(1)
 
-    bot_obj = bot_ctor(slackconnection, bot_name)
+    bot_obj = bot_ctor(slackconnection, alias)
     for channel in sys.argv[1:sep]:
         slackmonitor.add_handler_for_channel(bot_obj, channel)
 
