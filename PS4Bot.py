@@ -4,12 +4,15 @@ import sys
 import re
 import traceback
 
+from Functional import find
+
 from Bot import Bot
 from SlackPostedMessage import SlackPostedMessage
 from PS4Game import Game
 from PS4Formatting import format_user, when_str
 from PS4Config import DEFAULT_MAX_PLAYERS
 from PS4Parsing import parse_time, parse_game_initiation
+from PS4History import PS4History
 
 NAME = "ps4bot"
 DIALECT = ["here", "hew", "areet"]
@@ -27,6 +30,7 @@ class PS4Bot(Bot):
 
         self.icon_emoji = ":video_game:"
         self.games = []
+        self.history = PS4History()
         self.load()
 
     def load(self):
@@ -114,6 +118,7 @@ class PS4Bot(Bot):
     def new_game(self, when, desc, channel, creator, msg, max_players, notified = False):
         g = Game(when, desc, channel, creator, msg, max_players, notified)
         self.games.append(g)
+        self.history.add_game(g)
         return g
 
     def load_banter(self, type, replacements = {}):
@@ -426,27 +431,38 @@ class PS4Bot(Bot):
         self.handle_imminent_games()
         self.save()
 
+    def handle_game_reaction(self, game, reacting_user, emoji, removed):
+        now = datetime.datetime.today()
+        if now < game.endtime():
+            join_emojis = ["+1", "thumbsup", "plus1" "heavy_plus_sign"]
+            if emoji in join_emojis:
+                if removed:
+                    self.remove_user_from_game(reacting_user, game, subtle_message = True)
+                else:
+                    self.add_user_to_game(reacting_user, game, subtle_message = True)
+
+    def maybe_record_stat(self, gametime, user, emoji, removed):
+        headhunters = ["headhunters", "skull_and_crossbones", "crossed_swords"]
+        last_man_standing = ["last-man-standing", "bomb", "one"]
+        teams = ["team-deathmatch", "man_and_woman_holding_hands", "man-man-boy-boy"]
+
+        if emoji in headhunters:
+            self.history.register_stat(gametime, user, removed, "towerfall.headhunters");
+        elif emoji in last_man_standing:
+            self.history.register_stat(gametime, user, removed, "towerfall.lastmanstanding");
+        elif emoji in teams:
+            self.history.register_stat(gametime, user, removed, "towerfall.teams");
+
     def handle_reaction(self, reaction, removed = False):
-        channel = reaction.channel.name
         emoji = reaction.emoji
         msg_when = reaction.original_msg_time
         reacting_user = self.lookup_user(reaction.reacting_user)
 
-        game = None
-        for g in self.games:
-            if g.message.timestamp == msg_when:
-                game = g
-                break
+        game = find(lambda g: g.message.timestamp == msg_when, self.games)
+        if game:
+            self.handle_game_reaction(game, reacting_user, emoji, removed)
 
-        if game is None:
-            return
-
-        join_emojis = ["+1", "thumbsup", "plus1" "heavy_plus_sign"]
-        if emoji in join_emojis:
-            if removed:
-                self.remove_user_from_game(reacting_user, game, subtle_message = True)
-            else:
-                self.add_user_to_game(reacting_user, game, subtle_message = True)
+        self.maybe_record_stat(msg_when, reacting_user, emoji, removed)
 
     def handle_unreaction(self, reaction):
         self.handle_reaction(reaction, removed = True)
