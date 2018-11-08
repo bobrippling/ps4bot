@@ -465,7 +465,8 @@ class PS4Bot(Bot):
         elif emoji in teams:
             self.history.register_stat(gametime, user, removed, "towerfall.teams");
         elif emoji in number_emojis:
-            self.history.register_stat(gametime, user, removed, "towerfall.scrub." + emoji.replace(":", ""));
+            number = emoji
+            self.history.register_stat(gametime, user, removed, "towerfall.scrub." + number);
 
     def handle_reaction(self, reaction, removed = False):
         emoji = reaction.emoji
