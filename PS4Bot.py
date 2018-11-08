@@ -13,6 +13,7 @@ from PS4Formatting import format_user, when_str, number_emojis
 from PS4Config import DEFAULT_MAX_PLAYERS
 from PS4Parsing import parse_time, parse_game_initiation
 from PS4History import PS4History
+from PS4GameCategory import game_is_towerfall, towerfall_vote_message
 
 NAME = "ps4bot"
 DIALECT = ["here", "hew", "areet"]
@@ -408,7 +409,14 @@ class PS4Bot(Bot):
             return now < g.endtime()
 
         imminent = filter(game_is_imminent, self.games)
-        self.games = filter(game_active_or_scheduled, self.games)
+        active = []
+        dead = []
+        for g in self.games:
+            if game_active_or_scheduled(g):
+                active.append(g)
+            else:
+                dead.append(g)
+        self.games = active
 
         for g in imminent:
             if len(g.players) == 0:
@@ -423,6 +431,10 @@ class PS4Bot(Bot):
 
             self.send_message(banter, to_channel = g.channel)
             g.notified = True
+
+        for g in dead:
+            if game_is_towerfall(g):
+                self.update_game_message(g, towerfall_vote_message(g))
 
     def teardown(self):
         self.save()
