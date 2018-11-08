@@ -4,7 +4,6 @@ from collections import defaultdict
 from Functional import find
 
 from PS4HistoricGame import PS4HistoricGame
-from PS4Formatting import when_from_str
 
 SAVE_FILE = "ps4-stats.txt"
 
@@ -21,7 +20,7 @@ class PS4History:
             with open(SAVE_FILE, "w") as f:
                 for g in self.games:
                     print >>f, "game {} {} {}".format(
-                        g.when,
+                        g.message_timestamp,
                         g.channel,
                         ",".join(g.players))
 
@@ -43,10 +42,10 @@ class PS4History:
                     tokens = line.split(" ")
 
                     if tokens[0] == "game":
-                        when = when_from_str(tokens[1])
+                        message_timestamp = tokens[1]
                         channel = tokens[2]
                         players = tokens[3].split(",")
-                        current_game = PS4HistoricGame(when, players, channel)
+                        current_game = PS4HistoricGame(message_timestamp, players, channel)
                         games.append(current_game)
                     elif tokens[0] == "stat":
                         if not current_game:
@@ -64,7 +63,7 @@ class PS4History:
         self.games.append(game.to_historic())
 
     def register_stat(self, gametime, user, removed, stat):
-        historic_game = find(lambda g: g.when == gametime, self.games)
+        historic_game = find(lambda g: g.message_timestamp == gametime, self.games)
         if historic_game is None:
             return
 
@@ -88,7 +87,7 @@ class PS4History:
         for game in self:
             if game.channel != channel:
                 continue
-            if since and game.when < since:
+            if since and game.message_timestamp < since:
                 continue
             for statkey, users in game.stats.iteritems():
                 for u in users:

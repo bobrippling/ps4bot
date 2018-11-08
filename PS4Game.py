@@ -74,4 +74,4 @@ class Game:
                 self.pretty_players() if len(self.players) else "nobody")
 
     def to_historic(self):
-        return PS4HistoricGame(self.when, self.players, self.channel)
+        return PS4HistoricGame(self.message.timestamp, self.players, self.channel)
