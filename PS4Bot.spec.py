@@ -1,5 +1,7 @@
 import unittest
-import datetime
+
+import sys
+sys.modules['datetime'] = __import__('mock_datetime')
 
 from PS4Parsing import parse_game_initiation, today_at
 from PS4Bot import Game, PS4Bot
