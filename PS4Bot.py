@@ -8,7 +8,7 @@ from Bot import Bot
 from SlackPostedMessage import SlackPostedMessage
 from PS4Game import Game
 from PS4Formatting import format_user, when_str
-from PS4Config import DEFAULT_MAX_PLAYERS, PLAY_TIME
+from PS4Config import DEFAULT_MAX_PLAYERS, PLAY_TIME, GAME_FOLLOWON_TIME
 from PS4Parsing import parse_time, parse_game_initiation
 
 NAME = "ps4bot"
@@ -122,9 +122,11 @@ class PS4Bot(Bot):
                 return game
         return None
 
-    def game_straight_after(self, previous):
+    def game_straight_after(self, previous, threshold):
+        threshold_delta = datetime.timedelta(minutes = threshold)
         for game in self.games:
-            if previous.endtime() == game.when:
+            endtime = previous.endtime()
+            if endtime <= game.when < endtime + threshold_delta:
                 return game
         return None
 
@@ -470,7 +472,7 @@ class PS4Bot(Bot):
                     "d": g.description,
                 })
 
-            nextgame = self.game_straight_after(g)
+            nextgame = self.game_straight_after(g, threshold = GAME_FOLLOWON_TIME)
             if nextgame:
                 banter += (
                     "\n({}'s {} ({}) is straight after - feel free to leave the PS4 on, "

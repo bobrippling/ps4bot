@@ -195,7 +195,7 @@ class TestPS4Bot(unittest.TestCase):
 		self.assertEqual(len(self.messages), 1)
 		self.messages = []
 
-                ps4bot.handle_message(SlackMessage("ps4bot test game at 9:30", "user", dummychannel, None, None, None, None))
+                ps4bot.handle_message(SlackMessage("ps4bot test game at 9:34", "user", dummychannel, None, None, None, None))
 
 		self.assertEqual(len(self.messages), 1)
                 self.messages = []
