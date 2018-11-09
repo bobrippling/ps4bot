@@ -25,7 +25,8 @@ class PS4History:
                         ",".join(g.players))
 
                     for statkey, users in g.stats.iteritems():
-                        print >>f, "stat {} {}".format(statkey, ",".join(users))
+                        if len(users):
+                            print >>f, "stat {} {}".format(statkey, ",".join(users))
         except IOError:
             print >>sys.stderr, "exception saving state: {}".format(e)
 
@@ -48,7 +49,7 @@ class PS4History:
                         if not current_game:
                             continue
                         key = tokens[1]
-                        users = tokens[2].split(",")
+                        users = filter(len, tokens[2].split(","))
                         current_game.stats[key] = users
                     else:
                         print >>sys.stderr, "unknown {} line \"{}\"".format(SAVE_FILE, line)
