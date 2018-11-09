@@ -17,7 +17,7 @@ class PS4History:
 
     def save(self):
         try:
-            with open(SAVE_FILE, "w") as f:
+            with open(SAVE_FILE, "w") as f: # open as "w" since we rewrite the whole thing
                 for g in self.games:
                     print >>f, "game {} {} {}".format(
                         g.message_timestamp,
