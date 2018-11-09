@@ -65,7 +65,7 @@ class PS4History:
     def register_stat(self, gametime, user, removed, stat):
         historic_game = find(lambda g: g.message_timestamp == gametime, self.games)
         if historic_game is None:
-            return
+            return False
 
         statdict = historic_game.stats
         if stat not in statdict:
@@ -80,6 +80,7 @@ class PS4History:
             statdict[stat].append(user)
 
         self.save()
+        return True
 
     def summary_stats(self, channel, name = None, since = None):
         stats = defaultdict(lambda: defaultdict(int))
