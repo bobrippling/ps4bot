@@ -101,4 +101,4 @@ class PS4History:
                 if allow_user(u):
                     stats[u]["_total"] += 1
 
-        return stats
+        return stats # { user: { _total: int, [stat]: int ... }, ... }
