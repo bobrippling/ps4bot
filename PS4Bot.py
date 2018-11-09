@@ -50,10 +50,7 @@ class PS4Bot(Bot):
     def load(self):
         try:
             with open(SAVE_FILE, "r") as f:
-                while True:
-                    line = f.readline()
-                    if line == "":
-                        break
+                for line in iter(f.readline, ""):
                     line = line.rstrip("\n")
                     if len(line) == 0:
                         continue

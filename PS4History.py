@@ -34,10 +34,7 @@ class PS4History:
         try:
             with open(SAVE_FILE, "r") as f:
                 current_game = None
-                while True:
-                    line = f.readline()
-                    if line == "":
-                        break
+                for line in iter(f.readline, ""):
                     line = line.rstrip("\n")
                     tokens = line.split(" ")
 
