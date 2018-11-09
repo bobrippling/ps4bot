@@ -1,3 +1,4 @@
+from collections import defaultdict
 import datetime
 import random
 import sys
@@ -9,7 +10,7 @@ from Functional import find
 from Bot import Bot
 from SlackPostedMessage import SlackPostedMessage
 from PS4Game import Game
-from PS4Formatting import format_user, when_str, number_emojis
+from PS4Formatting import format_user, when_str, number_emojis, generate_table
 from PS4Config import DEFAULT_MAX_PLAYERS
 from PS4Parsing import parse_time, parse_game_initiation
 from PS4History import PS4History
@@ -390,28 +391,50 @@ class PS4Bot(Bot):
         reply = self.load_banter("dialect", { "u": format_user(message.user) })
         self.send_message(reply)
 
+    def update_stats_table(self, channel, stats, force_new = False):
+        allstats = set()
+        for v in stats.values():
+            allstats.update(v.keys())
+        allstats = list(allstats)
+        allstats.sort()
+
+        if "total" in allstats:
+            allstats.remove("total") # ensure total is at the end
+            allstats.append("total")
+
+        def stat_for_user(user_stats):
+            user, users_stats = user_stats
+            return [format_user(user)] + map(str, map(lambda stat: users_stats[stat], allstats))
+
+        header = ["player"] + allstats
+        stats_per_user = map(stat_for_user, stats.iteritems())
+
+        table = generate_table(header, stats_per_user, defaultdict(int, { 0: 2 }))
+
+        if not force_new and channel in self.latest_stats_table:
+            # update the table instead
+            table_msg = None
+            self.update_message(
+                    table,
+                    original_timestamp = self.latest_stats_table[channel],
+                    original_channel = channel)
+        else:
+            table_msg = self.send_message(table)
+
+        if table_msg:
+            self.latest_stats_table[channel] = table_msg.timestamp
+
     def handle_stats_request(self, message, rest, request):
-        channel = message.channel
-        name = None
+        channel = message.channel.name
+        name = None # TODO
         since = None
 
         stats = self.history.summary_stats(channel, name, since)
 
         if request == "stats":
-            allstats = reduce(lambda keys, d: keys + d.keys(), stats.values(), [])
-            allstats.sort()
-
-            def message_for_user(user_stats):
-                user, stats = user_stats
-                def padded_stat_entry(stat):
-                    return str(stats[stat]).center(len(stat) + 2)
-                return format_user(user) + " " + " ".join(map(padded_stat_entry, allstats))
-
-            message_per_user = map(message_for_user, stats.iteritems())
-
-            header = "player {}\n".format(" ".join(map(lambda stat: stat.center(len(stat) + 2), allstats)))
-            self.send_message(header + "\n".join(message_per_user))
+            self.update_stats_table(channel, stats, force_new = True)
         else:
+            # TODO
             self.send_message("handle_stats_request(message=\"{}\", rest=\"{}\", request=\"{}\")".format(
                 message.text, rest, request))
 
@@ -495,20 +518,25 @@ class PS4Bot(Bot):
                 else:
                     self.add_user_to_game(reacting_user, game, subtle_message = True)
 
-    def maybe_record_stat(self, gametime, user, emoji, removed):
+    def maybe_record_stat(self, gametime, channel, user, emoji, removed):
         headhunters = ["headhunters", "skull_and_crossbones", "crossed_swords"]
         last_man_standing = ["last-man-standing", "bomb"]
         teams = ["team-deathmatch", "man_and_woman_holding_hands", "man-man-boy-boy"]
 
+        recorded = False
         if emoji in headhunters:
-            self.history.register_stat(gametime, user, removed, "towerfall.headhunters");
+            recorded = self.history.register_stat(gametime, user, removed, "towerfall.headhunters");
         elif emoji in last_man_standing:
-            self.history.register_stat(gametime, user, removed, "towerfall.lastmanstanding");
+            recorded = self.history.register_stat(gametime, user, removed, "towerfall.lastmanstanding");
         elif emoji in teams:
-            self.history.register_stat(gametime, user, removed, "towerfall.teams");
+            recorded = self.history.register_stat(gametime, user, removed, "towerfall.teams");
         elif emoji in number_emojis:
             number = emoji
-            self.history.register_stat(gametime, user, removed, "towerfall.scrub." + number);
+            recorded = self.history.register_stat(gametime, user, removed, "towerfall.scrub." + number);
+
+        if recorded:
+            stats = self.history.summary_stats(channel, None, None)
+            self.update_stats_table(channel, stats)
 
     def handle_reaction(self, reaction, removed = False):
         emoji = reaction.emoji
@@ -519,7 +547,7 @@ class PS4Bot(Bot):
         if game:
             self.handle_game_reaction(game, reacting_user, emoji, removed)
 
-        self.maybe_record_stat(msg_when, reacting_user, emoji, removed)
+        self.maybe_record_stat(msg_when, reaction.channel.name, reacting_user, emoji, removed)
 
     def handle_unreaction(self, reaction):
         self.handle_reaction(reaction, removed = True)
