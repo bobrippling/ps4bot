@@ -25,6 +25,15 @@ def replace_dict(str, dict):
         str = str.replace("%" + k, dict[k])
     return str
 
+PS4Bot_commands = {
+    # args given are self, message, rest
+    "nar": lambda self, *args: self.maybe_cancel_game(*args),
+    "games": lambda self, *args: self.show_games(),
+    "flyin": lambda self, *args: self.join_or_bail(*args),
+    "bail": lambda self, *args: self.join_or_bail(*args, bail = True),
+    "scuttle": lambda self, *args: self.maybe_scuttle_game(*args),
+}
+
 class PS4Bot(Bot):
     def __init__(self, slackconnection, botname):
         Bot.__init__(self, slackconnection, botname)
@@ -285,7 +294,8 @@ class PS4Bot(Bot):
             when_str(game.when),
             game.description))
 
-    def maybe_cancel_game(self, user, rest):
+    def maybe_cancel_game(self, message, rest):
+        user = message.user
         try:
             when = parse_time(rest)
         except ValueError:
@@ -372,18 +382,14 @@ class PS4Bot(Bot):
     def handle_command(self, message, command, rest):
         if len(command.strip()) == 0 and len(rest) == 0:
             self.send_dialect_reply(message)
-        elif command == "nar":
-            self.maybe_cancel_game(message.user, rest)
-        elif command == "games":
-            self.show_games()
-        elif command == "join" or command == "flyin":
-            self.join_or_bail(message, rest)
-        elif command == "bail" or command == "flyout":
-            self.join_or_bail(message, rest, bail = True)
-        elif command == "scuttle":
-            self.maybe_scuttle_game(message, rest)
+            return
+
+        if command in PS4Bot_commands:
+            PS4Bot_commands[command](self, message, rest)
+            return
+
         # attempt to parse a big game, if unsuccessful, show usage:
-        elif not self.maybe_new_game(message.user, message.channel.name, command + " " + rest):
+        if not self.maybe_new_game(message.user, message.channel.name, command + " " + rest):
             self.send_message((
                 ":warning: Hew {0}, here's what I listen to: `{1} flyin/flyout/nar/scuttle/games`," +
                 "\nor try adding a :+1: to a game invite (or typing `+:+1:` as a response)." +
