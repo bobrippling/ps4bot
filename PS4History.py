@@ -89,7 +89,7 @@ class PS4History:
             return name is None or u == name
 
         for game in self:
-            if channel is not None and game.channel != channel:
+            if channel and game.channel != channel:
                 continue
             if since and game.message_timestamp < since:
                 continue
@@ -97,7 +97,6 @@ class PS4History:
                 for u in users:
                     if allow_user(u):
                         stats[u][statkey] += 1
-                if allow_user(u):
-                    stats[u]["_total"] += 1
+                        stats[u]["total"] += 1
 
-        return stats # { user: { _total: int, [stat]: int ... }, ... }
+        return stats # { user: { total: int, [stat]: int ... }, ... }
