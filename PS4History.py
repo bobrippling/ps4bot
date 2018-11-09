@@ -90,7 +90,7 @@ class PS4History:
             return name is None or u == name
 
         for game in self:
-            if game.channel != channel:
+            if channel is not None and game.channel != channel:
                 continue
             if since and game.message_timestamp < since:
                 continue
