@@ -45,6 +45,7 @@ class PS4Bot(Bot):
         self.icon_emoji = ":video_game:"
         self.games = []
         self.history = PS4History()
+        self.latest_stats_table = {} # channel => timestamp
         self.load()
 
     def load(self):
@@ -54,6 +55,12 @@ class PS4Bot(Bot):
                     line = line.rstrip("\n")
                     if len(line) == 0:
                         continue
+
+                    if line[:6] == "stats ":
+                        tokens = line.split()
+                        self.latest_stats_table[tokens[1]] = tokens[2]
+                        continue
+
                     tokens = line.split(" ", 6)
                     if len(tokens) != 7:
                         print "invalid line \"{}\"".format(line)
@@ -115,6 +122,9 @@ class PS4Bot(Bot):
                     msg = g.message
                     print >>f, "{}\n{}\n{}".format(msg.timestamp, msg.channel, msg.text)
                     print >>f, ""
+
+                for channel, timestamp in self.latest_stats_table.iteritems():
+                    print >>f, "stats {} {}".format(channel, timestamp)
 
         except IOError as e:
             print >>sys.stderr, "exception saving state: {}".format(e)
