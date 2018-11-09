@@ -1,5 +1,6 @@
 import re
 import time
+
 from SlackPostedMessage import SlackPostedMessage
 
 class Bot():
@@ -20,11 +21,13 @@ class Bot():
 
         return alt if alt is not None else id
 
+    def resolve_channel(self, channel):
+        if channel is not None:
+            return self.slackconnection.server.channels.find(channel)
+        return self.channel
+
     def send_message(self, text, to_channel = None):
-        if to_channel is not None:
-            channel = self.slackconnection.server.channels.find(to_channel)
-        else:
-            channel = self.channel
+        channel = self.resolve_channel(to_channel)
 
         if channel is None:
             return
@@ -40,11 +43,16 @@ class Bot():
 
         return SlackPostedMessage(response["channel"], response["ts"], text)
 
-    def update_message(self, text, original_message):
+    def update_message(self, text, original_message = None, original_channel = None, original_timestamp = None):
+        channel = original_channel or original_message.channel
+        timestamp = original_timestamp or original_message.timestamp
+
+        channel = self.resolve_channel(channel)
+
         self.slackconnection.api_call(
                 "chat.update",
-                channel = original_message.channel,
-                ts = original_message.timestamp,
+                channel = channel.id,
+                ts = timestamp,
                 username = self.botname,
                 as_user = False,
                 text = text)
