@@ -32,6 +32,10 @@ PS4Bot_commands = {
     "flyin": lambda self, *args: self.join_or_bail(*args),
     "bail": lambda self, *args: self.join_or_bail(*args, bail = True),
     "scuttle": lambda self, *args: self.maybe_scuttle_game(*args),
+    "stats": lambda self, *args: self.handle_stats_request(*args, request = "stats"),
+    "rank": lambda self, *args: self.handle_stats_request(*args, request = "rank"),
+    "topradge": lambda self, *args: self.handle_stats_request(*args, request = "rank"),
+    "scrublord": lambda self, *args: self.handle_stats_request(*args, request = "scrublord"),
 }
 
 class PS4Bot(Bot):
@@ -378,6 +382,31 @@ class PS4Bot(Bot):
     def send_dialect_reply(self, message):
         reply = self.load_banter("dialect", { "u": format_user(message.user) })
         self.send_message(reply)
+
+    def handle_stats_request(self, message, rest, request):
+        channel = message.channel
+        name = None
+        since = None
+
+        stats = self.history.summary_stats(channel, name, since)
+
+        if request == "stats":
+            allstats = reduce(lambda keys, d: keys + d.keys(), stats.values(), [])
+            allstats.sort()
+
+            def message_for_user(user_stats):
+                user, stats = user_stats
+                def padded_stat_entry(stat):
+                    return str(stats[stat]).center(len(stat) + 2)
+                return format_user(user) + " " + " ".join(map(padded_stat_entry, allstats))
+
+            message_per_user = map(message_for_user, stats.iteritems())
+
+            header = "player {}\n".format(" ".join(map(lambda stat: stat.center(len(stat) + 2), allstats)))
+            self.send_message(header + "\n".join(message_per_user))
+        else:
+            self.send_message("handle_stats_request(message=\"{}\", rest=\"{}\", request=\"{}\")".format(
+                message.text, rest, request))
 
     def handle_command(self, message, command, rest):
         if len(command.strip()) == 0 and len(rest) == 0:
