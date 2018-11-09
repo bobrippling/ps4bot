@@ -32,6 +32,9 @@ class Bot():
         if channel is None:
             return
 
+        if len(text) == 0:
+            return
+
         # post as BOT_NAME instead of the current user
         response = self.slackconnection.api_call(
                 "chat.postMessage",
