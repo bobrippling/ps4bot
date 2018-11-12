@@ -129,6 +129,8 @@ class PS4Bot(Bot):
         except IOError as e:
             print >>sys.stderr, "exception saving state: {}".format(e)
 
+        self.history.save()
+
 
     def find_time(self, when, ignoring = None):
         for game in self.games:
