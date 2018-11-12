@@ -61,6 +61,7 @@ class PS4History:
         if find(lambda g: g.message_timestamp == game.message.timestamp, self.games):
             return
         self.games.append(game.to_historic())
+        self.save()
 
     def find_game(self, gametime):
         return find(lambda g: g.message_timestamp == gametime, self.games)
