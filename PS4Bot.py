@@ -33,10 +33,9 @@ PS4Bot_commands = {
     "flyin": lambda self, *args: self.join_or_bail(*args),
     "bail": lambda self, *args: self.join_or_bail(*args, bail = True),
     "scuttle": lambda self, *args: self.maybe_scuttle_game(*args),
-    "stats": lambda self, *args: self.handle_stats_request(*args, request = "stats"),
-    "rank": lambda self, *args: self.handle_stats_request(*args, request = "rank"),
-    "topradge": lambda self, *args: self.handle_stats_request(*args, request = "rank"),
-    "scrublord": lambda self, *args: self.handle_stats_request(*args, request = "scrublord"),
+    "stats": lambda self, *args: self.handle_stats_request(*args),
+    "topradge": lambda self, *args: self.handle_stats_request(*args),
+    "scrublord": lambda self, *args: self.handle_stats_request(*args),
 }
 
 class PS4Bot(Bot):
@@ -424,19 +423,12 @@ class PS4Bot(Bot):
         if table_msg:
             self.latest_stats_table[channel] = table_msg.timestamp
 
-    def handle_stats_request(self, message, rest, request):
+    def handle_stats_request(self, message, rest):
         channel = message.channel.name
-        name = None # TODO
-        since = None
 
-        stats = self.history.summary_stats(channel, name, since)
+        stats = self.history.summary_stats(channel)
 
-        if request == "stats":
-            self.update_stats_table(channel, stats, force_new = True)
-        else:
-            # TODO
-            self.send_message("handle_stats_request(message=\"{}\", rest=\"{}\", request=\"{}\")".format(
-                message.text, rest, request))
+        self.update_stats_table(channel, stats, force_new = True)
 
     def handle_command(self, message, command, rest):
         if len(command.strip()) == 0 and len(rest) == 0:
@@ -535,7 +527,7 @@ class PS4Bot(Bot):
             recorded = self.history.register_stat(gametime, user, removed, "towerfall.scrub." + number);
 
         if recorded:
-            stats = self.history.summary_stats(channel, None, None)
+            stats = self.history.summary_stats(channel)
             self.update_stats_table(channel, stats)
 
     def handle_reaction(self, reaction, removed = False):
