@@ -512,6 +512,22 @@ class PS4Bot(Bot):
                 else:
                     self.add_user_to_game(reacting_user, game, subtle_message = True)
 
+    def maybe_register_emoji_number_stat(self, gametime, emoji, from_user, removed):
+        historic_game = self.history.find_game(gametime)
+        if not historic_game:
+            return
+
+        try:
+            index = number_emojis.index(emoji)
+        except ValueError:
+            return
+        try:
+            user = historic_game.players[index]
+        except IndexError:
+            return
+
+        return self.history.register_stat(gametime, user, removed, "towerfall.scrub")
+
     def maybe_record_stat(self, gametime, channel, user, emoji, removed):
         headhunters = ["headhunters", "skull_and_crossbones", "crossed_swords"]
         last_man_standing = ["last-man-standing", "bomb"]
@@ -525,8 +541,7 @@ class PS4Bot(Bot):
         elif emoji in teams:
             recorded = self.history.register_stat(gametime, user, removed, "towerfall.teams");
         elif emoji in number_emojis:
-            number = emoji
-            recorded = self.history.register_stat(gametime, user, removed, "towerfall.scrub." + number);
+            recorded = self.maybe_register_emoji_number_stat(gametime, emoji, user, removed)
 
         if recorded:
             stats = self.history.summary_stats(channel)
