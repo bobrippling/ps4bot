@@ -14,7 +14,7 @@ from PS4Formatting import format_user, when_str, number_emojis, generate_table
 from PS4Config import DEFAULT_MAX_PLAYERS
 from PS4Parsing import parse_time, parse_game_initiation
 from PS4History import PS4History
-from PS4GameCategory import channel_is_towerfall, towerfall_vote_message
+from PS4GameCategory import channel_is_towerfall, towerfall_vote_message, Stats
 
 NAME = "ps4bot"
 DIALECT = ["here", "hew", "areet"]
@@ -411,7 +411,7 @@ class PS4Bot(Bot):
             # sort on the last statistic, aka "total"
             return stats[len(stats) - 1]
 
-        header = ["player"] + allstats
+        header = ["player"] + map(Stats.pretty, allstats)
         stats_per_user = map(stat_for_user, stats.iteritems())
         stats_per_user.sort(key = stats_sort_key, reverse = True)
 
@@ -531,7 +531,7 @@ class PS4Bot(Bot):
         except IndexError:
             return
 
-        return self.history.register_stat(gametime, user, removed, "towerfall.scrub")
+        return self.history.register_stat(gametime, user, removed, Stats.scrub)
 
     def maybe_record_stat(self, gametime, channel, user, emoji, removed):
         if not channel_is_towerfall(channel):
@@ -543,11 +543,11 @@ class PS4Bot(Bot):
 
         recorded = False
         if emoji in headhunters:
-            recorded = self.history.register_stat(gametime, user, removed, "towerfall.headhunters");
+            recorded = self.history.register_stat(gametime, user, removed, Stats.Towerfall.headhunters);
         elif emoji in last_man_standing:
-            recorded = self.history.register_stat(gametime, user, removed, "towerfall.lastmanstanding");
+            recorded = self.history.register_stat(gametime, user, removed, Stats.Towerfall.lastmanstanding);
         elif emoji in teams:
-            recorded = self.history.register_stat(gametime, user, removed, "towerfall.teams");
+            recorded = self.history.register_stat(gametime, user, removed, Stats.Towerfall.teams);
         elif emoji in number_emojis:
             recorded = self.maybe_register_emoji_number_stat(gametime, emoji, user, removed)
 
