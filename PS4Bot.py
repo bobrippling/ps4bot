@@ -411,7 +411,7 @@ class PS4Bot(Bot):
             # sort on the last statistic, aka "Total"
             return stats[len(stats) - 1]
 
-        header = ["player"] + map(Stats.pretty, allstats)
+        header = ["Player"] + map(Stats.pretty, allstats)
         stats_per_user = map(stat_for_user, stats.iteritems())
         stats_per_user.sort(key = stats_sort_key, reverse = True)
 
