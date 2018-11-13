@@ -71,6 +71,9 @@ class PS4History:
         if historic_game is None:
             return False
 
+        if user not in historic_game.players:
+            return False
+
         statdict = historic_game.stats
         if stat not in statdict:
             statdict[stat] = []
