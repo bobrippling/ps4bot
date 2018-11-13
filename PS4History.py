@@ -104,3 +104,16 @@ class PS4History:
                         stats[u]["Total"] += 1
 
         return stats # { user: { total: int, [stat]: int ... }, ... }
+
+    def user_ranking(self, channel):
+        rankmap = defaultdict(int) # user => score (total)
+
+        for game in self:
+            if channel and game.channel != channel:
+                continue
+            for statkey, users in game.stats.iteritems():
+                for u in users:
+                    rankmap[u] += 1
+
+        # [ user1, user2, ... ]
+        return sorted(rankmap, key = lambda u: rankmap[u], reverse = True)

@@ -41,4 +41,24 @@ class TestPS4History(unittest.TestCase):
         self.assertEqual(stats["p1"]["Total"], 1)
         self.assertEqual(stats["p2"]["Total"], 3)
 
+    def test_history_ranks_for_total(self):
+        history = PS4History()
+
+        when = datetime.datetime.today()
+        slackmsg = SlackPostedMessage("channel", when, None)
+
+        game = Game(when, "desc", "channel", "creator", slackmsg, 4, False)
+        game.add_player("p1")
+        game.add_player("p2")
+
+        history.add_game(game)
+        history.register_stat(when, "p1", False, "stat.headhunter")
+        history.register_stat(when, "p2", False, "stat.survival")
+        history.register_stat(when, "p2", False, "stat.survival")
+        history.register_stat(when, "p2", False, "stat.survival")
+
+        ranking = history.user_ranking("channel")
+
+        self.assertEqual(ranking, ["p2", "p1"])
+
 unittest.main()
