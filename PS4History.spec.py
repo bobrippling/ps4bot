@@ -3,6 +3,7 @@ import datetime
 
 from PS4History import PS4History
 from PS4Game import Game
+from SlackPostedMessage import SlackPostedMessage
 
 def noop(*args):
     pass
@@ -18,24 +19,26 @@ class TestPS4History(unittest.TestCase):
         history = PS4History()
 
         when = datetime.datetime.today()
-        game = Game(when, "desc", "channel", "creator", "msg", 4, False)
+        slackmsg = SlackPostedMessage("channel", when, None)
+
+        game = Game(when, "desc", "channel", "creator", slackmsg, 4, False)
         game.add_player("p1")
         game.add_player("p2")
 
         history.add_game(game)
-        history.register_stat(when, "p1", False, "stat.won")
-        history.register_stat(when, "p2", False, "stat.lost")
-        history.register_stat(when, "p2", False, "stat.lost")
-        history.register_stat(when, "p2", False, "stat.lost")
+        history.register_stat(when, "p1", False, "stat.headhunter")
+        history.register_stat(when, "p2", False, "stat.survival")
+        history.register_stat(when, "p2", False, "stat.survival")
+        history.register_stat(when, "p2", False, "stat.survival")
 
         stats = history.summary_stats("channel")
 
-        self.assertEqual(stats["p1"]["stat.won"], 1)
-        self.assertEqual(stats["p1"]["stat.lost"], 0)
-        self.assertEqual(stats["p2"]["stat.won"], 0)
-        self.assertEqual(stats["p2"]["stat.lost"], 3)
+        self.assertEqual(stats["p1"]["stat.headhunter"], 1)
+        self.assertEqual(stats["p1"]["stat.survival"], 0)
+        self.assertEqual(stats["p2"]["stat.headhunter"], 0)
+        self.assertEqual(stats["p2"]["stat.survival"], 3)
 
-        self.assertEqual(stats["p1"]["_total"], 1)
-        self.assertEqual(stats["p2"]["_total"], 1)
+        self.assertEqual(stats["p1"]["Total"], 1)
+        self.assertEqual(stats["p2"]["Total"], 3)
 
 unittest.main()

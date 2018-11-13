@@ -9,7 +9,7 @@ SAVE_FILE = "ps4-stats.txt"
 
 class PS4History:
     def __init__(self):
-        self.games = None
+        self.games = []
         self.load()
 
     def __iter__(self):
