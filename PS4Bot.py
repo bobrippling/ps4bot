@@ -584,7 +584,7 @@ class PS4Bot(Bot):
         elif emoji in number_emojis:
             recorded = self.maybe_register_emoji_number_stat(gametime, emoji, user, removed)
 
-        if recorded:
+        if recorded and channel in self.latest_stats_table:
             stats = self.history.summary_stats(channel)
             self.update_stats_table(channel, stats)
 
