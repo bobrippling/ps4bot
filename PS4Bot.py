@@ -407,8 +407,13 @@ class PS4Bot(Bot):
             user, users_stats = user_stats
             return [format_user(user)] + map(str, map(lambda stat: users_stats[stat], allstats))
 
+        def stats_sort_key(stats):
+            # sort on the last statistic, aka "total"
+            return stats[len(stats) - 1]
+
         header = ["player"] + allstats
         stats_per_user = map(stat_for_user, stats.iteritems())
+        stats_per_user.sort(key = stats_sort_key, reverse = True)
 
         table = generate_table(header, stats_per_user, defaultdict(int, { 0: 2 }))
 
