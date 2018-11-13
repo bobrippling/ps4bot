@@ -1,9 +1,10 @@
 import unittest
-import datetime
 
 from PS4Parsing import parse_game_initiation, today_at
 from PS4Bot import Game, PS4Bot
+from PS4History import PS4History
 from SlackMessage import SlackMessage
+from SlackPostedMessage import SlackPostedMessage
 
 def parse(time, hour = None, minute = None):
 	got = parse_game_initiation(time)
@@ -105,12 +106,17 @@ class TestPS4Bot(unittest.TestCase):
 
 		def record_message(*args):
 			self.messages.append(args)
+			return SlackPostedMessage(None, "1540000000.000000", "")
 		self.messages = []
 
 		PS4Bot.save = noop
 		PS4Bot.load = noop
 		PS4Bot.lookup_user = lambda self, a: a
 		PS4Bot.send_message = record_message
+		PS4Bot.update_message = lambda self, text, **rest: None
+
+                PS4History.save = noop
+                PS4History.load = noop
 
 	def test_ps4bot_game_overlap(self):
 		dummychannel = DummyChannel("games")
