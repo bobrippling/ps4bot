@@ -150,7 +150,7 @@ class PS4Bot(Bot):
             if not in_channel:
                 raise TypeError
 
-            user_ranking = self.history.user_ranking(in_channel)
+            user_ranking = self.history.user_ranking(in_channel, set([Stats.scrub]))
             try:
                 is_champ = user_ranking.index(for_user) < 3
             except ValueError:
