@@ -14,7 +14,7 @@ from PS4Formatting import format_user, when_str, number_emojis, generate_table
 from PS4Config import DEFAULT_MAX_PLAYERS
 from PS4Parsing import parse_time, parse_game_initiation
 from PS4History import PS4History
-from PS4GameCategory import game_is_towerfall, towerfall_vote_message
+from PS4GameCategory import channel_is_towerfall, towerfall_vote_message
 
 NAME = "ps4bot"
 DIALECT = ["here", "hew", "areet"]
@@ -497,7 +497,7 @@ class PS4Bot(Bot):
             g.notified = True
 
         for g in dead:
-            if game_is_towerfall(g):
+            if channel_is_towerfall(g.channel):
                 self.update_game_message(g, towerfall_vote_message(g))
 
     def teardown(self):
@@ -534,6 +534,9 @@ class PS4Bot(Bot):
         return self.history.register_stat(gametime, user, removed, "towerfall.scrub")
 
     def maybe_record_stat(self, gametime, channel, user, emoji, removed):
+        if not channel_is_towerfall(channel):
+            return
+
         headhunters = ["headhunters", "skull_and_crossbones", "crossed_swords"]
         last_man_standing = ["last-man-standing", "bomb"]
         teams = ["team-deathmatch", "man_and_woman_holding_hands", "man-man-boy-boy"]

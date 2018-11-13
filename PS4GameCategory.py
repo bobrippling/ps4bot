@@ -1,7 +1,7 @@
 from PS4Formatting import format_user, number_emojis
 
-def game_is_towerfall(game):
-    return "towerfall" in game.channel
+def channel_is_towerfall(channel):
+    return "towerfall" in channel
 
 def towerfall_scrub_entry(player, i):
     return ":{}: {}".format(number_emojis[i], format_user(player))
