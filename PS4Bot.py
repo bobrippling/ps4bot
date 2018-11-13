@@ -153,7 +153,7 @@ class PS4Bot(Bot):
                     if line == "":
                         break
                     line = line.rstrip("\n")
-                    if len(line) == 0:
+                    if len(line) == 0 or line[0] == "#":
                         continue
                     tokens = line.split(":", 1)
                     if len(tokens) != 2:
