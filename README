@@ -7,3 +7,7 @@
 `./lunchbot channels... -- bots...`
 
 This runs those bots, listening on the specified channels.
+
+# Banter
+
+PS4 banter is contained in `ps4-banter.txt` - each listed under a category. Adding `-champ` to the category (except for `kickoff`) will cause that message to only be sent if the target of the message is one of the top three players.

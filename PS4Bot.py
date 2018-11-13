@@ -144,7 +144,22 @@ class PS4Bot(Bot):
         self.history.add_game(g)
         return g
 
-    def load_banter(self, type, replacements = {}):
+    def load_banter(self, type, replacements = {}, for_user = None, in_channel = None):
+        is_champ = False
+        if for_user:
+            if not in_channel:
+                raise TypeError
+
+            user_ranking = self.history.user_ranking(in_channel)
+            try:
+                is_champ = user_ranking.index(for_user) < 3
+            except ValueError:
+                pass
+
+        searching_type = type
+        if is_champ:
+            searching_type = type + "-champ"
+
         try:
             msgs = []
             with open("ps4-banter.txt", "r") as f:
@@ -159,7 +174,7 @@ class PS4Bot(Bot):
                     if len(tokens) != 2:
                         print >>sys.stderr, "invalid banter line %s" % line
                         continue
-                    if tokens[0] != type:
+                    if tokens[0] != searching_type:
                         continue
                     msg = tokens[1].strip()
                     msgs.append(msg)
@@ -199,7 +214,12 @@ class PS4Bot(Bot):
             self.send_duplicate_game_message(game)
             return True
 
-        banter = self.load_banter("created", { "s": format_user(user) })
+        banter = self.load_banter(
+                "created",
+                { "s": format_user(user) },
+                for_user = user,
+                in_channel = channel)
+
         message = Game.create_message(banter, desc, when, max_player_count)
         posted_message = self.send_message(message)
 
@@ -271,7 +291,11 @@ class PS4Bot(Bot):
         if not game.add_player(user):
             banter = "you're already in the '{}' game {}".format(game.description, format_user(user))
         else:
-            banter = self.load_banter("joined", { "s": format_user(user), "d": game.description })
+            banter = self.load_banter(
+                    "joined",
+                    { "s": format_user(user), "d": game.description },
+                    for_user = user,
+                    in_channel = game.channel)
 
         if not subtle_message:
             self.send_message(banter)
@@ -373,7 +397,12 @@ class PS4Bot(Bot):
             self.send_duplicate_game_message(game_in_slot)
             return
 
-        banter = self.load_banter("created", { "s": format_user(message.user) })
+        banter = self.load_banter(
+                "created",
+                { "s": format_user(message.user) },
+                for_user = message.user,
+                in_channel = game_to_move.channel)
+
         game_to_move.update_when(when_to, banter)
         self.update_game_message(game_to_move, "moved by {} to {}".format(
             format_user(message.user), when_str(when_to)))
@@ -389,7 +418,11 @@ class PS4Bot(Bot):
         self.save()
 
     def send_dialect_reply(self, message):
-        reply = self.load_banter("dialect", { "u": format_user(message.user) })
+        reply = self.load_banter(
+                "dialect",
+                { "u": format_user(message.user) },
+                for_user = message.user,
+                in_channel = message.channel.name)
         self.send_message(reply)
 
     def update_stats_table(self, channel, stats, force_new = False):

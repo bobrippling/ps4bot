@@ -1,12 +1,19 @@
-created: game created by a big lad, prepare you selves to get rekt like last time
+created-champ: game created by a big lad, prepare you selves to get rekt like last time
+created-champ: game created by %s, going to DEFCON 1
+created-champ: game created by %s, get the body bags ready
+created-champ: game created by %s, the look in their eye shows they aren't meesing around this time
+created-champ: FOR THE LOVE OF GOD GAME CREATED BY %s DO THEY HAVE NO MERCY?!!!
+created-champ: game created by %s, calling their own shots, making their own rules
+created-champ: game created by %s, making big moves as usual
+created-champ: it's over losers, %s has the high ground
+created-champ: game made by %s - expert arrow catcher, catches arrows like Trump catches lawsuits
 created: game created by %s, maybe this time they'll win a game. LOL jk, gitgud scrublord
 created: :warning: LARGE GAME :warning:
 created: game created by %s - hasn't won a game since they brought their PS4 to the intensive care ward
 created: game made by %s - good luck starting at that time
 created: new game by %s but it's alright, judging by their record they're just in it for the good of their health
-created: game made by %s - expert arrow catcher, catches arrows like Trump catches lawsuits
 created: BIGGEST GAME SINCE SLICED BREAD
-created: game made by %s, keep your eye on that grubhunter
+created: game made by %s, keep your eye on them
 created: how many nerds does it take to organise a match, just one this time, game made by %s
 created: game made by %s, I am not sure why they even bother at this point
 created: game made by %s, gotta love a tryer
@@ -22,21 +29,16 @@ created: and %s did say let their be a game... and there was one
 created: towerfall tip of the day, "anyone can catch an arrow with their face, once"
 created: tip of the day, "pressing square gets you no sympathy"
 created: tip of the day, "if you are struggling to win BIG GAMES just git gud"
-created: it's over losers, %s has the high ground
 created: game created by %s, and so the journey of 1000 wins begins
 created: game created by %s, obviously thinks they are the gREateSt 3 big games longer than they actually were
 created: game created by %s, risking their 0 win steak
 created: game created by %s, dis gon be gud
-created: game created by %s, making big moves as usual
 created: game created by %s, their future is looking very dim
 created: game created by %s, wow, it always seemed to me they would struggle to dress themselves in the morning
 created: game created by %s, typical... JUST TYPICAL
-created: game created by %s, calling their own shots, making their own rules
-created: FOR THE LOVE OF GOD GAME CREATED BY %s DO THEY HAVE NO MERCY?!!!
 created: game created by %s, about time
 created: game created by %s, lost more battles than they can count, still looking to win the war
 created: game created by %s, not sure how they escaped from my basement
-created: game created by %s, the look in their eye shows they aren't meesing around this time
 created: game created by %s, word to your mothers
 created: game created by %s, MERRY CHRISTMAS
 created: game created by %s, loser has to resign
@@ -48,16 +50,21 @@ created: game created by %s, they say history repeats itself
 created: games++; // %s
 created: game created by %s, BAH HUMBUG
 created: game created by %s, loser has to buy cake for the whole company
-created: game created by %s, get the body bags ready
-created: game created by %s, going to DEFCON 1
 
-joined: %s has entered the '%d' game, rek the shop
+joined-champ: born in meeting room 1, %s joined the '%d' game
+joined-champ: %s has entered the '%d' game, RETURN OF THE KIIIIIIIIIIIIIIIIIIING!!!
+joined-champ: %s has entered the '%d' game, my idol since version 7.0
+joined-champ: %s has entered the '%d' game after having invented 7 types of custard
+joined-champ: %s has joined the '%d' game, they don't sleep they just wait for the next big game
+joined-champ: born of a virgin under a blood moon, %s has entered the '%d' game
+joined-champ: they invented the colour purple, their biceps have their own gravitational pull... IT'S %s! :tada:
+joined-champ: %s has arrived, may as well just quit now
+joined-champ: buckle up bois, shit just got real
+joined-champ: BIG LAD IN DA HOOOOOOOOOOOOUSSSSEEEEEEEE
+joined-champ: %s has entered the '%d' game, rek the shop
 joined: scrubadubdub, %s is up for a drubbin
-joined: BIG LAD IN DA HOOOOOOOOOOOOUSSSSEEEEEEEE
 joined: MUM GET THE CAMERA
-joined: buckle up bois, shit just got real
 joined: %s, once a scrublord, always a scrublord
-joined: %s has arrived, may as well just quit now
 joined: %s joined the '%d' game, biggest upset since blambert puked at the Christmas party
 joined: %s has arrived, I was wondering what the smell was
 joined: %s has arrived, %d failures++
@@ -80,29 +87,22 @@ joined: next time bring donuts for %d, %s
 joined: %s has entered the '%d' game, do you know de wae?
 joined: %s has entered the '%d' game, just in time for a whupping
 joined: %s has entered the '%d' game, leaving Ezekiel to plough the fields all alone
-joined: they invented the colour purple, their biceps have their own gravitational pull... IT'S %s! :tada:
 joined: recently escaped from an asylum and live with us today, %s has entered the '%d' game
 joined: the hunchback of Salisbury Cathedral - %s - has entered the '%d' game
-joined: %s breezed in like trash blowing down the motorway
 joined: %s has entered the '%d' game. Take a good hard look at yourself in the mirror
 joined: %s has entered the '%d' game, watch them, their eyes blink sideways
 joined: %s has entered the '%d' game, keeps a photo of his iPhone in his wallet
-joined: born of a virgin under a blood moon, %s has entered the '%d' game
 joined: once wrestled a badger and lost, it's %s
 joined: %s has entered the '%d' game, famous for throwing a laptop at a tramp
 joined: %s has entered the '%d' game with the IQ of a turnip
 joined: %s has entered the '%d' game, get ready for as swift an exit
-joined: %s has joined the '%d' game, they don't sleep they just wait for the next big game
-joined: %s has entered the '%d' game after having invented 7 types of custard
-joined: %s has entered the '%d' game, my idol since version 7.0
-joined: %s has entered the '%d' game, RETURN OF THE KIIIIIIIIIIIIIIIIIIING!!!
-joined: born in meeting room 1, %s joined the '%d' game
 joined: %s has joined the '%d' game, escaped from the mothership to be with us all today
 joined: new entrant into the %d, %s, formally known as "Shifty McBungle"
 joined: %s has entered the '%d' game, recently escaped from a zoo
 joined: welcome to the %d, %s. I didn't want to be the one to tell you but you should probably think about retirement.
 joined: %s has entered the '%d' game, once went for a swim and it looked like 22 kids having a water fight
 
+# kickoff banter doesn't have "champ" entries
 kickoff: fly you fools! %t %d - %s
 kickoff: %s: ding ding ding round 1 %d
 kickoff: 5... 4... 3... 2... 1... big game is go! %d %s
@@ -166,6 +166,7 @@ tip: perhaps you should check out http://towerfall.wikidot.com/how-to-play
 tip: do a google search for "fifa 19 tutorial for absolute beginners"
 tip: violence, speed and aggression
 
+dialect-champ: areet big lad
 dialect: areet
 dialect: calm doon m8
 dialect: hew
