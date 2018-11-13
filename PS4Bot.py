@@ -431,11 +431,11 @@ class PS4Bot(Bot):
             self.latest_stats_table[channel] = table_msg.timestamp
 
     def handle_stats_request(self, message, rest):
-        channel = message.channel.name
+        channel_name = message.channel.name
 
-        stats = self.history.summary_stats(channel)
+        stats = self.history.summary_stats(channel_name)
 
-        self.update_stats_table(channel, stats, force_new = True)
+        self.update_stats_table(channel_name, stats, force_new = True)
 
     def handle_command(self, message, command, rest):
         if len(command.strip()) == 0 and len(rest) == 0:
