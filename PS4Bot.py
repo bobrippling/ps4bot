@@ -399,16 +399,16 @@ class PS4Bot(Bot):
         allstats = list(allstats)
         allstats.sort()
 
-        if "total" in allstats:
-            allstats.remove("total") # ensure total is at the end
-            allstats.append("total")
+        if "Total" in allstats:
+            allstats.remove("Total") # ensure total is at the end
+            allstats.append("Total")
 
         def stat_for_user(user_stats):
             user, users_stats = user_stats
             return [format_user(user)] + map(str, map(lambda stat: users_stats[stat], allstats))
 
         def stats_sort_key(stats):
-            # sort on the last statistic, aka "total"
+            # sort on the last statistic, aka "Total"
             return stats[len(stats) - 1]
 
         header = ["player"] + map(Stats.pretty, allstats)
