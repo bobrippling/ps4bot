@@ -8,8 +8,9 @@ from PS4HistoricGame import PS4HistoricGame
 SAVE_FILE = "ps4-stats.txt"
 
 class PS4History:
-    def __init__(self):
+    def __init__(self, negative_stats = set()):
         self.games = []
+        self.negative_stats = negative_stats
         self.load()
 
     def __iter__(self):
@@ -104,11 +105,13 @@ class PS4History:
                 for u in users:
                     if allow_user(u):
                         stats[u][statkey] += 1
-                        stats[u]["Total"] += 1
+
+                        bonus = -1 if statkey in self.negative_stats else 1
+                        stats[u]["Total"] += bonus
 
         return stats # { user: { total: int, [stat]: int ... }, ... }
 
-    def user_ranking(self, channel, negate = set()):
+    def user_ranking(self, channel):
         """
         Return a ranking of users in the channel.
         `negate` may be a list of stats which count as -1, instead of 1
@@ -119,7 +122,7 @@ class PS4History:
             if channel and game.channel != channel:
                 continue
             for statkey, users in game.stats.iteritems():
-                bonus = -1 if statkey in negate else 1
+                bonus = -1 if statkey in self.negative_stats else 1
                 for u in users:
                     rankmap[u] += bonus
 

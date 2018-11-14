@@ -62,7 +62,7 @@ class TestPS4History(unittest.TestCase):
         self.assertEqual(ranking, ["p2", "p1"])
 
     def test_history_ranks_for_total_with_negative_stat(self):
-        history = PS4History()
+        history = PS4History(set(["stat.fail"]))
 
         when = datetime.datetime.today()
         slackmsg = SlackPostedMessage("channel", when, None)
@@ -78,7 +78,7 @@ class TestPS4History(unittest.TestCase):
         history.register_stat(when, "p2", False, "stat.fail")
         history.register_stat(when, "p2", False, "stat.fail") # this brings p2 to rank -2
 
-        ranking = history.user_ranking("channel", set(["stat.fail"]))
+        ranking = history.user_ranking("channel")
 
         self.assertEqual(ranking, ["p1", "p2"])
 

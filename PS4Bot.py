@@ -44,7 +44,7 @@ class PS4Bot(Bot):
 
         self.icon_emoji = ":video_game:"
         self.games = []
-        self.history = PS4History()
+        self.history = PS4History(negative_stats = set([Stats.scrub]))
         self.latest_stats_table = {} # channel => timestamp
         self.load()
 
@@ -150,7 +150,7 @@ class PS4Bot(Bot):
             if not in_channel:
                 raise TypeError
 
-            user_ranking = self.history.user_ranking(in_channel, set([Stats.scrub]))
+            user_ranking = self.history.user_ranking(in_channel)
             try:
                 is_champ = user_ranking.index(for_user) < 3
             except ValueError:
