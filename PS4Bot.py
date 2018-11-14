@@ -438,7 +438,7 @@ class PS4Bot(Bot):
 
         def stat_for_user(user_stats):
             user, users_stats = user_stats
-            return [format_user(user)] + map(str, map(lambda stat: users_stats[stat], allstats))
+            return [format_user(user)] + map(lambda stat: users_stats[stat], allstats)
 
         def stats_sort_key(stats):
             # sort on the last statistic, aka "Total"

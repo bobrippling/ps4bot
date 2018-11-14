@@ -29,7 +29,7 @@ def generate_table(header, rows, padding = defaultdict(int)):
     row_lengths = map(len, header)
     for row in rows:
         for i, entry in enumerate(row):
-            row_lengths[i] = max(row_lengths[i], len(entry) + padding[i])
+            row_lengths[i] = max(row_lengths[i], len(str(entry)) + padding[i])
 
     def pad(s, i, is_header = False):
         return str(s).center(row_lengths[i] + (0 if is_header else padding[i]))
