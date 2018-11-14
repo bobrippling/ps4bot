@@ -216,10 +216,16 @@ class SlackMonitor():
             timeout_time += 0.5
 
             if idle_time >= self.idle_timeout:
-                self.guard(lambda: self.iterate_bots(lambda bot: bot.idle() if bot.channel is not None else None))
+                def handler(bot):
+                    if bot.channel is not None:
+                        bot.idle()
+                self.guard(lambda: self.iterate_bots(lambda bot: self.run_handler(bot, handler)))
                 idle_time = 0
+
             if timeout_time >= self.timeout_timeout:
-                self.guard(lambda: self.iterate_bots(lambda bot: bot.timeout()))
+                def handler(bot):
+                    bot.timeout()
+                self.guard(lambda: self.iterate_bots(lambda bot: self.run_handler(bot, handler)))
                 timeout_time = 0
 
     def iterate_bots(self, fn):

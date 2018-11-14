@@ -1,19 +1,40 @@
+from collections import defaultdict
 import datetime
 import random
 import sys
 import re
 import traceback
 
+from Functional import find
+
 from Bot import Bot
 from SlackPostedMessage import SlackPostedMessage
 from PS4Game import Game
-from PS4Formatting import format_user, when_str
+from PS4Formatting import format_user, when_str, number_emojis, generate_table
 from PS4Config import DEFAULT_MAX_PLAYERS, PLAY_TIME, GAME_FOLLOWON_TIME
 from PS4Parsing import parse_time, parse_game_initiation
+from PS4History import PS4History
+from PS4GameCategory import channel_is_towerfall, vote_message, Stats
 
 NAME = "ps4bot"
 DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
+SAVE_FILE = "ps4-games.txt"
+
+PS4Bot_commands = {
+    # args given are self, message, rest
+    "nar": lambda self, *args: self.maybe_cancel_game(*args),
+    "games": lambda self, *args: self.show_games(),
+    "flyin": lambda self, *args: self.join_or_bail(*args),
+    "bail": lambda self, *args: self.join_or_bail(*args, bail = True),
+    "scuttle": lambda self, *args: self.maybe_scuttle_game(*args),
+    "stats": lambda self, *args: self.handle_stats_request(*args),
+    "topradge": lambda self, *args: self.handle_stats_request(*args),
+    "scrublord": lambda self, *args: self.handle_stats_request(*args),
+    "thanks": lambda self, *args: self.send_thanks_reply(*args),
+    "ta": lambda self, *args: self.send_thanks_reply(*args),
+    "cheers": lambda self, *args: self.send_thanks_reply(*args),
+}
 
 def replace_dict(str, dict):
     for k in dict:
@@ -29,18 +50,23 @@ class PS4Bot(Bot):
 
         self.icon_emoji = ":video_game:"
         self.games = []
+        self.history = PS4History(negative_stats = set([Stats.scrub]))
+        self.latest_stats_table = {} # channel => timestamp
         self.load()
 
     def load(self):
         try:
-            with open("ps4-games.txt", "r") as f:
-                while True:
-                    line = f.readline()
-                    if line == "":
-                        break
+            with open(SAVE_FILE, "r") as f:
+                for line in iter(f.readline, ""):
                     line = line.rstrip("\n")
                     if len(line) == 0:
                         continue
+
+                    if line[:6] == "stats ":
+                        tokens = line.split()
+                        self.latest_stats_table[tokens[1]] = tokens[2]
+                        continue
+
                     tokens = line.split(" ", 6)
                     if len(tokens) != 7:
                         print "invalid line \"{}\"".format(line)
@@ -88,7 +114,7 @@ class PS4Bot(Bot):
 
     def save(self):
         try:
-            with open("ps4-games.txt", "w") as f:
+            with open(SAVE_FILE, "w") as f:
                 for g in self.games:
                     print >>f, "{} {} {} {} {} {} {}".format(
                             when_str(g.when),
@@ -103,8 +129,13 @@ class PS4Bot(Bot):
                     print >>f, "{}\n{}\n{}".format(msg.timestamp, msg.channel, msg.text)
                     print >>f, ""
 
+                for channel, timestamp in self.latest_stats_table.iteritems():
+                    print >>f, "stats {} {}".format(channel, timestamp)
+
         except IOError as e:
             print >>sys.stderr, "exception saving state: {}".format(e)
+
+        self.history.save()
 
 
     def game_occuring_at(self, when):
@@ -136,9 +167,25 @@ class PS4Bot(Bot):
     def new_game(self, when, desc, channel, creator, msg, max_players, notified = False):
         g = Game(when, desc, channel, creator, msg, max_players, notified)
         self.games.append(g)
+        self.history.add_game(g)
         return g
 
-    def load_banter(self, type, replacements = {}):
+    def load_banter(self, type, replacements = {}, for_user = None, in_channel = None):
+        is_champ = False
+        if for_user:
+            if not in_channel:
+                raise TypeError
+
+            user_ranking = self.history.user_ranking(in_channel)
+            try:
+                is_champ = user_ranking.index(for_user) < 3
+            except ValueError:
+                pass
+
+        searching_type = type
+        if is_champ:
+            searching_type = type + "-champ"
+
         try:
             msgs = []
             with open("ps4-banter.txt", "r") as f:
@@ -147,13 +194,13 @@ class PS4Bot(Bot):
                     if line == "":
                         break
                     line = line.rstrip("\n")
-                    if len(line) == 0:
+                    if len(line) == 0 or line[0] == "#":
                         continue
                     tokens = line.split(":", 1)
                     if len(tokens) != 2:
                         print >>sys.stderr, "invalid banter line %s" % line
                         continue
-                    if tokens[0] != type:
+                    if tokens[0] != searching_type:
                         continue
                     msg = tokens[1].strip()
                     msgs.append(msg)
@@ -195,7 +242,12 @@ class PS4Bot(Bot):
             self.send_duplicate_game_message(game)
             return True
 
-        banter = self.load_banter("created", { "s": format_user(user) })
+        banter = self.load_banter(
+                "created",
+                { "s": format_user(user) },
+                for_user = user,
+                in_channel = channel)
+
         message = Game.create_message(banter, desc, when, max_player_count)
         posted_message = self.send_message(message)
 
@@ -267,7 +319,11 @@ class PS4Bot(Bot):
         if not game.add_player(user):
             banter = "you're already in the '{}' game {}".format(game.description, format_user(user))
         else:
-            banter = self.load_banter("joined", { "s": format_user(user), "d": game.description })
+            banter = self.load_banter(
+                    "joined",
+                    { "s": format_user(user), "d": game.description },
+                    for_user = user,
+                    in_channel = game.channel)
 
         if not subtle_message:
             self.send_message(banter)
@@ -307,7 +363,8 @@ class PS4Bot(Bot):
             when_str(game.when),
             game.description))
 
-    def maybe_cancel_game(self, user, rest):
+    def maybe_cancel_game(self, message, rest):
+        user = message.user
         try:
             when = parse_time(rest)
         except ValueError:
@@ -395,7 +452,12 @@ class PS4Bot(Bot):
 
         old_when = game_to_move.when
 
-        banter = self.load_banter("created", { "s": format_user(message.user) })
+        banter = self.load_banter(
+                "created",
+                { "s": format_user(message.user) },
+                for_user = message.user,
+                in_channel = game_to_move.channel)
+
         game_to_move.update_when(when_to, banter)
         self.update_game_message(game_to_move, "moved by {} to {}".format(
             format_user(message.user), when_str(when_to)))
@@ -411,32 +473,75 @@ class PS4Bot(Bot):
         self.save()
 
     def send_dialect_reply(self, message):
-        reply = self.load_banter("dialect", { "u": format_user(message.user) })
+        reply = self.load_banter(
+                "dialect",
+                { "u": format_user(message.user) },
+                for_user = message.user,
+                in_channel = message.channel.name)
         self.send_message(reply)
 
-    def send_thanks_reply(self, message):
+    def send_thanks_reply(self, message, rest):
         reply = self.load_banter("thanked", { "s": format_user(message.user) })
         self.send_message(reply)
+
+    def update_stats_table(self, channel, stats, force_new = False):
+        allstats = set()
+        for v in stats.values():
+            allstats.update(v.keys())
+        allstats = list(allstats)
+        allstats.sort()
+
+        if "Total" in allstats:
+            allstats.remove("Total") # ensure total is at the end
+            allstats.append("Total")
+
+        def stat_for_user(user_stats):
+            user, users_stats = user_stats
+            return [format_user(user)] + map(lambda stat: users_stats[stat], allstats)
+
+        def stats_sort_key(stats):
+            # sort on the last statistic, aka "Total"
+            return stats[len(stats) - 1]
+
+        header = ["Player"] + map(Stats.pretty, allstats)
+        stats_per_user = map(stat_for_user, stats.iteritems())
+        stats_per_user.sort(key = stats_sort_key, reverse = True)
+
+        table = generate_table(header, stats_per_user, defaultdict(int, { 0: 2 }))
+
+        if not force_new and channel in self.latest_stats_table:
+            # update the table instead
+            table_msg = None
+            self.update_message(
+                    table,
+                    original_timestamp = self.latest_stats_table[channel],
+                    original_channel = channel)
+        else:
+            table_msg = self.send_message(table)
+
+        if table_msg:
+            self.latest_stats_table[channel] = table_msg.timestamp
+
+    def handle_stats_request(self, message, rest):
+        channel_name = message.channel.name
+
+        stats = self.history.summary_stats(channel_name)
+
+        self.update_stats_table(channel_name, stats, force_new = True)
 
     def handle_command(self, message, command, rest):
         command = command.lower()
         
         if len(command.strip()) == 0 and len(rest) == 0:
             self.send_dialect_reply(message)
-        elif command == "nar":
-            self.maybe_cancel_game(message.user, rest)
-        elif command == "games":
-            self.show_games()
-        elif command == "join" or command == "flyin":
-            self.join_or_bail(message, rest)
-        elif command == "bail" or command == "flyout":
-            self.join_or_bail(message, rest, bail = True)
-        elif command == "scuttle":
-            self.maybe_scuttle_game(message, rest)
-        elif command == "thanks" or command == "thankyou" or command == "ta" or command == "cheers":
-            self.send_thanks_reply(message)
+            return
+
+        if command in PS4Bot_commands:
+            PS4Bot_commands[command](self, message, rest)
+            return
+
         # attempt to parse a big game, if unsuccessful, show usage:
-        elif not self.maybe_new_game(message.user, message.channel.name, command + " " + rest):
+        if not self.maybe_new_game(message.user, message.channel.name, command + " " + rest):
             self.send_message((
                 ":warning: Hew {0}, here's what I listen to: `{1} flyin/flyout/nar/scuttle/games`," +
                 "\nor try adding a :+1: to a game invite (or typing `+:+1:` as a response)." +
@@ -463,7 +568,14 @@ class PS4Bot(Bot):
             return now < g.endtime()
 
         imminent = filter(game_is_imminent, self.games)
-        self.games = filter(game_active_or_scheduled, self.games)
+        active = []
+        dead = []
+        for g in self.games:
+            if game_active_or_scheduled(g):
+                active.append(g)
+            else:
+                dead.append(g)
+        self.games = active
 
         for g in imminent:
             if len(g.players) == 0:
@@ -491,6 +603,9 @@ class PS4Bot(Bot):
             self.send_message(banter, to_channel = g.channel)
             g.notified = True
 
+        for g in dead:
+            self.update_game_message(g, vote_message(g))
+
     def teardown(self):
         self.save()
 
@@ -498,27 +613,64 @@ class PS4Bot(Bot):
         self.handle_imminent_games()
         self.save()
 
+    def handle_game_reaction(self, game, reacting_user, emoji, removed):
+        now = datetime.datetime.today()
+        if now < game.endtime():
+            join_emojis = ["+1", "thumbsup", "plus1" "heavy_plus_sign"]
+            if emoji in join_emojis:
+                if removed:
+                    self.remove_user_from_game(reacting_user, game, subtle_message = True)
+                else:
+                    self.add_user_to_game(reacting_user, game, subtle_message = True)
+
+    def maybe_register_emoji_number_stat(self, gametime, emoji, from_user, removed):
+        historic_game = self.history.find_game(gametime)
+        if not historic_game:
+            return
+
+        try:
+            index = number_emojis.index(emoji)
+        except ValueError:
+            return
+        try:
+            user = historic_game.players[index]
+        except IndexError:
+            return
+
+        return self.history.register_stat(gametime, user, removed, Stats.scrub)
+
+    def maybe_record_stat(self, gametime, channel, user, emoji, removed):
+        recorded = False
+
+        if emoji in number_emojis:
+            recorded = self.maybe_register_emoji_number_stat(gametime, emoji, user, removed)
+
+        if channel_is_towerfall(channel):
+            headhunters = ["headhunters", "skull_and_crossbones", "crossed_swords"]
+            last_man_standing = ["last-man-standing", "bomb"]
+            teams = ["team-deathmatch", "man_and_woman_holding_hands", "man-man-boy-boy"]
+
+            if emoji in headhunters:
+                recorded = self.history.register_stat(gametime, user, removed, Stats.Towerfall.headhunters);
+            elif emoji in last_man_standing:
+                recorded = self.history.register_stat(gametime, user, removed, Stats.Towerfall.lastmanstanding);
+            elif emoji in teams:
+                recorded = self.history.register_stat(gametime, user, removed, Stats.Towerfall.teams);
+
+        if recorded and channel in self.latest_stats_table:
+            stats = self.history.summary_stats(channel)
+            self.update_stats_table(channel, stats)
+
     def handle_reaction(self, reaction, removed = False):
-        channel = reaction.channel.name
         emoji = reaction.emoji
         msg_when = reaction.original_msg_time
         reacting_user = self.lookup_user(reaction.reacting_user)
 
-        game = None
-        for g in self.games:
-            if g.message.timestamp == msg_when:
-                game = g
-                break
+        game = find(lambda g: g.message.timestamp == msg_when, self.games)
+        if game:
+            self.handle_game_reaction(game, reacting_user, emoji, removed)
 
-        if game is None:
-            return
-
-        join_emojis = ["+1", "thumbsup", "plus1" "heavy_plus_sign"]
-        if emoji in join_emojis:
-            if removed:
-                self.remove_user_from_game(reacting_user, game, subtle_message = True)
-            else:
-                self.add_user_to_game(reacting_user, game, subtle_message = True)
+        self.maybe_record_stat(msg_when, reaction.channel.name, reacting_user, emoji, removed)
 
     def handle_unreaction(self, reaction):
         self.handle_reaction(reaction, removed = True)

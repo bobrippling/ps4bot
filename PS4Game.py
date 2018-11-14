@@ -1,6 +1,7 @@
 import datetime
 from PS4Formatting import format_user, when_str
 from PS4Config import DEFAULT_MAX_PLAYERS, PLAY_TIME
+from PS4HistoricGame import PS4HistoricGame
 
 class Game:
     @staticmethod
@@ -73,3 +74,6 @@ class Game:
                 self.description,
                 self.channel,
                 self.pretty_players() if len(self.players) else "nobody")
+
+    def to_historic(self):
+        return PS4HistoricGame(self.message.timestamp, self.players, self.channel)

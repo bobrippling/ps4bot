@@ -3,6 +3,7 @@ config.py
 
 # state files:
 ps4-games.txt
+ps4-stats.txt
 doodlebot.txt
 lunchbot-current.txt
 lunchbot-ratings.txt

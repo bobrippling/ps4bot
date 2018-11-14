@@ -6,7 +6,9 @@ sys.modules['datetime'] = __import__('mock_datetime')
 import datetime
 from PS4Parsing import parse_game_initiation, today_at
 from PS4Bot import Game, PS4Bot
+from PS4History import PS4History
 from SlackMessage import SlackMessage
+from SlackPostedMessage import SlackPostedMessage
 
 def parse(time, hour = None, minute = None):
 	got = parse_game_initiation(time)
@@ -101,9 +103,6 @@ class TestGame(unittest.TestCase):
 def noop(*args):
 	pass
 
-def update_message_stub(self, text, original_message):
-	pass
-
 class DummyChannel:
 	def __init__(self, name):
 		self.name = name
@@ -112,10 +111,19 @@ class TestPS4Bot(unittest.TestCase):
 	def __init__(self, *args):
 		unittest.TestCase.__init__(self, *args)
 
+		def record_message(*args):
+			self.messages.append(args)
+			return SlackPostedMessage(None, "1540000000.000000", "")
+		self.messages = []
+
 		PS4Bot.save = noop
 		PS4Bot.load = noop
 		PS4Bot.lookup_user = lambda self, a: a
-		PS4Bot.update_message = update_message_stub
+		PS4Bot.send_message = record_message
+		PS4Bot.update_message = lambda self, text, **rest: None
+
+                PS4History.save = noop
+                PS4History.load = noop
 
 	def create_ps4bot(self):
 		self.messages = []
@@ -123,7 +131,7 @@ class TestPS4Bot(unittest.TestCase):
 		def send_message_stub(msg, to_channel = None):
 			self.messages.append(msg)
 			dummy_when = today_at(11, 43)
-			return SlackMessage(msg, "user", None, None, None, dummy_when, None)
+			return SlackPostedMessage(to_channel or "?", dummy_when, msg)
 
 		ps4bot = PS4Bot(None, "ps4bot")
 		ps4bot.send_message = send_message_stub
