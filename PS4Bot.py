@@ -483,7 +483,7 @@ class PS4Bot(Bot):
         reply = self.load_banter("thanked", { "s": format_user(message.user) })
         self.send_message(reply)
 
-    def update_stats_table(self, channel, stats, force_new = False):
+    def update_stats_table(self, channel, stats, force_new = False, anchor_message = True):
         allstats = set()
         for v in stats.values():
             allstats.update(v.keys())
@@ -518,15 +518,19 @@ class PS4Bot(Bot):
         else:
             table_msg = self.send_message(table)
 
-        if table_msg:
+        if table_msg and anchor_message:
             self.latest_stats_table[channel] = table_msg.timestamp
 
     def handle_stats_request(self, message, rest):
-        channel_name = message.channel.name
+        is_this_channel = True
+        if len(rest):
+            channel_name = rest
+            is_this_channel = False
+        else:
+            channel_name = message.channel.name
 
         stats = self.history.summary_stats(channel_name)
-
-        self.update_stats_table(channel_name, stats, force_new = True)
+        self.update_stats_table(channel_name, stats, force_new = True, anchor_message = is_this_channel)
 
     def handle_command(self, message, command, rest):
         command = command.lower()
