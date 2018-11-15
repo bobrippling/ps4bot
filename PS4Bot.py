@@ -651,7 +651,14 @@ class PS4Bot(Bot):
         if channel_is_towerfall(channel):
             headhunters = ["headhunters", "skull_and_crossbones", "crossed_swords"]
             last_man_standing = ["last-man-standing", "bomb"]
-            teams = ["team-deathmatch", "man_and_woman_holding_hands", "man-man-boy-boy"]
+            teams = [
+                "team-deathmatch",
+                "man_and_woman_holding_hands",
+                "man-man-boy-boy",
+                "couple",
+                "v",
+                "handshake"
+            ]
 
             if emoji in headhunters:
                 recorded = self.history.register_stat(gametime, user, removed, Stats.Towerfall.headhunters);
