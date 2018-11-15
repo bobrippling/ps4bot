@@ -654,23 +654,21 @@ class PS4Bot(Bot):
             recorded = self.maybe_register_emoji_number_stat(gametime, emoji, user, removed)
 
         if channel_is_towerfall(channel):
-            headhunters = ["headhunters", "skull_and_crossbones", "crossed_swords"]
-            last_man_standing = ["last-man-standing", "bomb"]
-            teams = [
-                "team-deathmatch",
-                "man_and_woman_holding_hands",
-                "man-man-boy-boy",
-                "couple",
-                "v",
-                "handshake"
-            ]
-
-            if emoji in headhunters:
-                recorded = self.history.register_stat(gametime, user, removed, Stats.Towerfall.headhunters);
-            elif emoji in last_man_standing:
-                recorded = self.history.register_stat(gametime, user, removed, Stats.Towerfall.lastmanstanding);
-            elif emoji in teams:
-                recorded = self.history.register_stat(gametime, user, removed, Stats.Towerfall.teams);
+            statmap = {
+                "headhunters": Stats.Towerfall.headhunters,
+                "skull_and_crossbones": Stats.Towerfall.headhunters,
+                "crossed_swords": Stats.Towerfall.headhunters,
+                "last-man-standing": Stats.Towerfall.lastmanstanding,
+                "bomb": Stats.Towerfall.lastmanstanding,
+                "team-deathmatch": Stats.Towerfall.teams,
+                "man_and_woman_holding_hands": Stats.Towerfall.teams,
+                "man-man-boy-boy": Stats.Towerfall.teams,
+                "couple": Stats.Towerfall.teams,
+                "v": Stats.Towerfall.teams,
+                "handshake": Stats.Towerfall.teams,
+            }
+            if emoji in statmap:
+                recorded = self.history.register_stat(gametime, user, removed, statmap[emoji]);
 
         if recorded and channel in self.latest_stats_table:
             stats = self.history.summary_stats(channel)
