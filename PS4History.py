@@ -51,7 +51,7 @@ class PS4History:
                             continue
                         key = tokens[1]
                         users = filter(len, tokens[2].split(","))
-                        current_game.stats[key] = users
+                        current_game.stats[key] = set(users)
                     else:
                         print >>sys.stderr, "unknown {} line \"{}\"".format(SAVE_FILE, line)
         except IOError:
@@ -75,17 +75,17 @@ class PS4History:
         if user not in historic_game.players:
             return False
 
-        statdict = historic_game.stats
-        if stat not in statdict:
-            statdict[stat] = []
+        statset = historic_game.stats
+        if stat not in statset:
+            statset[stat] = set()
 
         if removed:
             try:
-                statdict[stat].remove(user)
-            except ValueError:
+                statset[stat].remove(user)
+            except KeyError:
                 pass
         else:
-            statdict[stat].append(user)
+            statset[stat].add(user)
 
         self.save()
         return True
