@@ -10,7 +10,7 @@ from Functional import find
 from Bot import Bot
 from SlackPostedMessage import SlackPostedMessage
 from PS4Game import Game
-from PS4Formatting import format_user, when_str, number_emojis, generate_table
+from PS4Formatting import format_user, format_user_padding, when_str, number_emojis, generate_table
 from PS4Config import DEFAULT_MAX_PLAYERS, PLAY_TIME, GAME_FOLLOWON_TIME
 from PS4Parsing import parse_time, parse_game_initiation
 from PS4History import PS4History
@@ -496,7 +496,8 @@ class PS4Bot(Bot):
 
         def stat_for_user(user_stats):
             user, users_stats = user_stats
-            return [format_user(user)] + map(lambda stat: users_stats[stat], allstats)
+            return [(format_user_padding(user), format_user(user))] \
+                    + map(lambda stat: users_stats[stat], allstats)
 
         def stats_sort_key(stats):
             # sort on the last statistic, aka "Total"

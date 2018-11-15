@@ -5,6 +5,11 @@ number_emojis = ["one", "two", "three", "four", "five", "six"]
 
 WHEN_FORMAT = "%H:%M"
 
+user_renames = {
+    # what we see it as internally => what users see it as externally
+    "jpearce": "joshpearce",
+}
+
 def when_str(when):
     return when.strftime(WHEN_FORMAT)
 
@@ -13,6 +18,25 @@ def when_from_str(s):
 
 def format_user(user):
     return "<@{}>".format(user)
+
+def format_user_padding(user):
+    if user not in user_renames:
+        return 0
+    to = user_renames[user]
+    return len(user) - len(to)
+
+def row_string(entry):
+    if type(entry) is tuple:
+        return str(entry[1])
+    return str(entry)
+
+def row_delta(entry):
+    if type(entry) is tuple:
+        return entry[0]
+    return 0
+
+def row_length(entry):
+    return len(str(row_string(entry))) + row_delta(entry)
 
 def generate_table(header, rows, padding = defaultdict(int)):
     """
@@ -29,10 +53,15 @@ def generate_table(header, rows, padding = defaultdict(int)):
     row_lengths = map(len, header)
     for row in rows:
         for i, entry in enumerate(row):
-            row_lengths[i] = max(row_lengths[i], len(str(entry)) + padding[i])
+            length = row_length(entry)
+            row_lengths[i] = max(row_lengths[i], length + padding[i])
 
-    def pad(s, i, is_header = False):
-        return str(s).center(row_lengths[i] + (0 if is_header else padding[i]))
+    def pad(entry, i, is_header = False):
+        resolved = row_string(entry)
+        delta = row_delta(entry)
+
+        width = row_lengths[i] + (0 if is_header else padding[i]) + delta
+        return resolved.center(width)
 
     header_row = " | ".join([
         pad(heading, i, is_header = True) for i, heading in enumerate(header)
