@@ -109,6 +109,11 @@ class PS4History:
                         bonus = -1 if statkey in self.negative_stats else 1
                         stats[u]["Total"] += bonus
 
+            # ensure all players are in:
+            for u in game.players:
+                if allow_user(u):
+                    stats[u]["Total"] += 0
+
         return stats # { user: { total: int, [stat]: int ... }, ... }
 
     def user_ranking(self, channel):
@@ -125,6 +130,10 @@ class PS4History:
                 bonus = -1 if statkey in self.negative_stats else 1
                 for u in users:
                     rankmap[u] += bonus
+
+            # ensure all players are in:
+            for u in game.players:
+                rankmap[u] += 0
 
         # [ user1, user2, ... ]
         return sorted(rankmap, key = lambda u: rankmap[u], reverse = True)
