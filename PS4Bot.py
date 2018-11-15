@@ -20,19 +20,20 @@ DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
 SAVE_FILE = "ps4-games.txt"
 
+# command => (show-in-usage, handler)
 PS4Bot_commands = {
     # args given are self, message, rest
-    "nar": lambda self, *args: self.maybe_cancel_game(*args),
-    "games": lambda self, *args: self.show_games(),
-    "flyin": lambda self, *args: self.join_or_bail(*args),
-    "bail": lambda self, *args: self.join_or_bail(*args, bail = True),
-    "scuttle": lambda self, *args: self.maybe_scuttle_game(*args),
-    "stats": lambda self, *args: self.handle_stats_request(*args),
-    "topradge": lambda self, *args: self.handle_stats_request(*args),
-    "scrublord": lambda self, *args: self.handle_stats_request(*args),
-    "thanks": lambda self, *args: self.send_thanks_reply(*args),
-    "ta": lambda self, *args: self.send_thanks_reply(*args),
-    "cheers": lambda self, *args: self.send_thanks_reply(*args),
+    "nar": (True, lambda self, *args: self.maybe_cancel_game(*args)),
+    "games": (True, lambda self, *args: self.show_games()),
+    "flyin": (True, lambda self, *args: self.join_or_bail(*args)),
+    "bail": (True, lambda self, *args: self.join_or_bail(*args, bail = True)),
+    "scuttle": (True, lambda self, *args: self.maybe_scuttle_game(*args)),
+    "stats": (True, lambda self, *args: self.handle_stats_request(*args)),
+    "topradge": (False, lambda self, *args: self.handle_stats_request(*args)),
+    "scrublord": (False, lambda self, *args: self.handle_stats_request(*args)),
+    "thanks": (False, lambda self, *args: self.send_thanks_reply(*args)),
+    "ta": (False, lambda self, *args: self.send_thanks_reply(*args)),
+    "cheers": (False, lambda self, *args: self.send_thanks_reply(*args)),
 }
 
 def replace_dict(str, dict):
@@ -541,13 +542,13 @@ class PS4Bot(Bot):
             return
 
         if command in PS4Bot_commands:
-            PS4Bot_commands[command](self, message, rest)
+            PS4Bot_commands[command][1](self, message, rest)
             return
 
         # attempt to parse a big game, if unsuccessful, show usage:
         if not self.maybe_new_game(message.user, message.channel.name, command + " " + rest):
             self.send_message((
-                ":warning: Hew {0}, here's what I listen to: `{1} flyin/flyout/nar/scuttle/games`," +
+                ":warning: Hew {}, here's what I listen to: `{} {}`," +
                 "\nor try adding a :+1: to a game invite (or typing `+:+1:` as a response)." +
                 "\n\n:film_projector: Credits :clapper:" +
                 "\n-------------------" +
@@ -559,7 +560,10 @@ class PS4Bot(Bot):
                 "\n:muscle: More localisation: <@morchard>" +
                 "\n:scroll: Banter: <@danallsop>" +
                 "\n:javascript: More banter: <@craigayre>" +
-                "").format(format_user(message.user), self.botname))
+                "").format(
+                    format_user(message.user),
+                    self.botname,
+                    "/".join(command for command, (show, _) in PS4Bot_commands.iteritems() if show)))
 
     def handle_imminent_games(self):
         now = datetime.datetime.today()
