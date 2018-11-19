@@ -26,9 +26,8 @@ class PS4History:
                         ",".join(g.players),
                         g.mode or "normal")
 
-                    for statkey, users in g.stats.iteritems():
-                        if len(users):
-                            print >>f, "stat {} {}".format(statkey, ",".join(users))
+                    for stat in g.stats:
+                        print >>f, "  stat {} {} {}".format(stat.stat, stat.user, stat.voter)
         except IOError:
             print >>sys.stderr, "exception saving state: {}".format(e)
 
@@ -39,7 +38,7 @@ class PS4History:
                 current_game = None
                 for line in iter(f.readline, ""):
                     line = line.rstrip("\n")
-                    tokens = line.split(" ")
+                    tokens = filter(len, line.split(" "))
 
                     if tokens[0] == "game":
                         message_timestamp = tokens[1]
@@ -50,10 +49,10 @@ class PS4History:
                         games.append(current_game)
                     elif tokens[0] == "stat":
                         if not current_game:
+                            print >>sys.stderr, "found stat \"{}\" without game".format(tokens[1])
                             continue
-                        key = tokens[1]
-                        users = filter(len, tokens[2].split(","))
-                        current_game.stats[key] = set(users)
+                        stat, user, voter = tokens[1:]
+                        current_game.stats.add(stat, user, voter)
                     else:
                         print >>sys.stderr, "unknown {} line \"{}\"".format(SAVE_FILE, line)
         except IOError:
@@ -69,7 +68,7 @@ class PS4History:
     def find_game(self, gametime):
         return find(lambda g: g.message_timestamp == gametime, self.games)
 
-    def register_stat(self, gametime, user, removed, stat):
+    def register_stat(self, gametime, user, voter, removed, stat):
         historic_game = self.find_game(gametime)
         if historic_game is None:
             return False
@@ -77,17 +76,10 @@ class PS4History:
         if user not in historic_game.players:
             return False
 
-        statset = historic_game.stats
-        if stat not in statset:
-            statset[stat] = set()
-
         if removed:
-            try:
-                statset[stat].remove(user)
-            except KeyError:
-                pass
+            historic_game.stats.remove(stat, user, voter)
         else:
-            statset[stat].add(user)
+            historic_game.stats.add(stat, user, voter)
 
         self.save()
         return True
@@ -103,13 +95,16 @@ class PS4History:
                 continue
             if since and game.message_timestamp < since:
                 continue
-            for statkey, users in game.stats.iteritems():
-                for u in users:
-                    if allow_user(u):
-                        stats[game.mode][u][statkey] += 1
 
-                        bonus = -1 if statkey in self.negative_stats else 1
-                        stats[game.mode][u]["Total"] += bonus
+            for stat in game.stats:
+                stat, user = stat.stat, stat.user
+                if not allow_user(user):
+                    continue
+
+                stats[game.mode][user][stat] += 1
+
+                bonus = -1 if stat in self.negative_stats else 1
+                stats[game.mode][user]["Total"] += bonus
 
             # ensure all players are in:
             for u in game.players:
@@ -127,10 +122,10 @@ class PS4History:
         for game in self:
             if channel and game.channel != channel:
                 continue
-            for statkey, users in game.stats.iteritems():
-                bonus = -1 if statkey in self.negative_stats else 1
-                for u in users:
-                    rankmap[u] += bonus
+            for stat in game.stats:
+                stat, user = stat.stat, stat.user
+                bonus = -1 if stat in self.negative_stats else 1
+                rankmap[user] += bonus
 
             # ensure all players are in:
             for u in game.players:

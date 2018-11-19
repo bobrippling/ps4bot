@@ -684,7 +684,7 @@ class PS4Bot(Bot):
         except IndexError:
             return
 
-        return self.history.register_stat(gametime, user, removed, Stats.scrub)
+        return self.history.register_stat(gametime, user, from_user, removed, Stats.scrub)
 
     def maybe_record_stat(self, gametime, channel, user, emoji, removed):
         recorded = False
@@ -694,7 +694,7 @@ class PS4Bot(Bot):
 
         statmap = channel_statmap(channel)
         if statmap and emoji in statmap:
-            recorded = self.history.register_stat(gametime, user, removed, statmap[emoji]);
+            recorded = self.history.register_stat(gametime, user, user, removed, statmap[emoji]);
 
         if recorded and channel in self.latest_stats_table:
             stats = self.history.summary_stats(channel)
