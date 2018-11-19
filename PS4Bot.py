@@ -612,7 +612,9 @@ class PS4Bot(Bot):
             g.notified = True
 
         for g in dead:
-            self.update_game_message(g, vote_message(g))
+            msg = vote_message(g)
+            if msg:
+                self.update_game_message(g, msg)
 
     def teardown(self):
         self.save()

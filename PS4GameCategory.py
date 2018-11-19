@@ -22,6 +22,9 @@ pretty = {
 def channel_is_towerfall(channel):
     return "towerfall" in channel
 
+def channel_is_fifa(channel):
+    return "fifa" in channel
+
 def towerfall_scrub_entry(player, i):
     return ":{}: {}".format(number_emojis[i], format_user(player))
 
@@ -36,8 +39,10 @@ def vote_message(game):
             ", ".join([towerfall_scrub_entry(player, i) for i, player in enumerate(game.players)])
         )
 
-    return ("Game open for voting:\n"
-        + "  Scrub of the match: {}\n"
-    ).format(
-        ", ".join([towerfall_scrub_entry(player, i) for i, player in enumerate(game.players)])
-    )
+    if channel_is_fifa(game.channel):
+        return ("Game open for voting:\n"
+            + "  Scrub of the match: {}\n"
+        ).format(
+            ", ".join([towerfall_scrub_entry(player, i) for i, player in enumerate(game.players)])
+
+    return None
