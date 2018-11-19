@@ -14,7 +14,7 @@ from PS4Formatting import format_user, format_user_padding, when_str, number_emo
 from PS4Config import DEFAULT_MAX_PLAYERS, PLAY_TIME, GAME_FOLLOWON_TIME
 from PS4Parsing import parse_time, parse_game_initiation
 from PS4History import PS4History
-from PS4GameCategory import channel_is_towerfall, vote_message, Stats
+from PS4GameCategory import channel_is_towerfall, channel_is_fifa, vote_message, Stats
 
 DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
@@ -655,6 +655,7 @@ class PS4Bot(Bot):
         if emoji in number_emojis:
             recorded = self.maybe_register_emoji_number_stat(gametime, emoji, user, removed)
 
+        statmap = None
         if channel_is_towerfall(channel):
             statmap = {
                 "headhunters": Stats.Towerfall.headhunters,
@@ -669,8 +670,14 @@ class PS4Bot(Bot):
                 "v": Stats.Towerfall.teams,
                 "handshake": Stats.Towerfall.teams,
             }
-            if emoji in statmap:
-                recorded = self.history.register_stat(gametime, user, removed, statmap[emoji]);
+        elif channel_is_fifa(channel):
+            statmap = {
+                "soccer": Stats.Fifa.win,
+                "goal_net": Stats.Fifa.win_pens,
+            }
+
+        if statmap and emoji in statmap:
+            recorded = self.history.register_stat(gametime, user, removed, statmap[emoji]);
 
         if recorded and channel in self.latest_stats_table:
             stats = self.history.summary_stats(channel)

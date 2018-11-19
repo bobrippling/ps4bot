@@ -8,6 +8,10 @@ class Stats:
         lastmanstanding = "towerfall.lastmanstanding"
         teams = "towerfall.teams"
 
+    class Fifa:
+        win = "fifa.win"
+        win_pens = "fifa.win_pens"
+
     @staticmethod
     def pretty(stat):
         return pretty[stat] if stat in pretty else stat
@@ -17,6 +21,8 @@ pretty = {
     Stats.Towerfall.headhunters: "Headhunters",
     Stats.Towerfall.lastmanstanding: "Last Man Standing",
     Stats.Towerfall.teams: "Teams",
+    Stats.Fifa.win: "Win",
+    Stats.Fifa.win_pens: "Win (Penalties)",
 }
 
 def channel_is_towerfall(channel):
@@ -41,6 +47,8 @@ def vote_message(game):
 
     if channel_is_fifa(game.channel):
         return ("Game open for ranking:\n"
+            + "  Winner: :soccer:\n"
+            + "  Winner (on penalties): :goal_net:\n"
             + "  Scrub of the match: {}\n"
         ).format(
             ", ".join([scrub_entry(player, i) for i, player in enumerate(game.players)])
