@@ -55,3 +55,27 @@ def vote_message(game):
         )
 
     return None
+
+def channel_statmap(channel):
+    if channel_is_towerfall(channel):
+        return {
+            "headhunters": Stats.Towerfall.headhunters,
+            "skull_and_crossbones": Stats.Towerfall.headhunters,
+            "crossed_swords": Stats.Towerfall.headhunters,
+            "last-man-standing": Stats.Towerfall.lastmanstanding,
+            "bomb": Stats.Towerfall.lastmanstanding,
+            "team-deathmatch": Stats.Towerfall.teams,
+            "man_and_woman_holding_hands": Stats.Towerfall.teams,
+            "man-man-boy-boy": Stats.Towerfall.teams,
+            "couple": Stats.Towerfall.teams,
+            "v": Stats.Towerfall.teams,
+            "handshake": Stats.Towerfall.teams,
+        }
+
+    if channel_is_fifa(channel):
+        return {
+            "soccer": Stats.Fifa.win,
+            "goal_net": Stats.Fifa.win_pens,
+        }
+
+    return None
