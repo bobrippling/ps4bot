@@ -1,14 +1,11 @@
 from collections import defaultdict
+from config import user_renames
+# user_renames: map<what we see it as internally => what users see it as externally>
 import datetime
 
 number_emojis = ["one", "two", "three", "four", "five", "six"]
 
 WHEN_FORMAT = "%H:%M"
-
-user_renames = {
-    # what we see it as internally => what users see it as externally
-    "jpearce": "joshpearce",
-}
 
 def when_str(when):
     return when.strftime(WHEN_FORMAT)
