@@ -171,6 +171,10 @@ dialect: areet
 dialect: calm doon m8
 dialect: hew
 
+thanked-champ: You are very welcome %s!
+thanked-champ: NO! THANK YOU!
+thanked-champ: Flattery will get you everywhere %s!
+thanked-champ: No problem %s. You are my favourite :)
 thanked: Nee botha %s, ya flippin' big lad
 
 follow-on: %s's %d (%c) is straight after - feel free to leave the PS4 on, or turn if off if you dislike %s

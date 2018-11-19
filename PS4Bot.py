@@ -496,7 +496,11 @@ class PS4Bot(Bot):
         self.send_message(reply)
 
     def send_thanks_reply(self, message, rest):
-        reply = self.load_banter("thanked", { "s": format_user(message.user) })
+        reply = self.load_banter(
+                "thanked",
+                { "s": format_user(message.user) },
+                for_user = message.user,
+                in_channel = message.channel.name)
         self.send_message(reply)
 
     def update_stats_table(self, channel, stats, force_new = False, anchor_message = True):
