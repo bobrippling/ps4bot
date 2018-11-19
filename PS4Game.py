@@ -12,7 +12,7 @@ class Game:
                 + desc + "\n" \
                 + ("max players: {}\n".format(max_player_count)
                         if max_player_count != DEFAULT_MAX_PLAYERS else "") \
-                + ("mode: {}\n".format(mode) if mode else "") \
+                + ("mode: {}\n".format(pretty_mode(mode)) if mode else "") \
                 + "time: " + when_str(when)
 
     def __init__(self, when, desc, channel, creator, msg, max_player_count, play_time, mode, notified):
