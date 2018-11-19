@@ -4,6 +4,7 @@ from PS4Config import DEFAULT_MAX_PLAYERS
 
 punctuation = [".", "?", ","]
 time_prefixes = ["at"]
+competitive_keywords = ["compet", "competitive"]
 
 def today_at(hour, min):
     return datetime.datetime.today().replace(
@@ -59,11 +60,6 @@ def pretty_mode(mode):
         return "Competitive"
     return mode
 
-def maybe_parse_game_mode(s):
-    if s == "compet" or s == "competitive":
-        return "compet"
-    return None
-
 def parse_game_initiation(str):
     parts = str.split(" ")
 
@@ -88,7 +84,7 @@ def parse_game_initiation(str):
         if part == "sextuple":
             player_count = 6
             continue
-        if part == "compet" or part == "competitive":
+        if part in competitive_keywords:
             player_count = 2
             mode = "compet"
             continue
