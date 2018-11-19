@@ -1,6 +1,6 @@
 import datetime
 from PS4Formatting import format_user, when_str
-from PS4Config import DEFAULT_MAX_PLAYERS
+from PS4Config import DEFAULT_MAX_PLAYERS, PLAY_TIME
 from PS4HistoricGame import PS4HistoricGame
 from PS4Parsing import pretty_mode
 
@@ -72,8 +72,9 @@ class Game:
 
     def pretty(self):
         current_time = datetime.datetime.now()
-        return "{}{}, {}'s {} from {}, with {}".format(
+        return "{}{}{}, {}'s {} from {}, with {}".format(
                 when_str(self.when),
+                " ({} mins)".format(self.play_time) if self.play_time != PLAY_TIME else "",
                 " (in progress :hourglass_flowing_sand:)" \
                         if self.when <= current_time and self.endtime() >= current_time else "",
                 format_user(self.creator),
