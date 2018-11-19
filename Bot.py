@@ -3,6 +3,14 @@ import time
 
 from SlackPostedMessage import SlackPostedMessage
 
+USER_RE = re.compile('^<@(U[^>|]+)(\|[^>]+)?>')
+
+def lookup_user(connection, id):
+    for u in connection.server.users:
+        if hasattr(u, 'id') and u.id == id:
+            return u.name.encode('utf-8')
+    return None
+
 class Bot():
     def __init__(self, slackconnection, botname):
         self.botname = botname
@@ -11,14 +19,13 @@ class Bot():
         self.icon_emoji = None
 
     def lookup_user(self, id, alt = None):
-        match = re.search('^<@(U[^>|]+)(\|[^>]+)?>', id)
+        match = USER_RE.search(id)
         if match is not None:
             id = match.group(1)
 
-        for u in self.slackconnection.server.users:
-            if hasattr(u, 'id') and u.id == id:
-                return u.name.encode('utf-8')
-
+        name = lookup_user(self.slackconnection, id)
+        if name:
+            return name
         return alt if alt is not None else id
 
     def resolve_channel(self, channel):
