@@ -1,6 +1,6 @@
 import datetime
 
-from PS4Config import DEFAULT_MAX_PLAYERS
+from PS4Config import DEFAULT_MAX_PLAYERS, PLAY_TIME
 
 punctuation = [".", "?", ","]
 time_prefixes = ["at"]
@@ -67,6 +67,7 @@ def parse_game_initiation(str):
     desc_parts = []
     player_count = DEFAULT_MAX_PLAYERS
     mode = None
+    play_time = PLAY_TIME
     for part in parts:
         while len(part) and part[-1] in punctuation:
             part = part[:-1]
@@ -87,6 +88,7 @@ def parse_game_initiation(str):
         if part in competitive_keywords:
             player_count = 2
             mode = "compet"
+            play_time = 20
             continue
 
         desc_parts.append(part)
@@ -94,4 +96,4 @@ def parse_game_initiation(str):
     if not when:
         return None
 
-    return when, " ".join(desc_parts), player_count, mode
+    return when, " ".join(desc_parts), player_count, play_time, mode

@@ -1,7 +1,8 @@
 import datetime
 from PS4Formatting import format_user, when_str
-from PS4Config import DEFAULT_MAX_PLAYERS, PLAY_TIME
+from PS4Config import DEFAULT_MAX_PLAYERS
 from PS4HistoricGame import PS4HistoricGame
+from PS4Parsing import pretty_mode
 
 class Game:
     @staticmethod
@@ -14,7 +15,7 @@ class Game:
                 + ("mode: {}\n".format(mode) if mode else "") \
                 + "time: " + when_str(when)
 
-    def __init__(self, when, desc, channel, creator, msg, max_player_count, mode, notified):
+    def __init__(self, when, desc, channel, creator, msg, max_player_count, play_time, mode, notified):
         self.when = when
         self.description = desc
         self.players = []
@@ -23,10 +24,11 @@ class Game:
         self.creator = creator
         self.notified = notified
         self.max_player_count = max_player_count
+        self.play_time = play_time
         self.mode = mode
 
     def endtime(self):
-        duration = datetime.timedelta(minutes = PLAY_TIME)
+        duration = datetime.timedelta(minutes = self.play_time)
         return self.when + duration
 
     def contains(self, when, start_overlap = True):
