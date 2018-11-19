@@ -435,9 +435,9 @@ class PS4Bot(Bot):
     def maybe_scuttle_game(self, message, rest):
         tokens = rest.split(" ")
 
-        if len(tokens) == 3 and tokens[1] == "to":
-            str_from = tokens[0]
-            str_to = tokens[2]
+        if len(tokens) >= 3 and tokens[-2] == "to":
+            str_to = tokens[-1]
+            str_from = " ".join(tokens[:-2])
         elif len(tokens) == 1:
             str_from = None
             str_to = tokens[0]
@@ -446,24 +446,33 @@ class PS4Bot(Bot):
             return
 
         try:
-            when_from = parse_time(str_from) if str_from else None
+            when_desc = None
             when_to = parse_time(str_to)
         except ValueError:
             self.send_scuttle_usage()
             return
 
-        if when_from:
+        try:
+            when_from = parse_time(str_from) if str_from else None
+        except ValueError:
+            when_desc = str_from
+
+        if when_desc:
+            game_to_move = None
+            for g in self.games:
+                if g.description == when_desc:
+                    if game_to_move:
+                        self.send_message(
+                                ":warning: scrubadubdub - there's multiple games called \"{}\"".format(
+                                when_desc))
+                        return
+                    game_to_move = g
+
+        elif when_from:
             # we've been given an explicit game to move
             game_to_move = self.game_occuring_at(when_from)
             if not game_to_move:
                 self.send_game_not_found(when_from, message.user)
-                return
-
-            if game_to_move.creator != message.user:
-                self.send_message(":warning: scrubadubdub, only {} can scuttle the {} {}".format(
-                    format_user(game_to_move.creator),
-                    when_str(game_to_move.when),
-                    game_to_move.description))
                 return
         else:
             # no explicit game to move, if the user has just one, move it
@@ -477,6 +486,13 @@ class PS4Bot(Bot):
                 self.send_message(":warning: scrubadubdub, you've got no games to move")
                 return
             game_to_move = created_games[0]
+
+        if game_to_move.creator != message.user:
+            self.send_message(":warning: scrubadubdub, only {} can scuttle the {} {}".format(
+                format_user(game_to_move.creator),
+                when_str(game_to_move.when),
+                game_to_move.description))
+            return
 
         game_in_slot = self.game_overlapping(when_to, game_to_move.play_time, ignoring = game_to_move)
         if game_in_slot:
