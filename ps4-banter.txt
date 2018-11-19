@@ -53,7 +53,7 @@ created: game created by %s, loser has to buy cake for the whole company
 joined-champ: born in meeting room 1, %s joined the '%d' game
 joined-champ: %s has entered the '%d' game, my idol since version 7.0
 joined-champ: %s has entered the '%d' game after having invented 7 types of custard
-joined-champ: %s has joined the '%d' game, they don't sleep they just wait for the next big game
+joined-champ: %s has joined the '%d' game - they don't sleep, they just wait for the next big game
 joined-champ: born of a virgin under a blood moon, %s has entered the '%d' game
 joined-champ: they invented the colour purple, their biceps have their own gravitational pull... IT'S %s! :tada:
 joined-champ: %s has arrived, may as well just quit now
