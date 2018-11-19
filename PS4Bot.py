@@ -225,6 +225,8 @@ class PS4Bot(Bot):
             return "areet"
         if type == "thanked":
             return "nee bother"
+        if type == "follow-on":
+            return ""
         return "?"
 
     def maybe_new_game(self, user, channel, rest):
