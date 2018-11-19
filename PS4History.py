@@ -155,16 +155,20 @@ class PS4History:
 
         return stats # { mode: { user: { [stat]: int ... }, ... } }
 
-    def user_ranking(self, channel):
+    def user_ranking(self, channel, year = None):
         """
         Return a ranking of users in the channel
         """
         rankmap = defaultdict(lambda: [0, 0]) # user => [wins, played]
 
+        nextyear = calc_nextyear(year)
+
         for game in self:
             if channel and game.channel != channel:
                 continue
             if game.mode:
+                continue
+            if should_skip_game_year(game, year, nextyear):
                 continue
             for user in game.players:
                 rankmap[user][1] += 1
