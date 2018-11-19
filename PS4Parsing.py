@@ -4,7 +4,7 @@ from PS4Config import DEFAULT_MAX_PLAYERS
 
 punctuation = [".", "?", ","]
 time_prefixes = ["at"]
-competitive_keywords = ["compet", "competitive"]
+competitive_keywords = ["compet", "competitive", "1v1", "1v1me"]
 
 def today_at(hour, min):
     return datetime.datetime.today().replace(
