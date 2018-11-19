@@ -703,6 +703,9 @@ class PS4Bot(Bot):
                     self.remove_user_from_game(reacting_user, game, subtle_message = True)
                 else:
                     self.add_user_to_game(reacting_user, game, subtle_message = True)
+        else:
+            self.update_game_message(game, "game's over {}, can't {}".format(
+                format_user(reacting_user), "flyout" if removed else "flyin"))
 
     def maybe_register_emoji_number_stat(self, gametime, emoji, from_user, removed):
         historic_game = self.history.find_game(gametime)
