@@ -30,7 +30,7 @@ def scrub_entry(player, i):
 
 def vote_message(game):
     if channel_is_towerfall(game.channel):
-        return ("Game open for voting:\n"
+        return ("Game open for ranking:\n"
             + "  Scrub of the match: {}\n"
             + "  Headhunters winner (:skull_and_crossbones:)\n"
             + "  Last man standing (:bomb:)\n"
@@ -40,7 +40,7 @@ def vote_message(game):
         )
 
     if channel_is_fifa(game.channel):
-        return ("Game open for voting:\n"
+        return ("Game open for ranking:\n"
             + "  Scrub of the match: {}\n"
         ).format(
             ", ".join([scrub_entry(player, i) for i, player in enumerate(game.players)])
