@@ -3,7 +3,8 @@ import time
 
 from SlackPostedMessage import SlackPostedMessage
 
-USER_RE = re.compile('^<@(U[^>|]+)(\|[^>]+)?>')
+USER_RE_ANCHORED = re.compile('^<@(U[^>|]+)(\|[^>]+)?>')
+USER_RE = re.compile('<@(U[^>|]+)(\|[^>]+)?>')
 
 def lookup_user(connection, id):
     for u in connection.server.users:
@@ -19,7 +20,7 @@ class Bot():
         self.icon_emoji = None
 
     def lookup_user(self, id, alt = None):
-        match = USER_RE.search(id)
+        match = USER_RE_ANCHORED.search(id)
         if match is not None:
             id = match.group(1)
 

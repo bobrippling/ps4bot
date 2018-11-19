@@ -7,6 +7,8 @@ from SlackMessage import SlackMessage
 from SlackEdit import SlackEdit
 from SlackReaction import SlackReaction
 from SlackDeletion import SlackDeletion
+from Bot import USER_RE, lookup_user
+from PS4Formatting import format_user
 
 MSG_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
@@ -106,6 +108,16 @@ class SlackMonitor():
                 return i
         return None
 
+    def filter_usernames(self, text):
+        def replace_user(match):
+            id = match.group(1)
+            name = lookup_user(self.slackconnection, id)
+            if name:
+                return format_user(name)
+            return match.group(0)
+
+        return USER_RE.sub(replace_user, text)
+
     def handle_slack_messages(self):
         handled = False
 
@@ -156,6 +168,7 @@ class SlackMonitor():
             bot_id = ENCODE(bot_id)
 
             if text and user:
+                text = self.filter_usernames(text)
                 message = SlackMessage(text, user, channel, reply_to, bot_id, when, thread_ts)
                 handled = self.run_handlers(channel, lambda handler: handler.handle_message(message))
             elif slack_message.get("subtype") == 'message_changed':
