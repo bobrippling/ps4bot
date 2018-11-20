@@ -149,7 +149,7 @@ class PS4Bot(Bot):
         for game in self.games:
             if game == ignoring:
                 continue
-            if game.contains(when) or game.contains(when_end):
+            if game.contains(when) or game.contains(when_end, start_overlap = False):
                 return game
         return None
 

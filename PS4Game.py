@@ -27,10 +27,12 @@ class Game:
         duration = datetime.timedelta(minutes = PLAY_TIME)
         return self.when + duration
 
-    def contains(self, when):
+    def contains(self, when, start_overlap = True):
         game_start = self.when
         game_end = self.endtime()
-        return game_start <= when < game_end
+        if start_overlap:
+            return game_start <= when < game_end
+        return game_start < when < game_end
 
     def add_player(self, p):
         if p in self.players:
