@@ -40,16 +40,16 @@ def vote_message(game):
             + "  Scrub of the match: {}\n"
             + "  Headhunters winner (:skull_and_crossbones:)\n"
             + "  Last man standing (:bomb:)\n"
-            + "  Team deathmatch (:man_and_woman_holding_hands:)\n"
+            + "  Team deathmatch (:v:)\n"
         ).format(
             ", ".join([scrub_entry(player, i) for i, player in enumerate(game.players)])
         )
 
     if channel_is_fifa(game.channel):
         return ("Game open for ranking:\n"
+            + "  Scrub of the match: {}\n"
             + "  Winner: :soccer:\n"
             + "  Winner (on penalties): :goal_net:\n"
-            + "  Scrub of the match: {}\n"
         ).format(
             ", ".join([scrub_entry(player, i) for i, player in enumerate(game.players)])
         )
