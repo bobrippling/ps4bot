@@ -2,7 +2,7 @@
 
 `pip install slackclient`
 
-Create a config file ./config.py with the following
+Create a config file, `./config.py` with the following contents:
 ```slack_token = "YOUR_TOKEN_HERE"```
 
 # Running
@@ -11,8 +11,8 @@ Create a config file ./config.py with the following
 
 This runs those bots, listening on the specified channels.
 
-`botspec` may be a bot name, such as `ps4bot`, or a name and alias, such as `gamebot:ps4bot`, which will expose ps4bot logic under the name `gamebot` (in the specified channels)
-`channelspec` may be a channel name or `*`, for all channels (this should be quoted to avoid shell expansion)
+`botspec` may be a bot name, such as `ps4bot`, or a name and alias, such as `gamebot:ps4bot`, which will expose ps4bot logic under the name `gamebot` (in the specified channels).
+`channelspec` may be a channel name or `*`, for all channels (this should be quoted to avoid shell expansion).
 
 Note that lunchbot is written in python2.7.
 
