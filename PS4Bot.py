@@ -513,8 +513,9 @@ class PS4Bot(Bot):
         if not force_new and channel in self.latest_stats_table:
             # update the table instead
             table_msg = None
+            now = datetime.datetime.today().strftime("%H:%M:%S")
             self.update_message(
-                    table,
+                    "{}\nLast updated at {}".format(table, now),
                     original_timestamp = self.latest_stats_table[channel],
                     original_channel = channel)
         else:
