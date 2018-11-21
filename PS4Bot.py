@@ -485,6 +485,10 @@ class PS4Bot(Bot):
         self.send_message(reply)
 
     def update_stats_table(self, channel, stats, force_new = False, anchor_message = True):
+        """
+        This method is responsible for taking the stats dictionary and converting it to a
+        table, with prettified headers and sorted rows.
+        """
         allstats = set()
         for v in stats.values():
             allstats.update(v.keys())

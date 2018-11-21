@@ -38,10 +38,15 @@ def row_length(entry):
 def generate_table(header, rows, padding = defaultdict(int)):
     """
     Generate an ascii table, consisting of header and rows
+
     Padding may be given, which is for padding data columns where characters may
-    not be rendered as printable, e.g.
-    "<@user1>" is rendered by slack as "@user1", so we may want to pad these columns
-    by two, to compensate for the missing "<>"
+    not be rendered as printable, e.g. "<@user1>" is rendered by slack as "@user1",
+    so we may want to pad these columns by two, to compensate for the missing "<>"
+
+    Rows may be either strings or tuples of (delta, string), where delta is the
+    difference in length between what we see as the string, and how slack
+    displays it. Some usernames are seen by us as the original and displayed be
+    slack as a renamed one, so this essentially allows us to pad, per-entry.
     """
 
     if not rows or len(rows) == 0:
