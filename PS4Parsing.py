@@ -54,17 +54,18 @@ def maybe_parse_time(s):
     except ValueError:
         return None
 
+def maybe_parse_game_mode(s):
+    if s == "compet" or s == "competitive":
+        return "compet"
+    return None
+
 def parse_game_initiation(str):
     parts = str.split(" ")
-
-    def player_count_spec(part):
-       if part == "sextuple":
-           return 6
-       return None
 
     when = None
     desc_parts = []
     player_count = DEFAULT_MAX_PLAYERS
+    mode = None
     for part in parts:
         while len(part) and part[-1] in punctuation:
             part = part[:-1]
@@ -77,14 +78,19 @@ def parse_game_initiation(str):
             when = maybe_when
             if len(desc_parts) and desc_parts[-1] in time_prefixes:
                 desc_parts.pop()
-        else:
-            new_player_count = player_count_spec(part)
-            if new_player_count:
-                player_count = new_player_count
-            else:
-                desc_parts.append(part)
+            continue
+
+        if part == "sextuple":
+            player_count = 6
+            continue
+        if part == "compet" or part == "competitive":
+            player_count = 2
+            mode = "compet"
+            continue
+
+        desc_parts.append(part)
 
     if not when:
         return None
 
-    return when, " ".join(desc_parts), player_count
+    return when, " ".join(desc_parts), player_count, mode

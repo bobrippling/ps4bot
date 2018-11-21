@@ -20,10 +20,11 @@ class PS4History:
         try:
             with open(SAVE_FILE, "w") as f: # open as "w" since we rewrite the whole thing
                 for g in self.games:
-                    print >>f, "game {} {} {}".format(
+                    print >>f, "game {} {} {} {}".format(
                         g.message_timestamp,
                         g.channel,
-                        ",".join(g.players))
+                        ",".join(g.players),
+                        g.mode or "normal")
 
                     for statkey, users in g.stats.iteritems():
                         if len(users):
@@ -44,7 +45,8 @@ class PS4History:
                         message_timestamp = tokens[1]
                         channel = tokens[2]
                         players = tokens[3].split(",")
-                        current_game = PS4HistoricGame(message_timestamp, players, channel)
+                        mode = None if tokens[4] == "normal" else tokens[4]
+                        current_game = PS4HistoricGame(message_timestamp, players, channel, mode)
                         games.append(current_game)
                     elif tokens[0] == "stat":
                         if not current_game:
