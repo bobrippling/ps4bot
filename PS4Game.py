@@ -5,15 +5,16 @@ from PS4HistoricGame import PS4HistoricGame
 
 class Game:
     @staticmethod
-    def create_message(banter, desc, when, max_player_count):
+    def create_message(banter, desc, when, max_player_count, mode):
         return ">>> :desktop_computer::loud_sound::video_game::joystick::game_die:\n" \
                 + banter + "\n" \
                 + desc + "\n" \
-                + ("max players: {} (HUGE GAME)\n".format(max_player_count)
+                + ("max players: {}\n".format(max_player_count)
                         if max_player_count != DEFAULT_MAX_PLAYERS else "") \
+                + ("mode: {}\n".format(mode) if mode else "") \
                 + "time: " + when_str(when)
 
-    def __init__(self, when, desc, channel, creator, msg, max_player_count, notified):
+    def __init__(self, when, desc, channel, creator, msg, max_player_count, mode, notified):
         self.when = when
         self.description = desc
         self.players = []
@@ -22,6 +23,7 @@ class Game:
         self.creator = creator
         self.notified = notified
         self.max_player_count = max_player_count
+        self.mode = mode
 
     def endtime(self):
         duration = datetime.timedelta(minutes = PLAY_TIME)
@@ -50,7 +52,7 @@ class Game:
     def update_when(self, new_when, new_banter):
         self.when = new_when
         self.notified = False
-        self.message.text = Game.create_message(new_banter, self.description, self.when, self.max_player_count)
+        self.message.text = Game.create_message(new_banter, self.description, self.when, self.max_player_count, self.mode)
 
     def pretty_players(self, with_creator = True):
         if with_creator:
@@ -78,4 +80,4 @@ class Game:
                 self.pretty_players() if len(self.players) else "nobody")
 
     def to_historic(self):
-        return PS4HistoricGame(self.message.timestamp, self.players, self.channel)
+        return PS4HistoricGame(self.message.timestamp, self.players, self.channel, self.mode)

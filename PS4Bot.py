@@ -12,7 +12,7 @@ from SlackPostedMessage import SlackPostedMessage
 from PS4Game import Game
 from PS4Formatting import format_user, format_user_padding, when_str, number_emojis, generate_table
 from PS4Config import DEFAULT_MAX_PLAYERS, PLAY_TIME, GAME_FOLLOWON_TIME
-from PS4Parsing import parse_time, parse_game_initiation
+from PS4Parsing import parse_time, parse_game_initiation, pretty_mode
 from PS4History import PS4History
 from PS4GameCategory import vote_message, Stats, channel_statmap
 
@@ -67,13 +67,13 @@ class PS4Bot(Bot):
                         self.latest_stats_table[tokens[1]] = tokens[2]
                         continue
 
-                    tokens = line.split(" ", 6)
-                    if len(tokens) != 7:
+                    tokens = line.split(" ", 7)
+                    if len(tokens) != 8:
                         print "invalid line \"{}\"".format(line)
                         continue
 
                     str_when, channel, creator, str_notified, \
-                            str_players, str_max_player_count, description = tokens
+                            str_players, str_max_player_count, mode, description = tokens
                     timestamp_str = f.readline()
                     if timestamp_str == "":
                         print "early EOF"
@@ -105,7 +105,9 @@ class PS4Bot(Bot):
                     players = str_players.split(",")
                     message = SlackPostedMessage(msg_channel, timestamp_str, "\n".join(extra_text))
 
-                    g = self.new_game(when, description, channel, creator, message, max_player_count, notified)
+                    g = self.new_game(when, description, channel, creator, \
+                            message, max_player_count, mode if mode != "None" else None, notified)
+
                     for p in players:
                         if len(p):
                             g.add_player(p)
@@ -116,13 +118,14 @@ class PS4Bot(Bot):
         try:
             with open(SAVE_FILE, "w") as f:
                 for g in self.games:
-                    print >>f, "{} {} {} {} {} {} {}".format(
+                    print >>f, "{} {} {} {} {} {} {} {}".format(
                             when_str(g.when),
                             g.channel,
                             g.creator,
                             g.notified,
                             ",".join(g.players),
                             g.max_player_count,
+                            g.mode or "None",
                             g.description)
 
                     msg = g.message
@@ -164,8 +167,8 @@ class PS4Bot(Bot):
     def games_created_by(self, user):
         return filter(lambda g: g.creator == user, self.games)
 
-    def new_game(self, when, desc, channel, creator, msg, max_players, notified = False):
-        g = Game(when, desc, channel, creator, msg, max_players, notified)
+    def new_game(self, when, desc, channel, creator, msg, max_players, mode, notified = False):
+        g = Game(when, desc, channel, creator, msg, max_players, mode, notified)
         self.games.append(g)
         self.history.add_game(g)
         return g
@@ -233,7 +236,7 @@ class PS4Bot(Bot):
         if not parsed:
             return False
 
-        when, desc, max_player_count = parsed
+        when, desc, max_player_count, mode = parsed
         if len(desc) == 0:
             desc = "big game"
 
@@ -248,10 +251,10 @@ class PS4Bot(Bot):
                 for_user = user,
                 in_channel = channel)
 
-        message = Game.create_message(banter, desc, when, max_player_count)
+        message = Game.create_message(banter, desc, when, max_player_count, mode)
         posted_message = self.send_message(message)
 
-        game = self.new_game(when, desc, channel, user, posted_message, max_player_count)
+        game = self.new_game(when, desc, channel, user, posted_message, max_player_count, mode)
         game.add_player(user)
         self.update_game_message(game)
 
@@ -489,41 +492,57 @@ class PS4Bot(Bot):
         This method is responsible for taking the stats dictionary and converting it to a
         table, with prettified headers and sorted rows.
         """
-        allstats = set()
-        for v in stats.values():
-            allstats.update(v.keys())
-        allstats = list(allstats)
-        allstats.sort()
 
-        if "Total" in allstats:
-            allstats.remove("Total") # ensure total is at the end
-            allstats.append("Total")
+        tables = [] # [(mode, table), ...]
+        for mode in stats:
+            modestats = stats[mode]
+            allstats = set()
+            for v in modestats.values():
+                allstats.update(v.keys())
+            allstats = list(allstats)
+            allstats.sort()
 
-        def stat_for_user(user_stats):
-            user, users_stats = user_stats
-            return [(format_user_padding(user), format_user(user))] \
-                    + map(lambda stat: users_stats[stat], allstats)
+            if "Total" in allstats:
+                allstats.remove("Total") # ensure total is at the end
+                allstats.append("Total")
 
-        def stats_sort_key(stats):
-            # sort on the last statistic, aka "Total"
-            return stats[len(stats) - 1]
+            def stat_for_user(user_stats):
+                user, users_stats = user_stats
+                return [(format_user_padding(user), format_user(user))] \
+                        + map(lambda stat: users_stats[stat], allstats)
 
-        header = ["Player"] + map(Stats.pretty, allstats)
-        stats_per_user = map(stat_for_user, stats.iteritems())
-        stats_per_user.sort(key = stats_sort_key, reverse = True)
+            def stats_sort_key(stats):
+                # sort on the last statistic, aka "Total"
+                return stats[len(stats) - 1]
 
-        table = generate_table(header, stats_per_user, defaultdict(int, { 0: 2 }))
+            header = ["Player"] + map(Stats.pretty, allstats)
+            stats_per_user = map(stat_for_user, modestats.iteritems())
+            stats_per_user.sort(key = stats_sort_key, reverse = True)
+
+            table = generate_table(header, stats_per_user, defaultdict(int, { 0: 2 }))
+            tables.append((mode, table))
+
+        if len(tables) > 1:
+            def mode_and_table_to_str(mode_and_table):
+                mode = pretty_mode(mode_and_table[0])
+                table = mode_and_table[1]
+                return "{}\n{}".format(mode or "Normal", table)
+
+            tables_message_str = "\n".join(map(mode_and_table_to_str, tables))
+        else:
+            # no need for mode string
+            tables_message_str = tables[0][1]
 
         if not force_new and channel in self.latest_stats_table:
             # update the table instead
             table_msg = None
             now = datetime.datetime.today().strftime("%H:%M:%S")
             self.update_message(
-                    "{}\nLast updated at {}".format(table, now),
+                    "{}\nLast updated at {}".format(tables_message_str, now),
                     original_timestamp = self.latest_stats_table[channel],
                     original_channel = channel)
         else:
-            table_msg = self.send_message(table)
+            table_msg = self.send_message(tables_message_str)
 
         if table_msg and anchor_message:
             self.latest_stats_table[channel] = table_msg.timestamp
