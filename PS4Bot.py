@@ -536,7 +536,7 @@ class PS4Bot(Bot):
 
     def handle_command(self, message, command, rest):
         command = command.lower()
-        
+
         if len(command.strip()) == 0 and len(rest) == 0:
             self.send_dialect_reply(message)
             return
