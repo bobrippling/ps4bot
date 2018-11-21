@@ -603,15 +603,12 @@ class PS4Bot(Bot):
 
             nextgame = self.game_straight_after(g, threshold = GAME_FOLLOWON_TIME)
             if nextgame:
-                banter += (
-                    "\n({}'s {} ({}) is straight after - feel free to leave the PS4 on, "
-                    + "or turn if off if you dislike {})"
-                ).format(
-                    format_user(nextgame.creator),
-                    nextgame.description,
-                    nextgame.channel,
-                    format_user(nextgame.creator)
-                )
+                nextgame_banter = self.load_banter("follow-on", {
+                    "s": format_user(nextgame.creator),
+                    "d": nextgame.description,
+                    "c": nextgame.channel,
+                })
+                banter += "\n({})".format(nextgame_banter)
 
             self.send_message(banter, to_channel = g.channel)
             g.notified = True
