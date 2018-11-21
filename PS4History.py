@@ -93,7 +93,7 @@ class PS4History:
         return True
 
     def summary_stats(self, channel, name = None, since = None):
-        stats = defaultdict(lambda: defaultdict(int))
+        stats = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
 
         def allow_user(u):
             return name is None or u == name
@@ -106,22 +106,21 @@ class PS4History:
             for statkey, users in game.stats.iteritems():
                 for u in users:
                     if allow_user(u):
-                        stats[u][statkey] += 1
+                        stats[game.mode][u][statkey] += 1
 
                         bonus = -1 if statkey in self.negative_stats else 1
-                        stats[u]["Total"] += bonus
+                        stats[game.mode][u]["Total"] += bonus
 
             # ensure all players are in:
             for u in game.players:
                 if allow_user(u):
-                    stats[u]["Total"] += 0
+                    stats[game.mode][u]["Total"] += 0
 
-        return stats # { user: { total: int, [stat]: int ... }, ... }
+        return stats # { mode: { user: { total: int, [stat]: int ... }, ... } }
 
     def user_ranking(self, channel):
         """
-        Return a ranking of users in the channel.
-        `negate` may be a list of stats which count as -1, instead of 1
+        Return a ranking of users in the channel
         """
         rankmap = defaultdict(int) # user => score (total)
 

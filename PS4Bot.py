@@ -12,7 +12,7 @@ from SlackPostedMessage import SlackPostedMessage
 from PS4Game import Game
 from PS4Formatting import format_user, format_user_padding, when_str, number_emojis, generate_table
 from PS4Config import DEFAULT_MAX_PLAYERS, PLAY_TIME, GAME_FOLLOWON_TIME
-from PS4Parsing import parse_time, parse_game_initiation
+from PS4Parsing import parse_time, parse_game_initiation, pretty_mode
 from PS4History import PS4History
 from PS4GameCategory import vote_message, Stats, channel_statmap
 
@@ -492,41 +492,57 @@ class PS4Bot(Bot):
         This method is responsible for taking the stats dictionary and converting it to a
         table, with prettified headers and sorted rows.
         """
-        allstats = set()
-        for v in stats.values():
-            allstats.update(v.keys())
-        allstats = list(allstats)
-        allstats.sort()
 
-        if "Total" in allstats:
-            allstats.remove("Total") # ensure total is at the end
-            allstats.append("Total")
+        tables = [] # [(mode, table), ...]
+        for mode in stats:
+            modestats = stats[mode]
+            allstats = set()
+            for v in modestats.values():
+                allstats.update(v.keys())
+            allstats = list(allstats)
+            allstats.sort()
 
-        def stat_for_user(user_stats):
-            user, users_stats = user_stats
-            return [(format_user_padding(user), format_user(user))] \
-                    + map(lambda stat: users_stats[stat], allstats)
+            if "Total" in allstats:
+                allstats.remove("Total") # ensure total is at the end
+                allstats.append("Total")
 
-        def stats_sort_key(stats):
-            # sort on the last statistic, aka "Total"
-            return stats[len(stats) - 1]
+            def stat_for_user(user_stats):
+                user, users_stats = user_stats
+                return [(format_user_padding(user), format_user(user))] \
+                        + map(lambda stat: users_stats[stat], allstats)
 
-        header = ["Player"] + map(Stats.pretty, allstats)
-        stats_per_user = map(stat_for_user, stats.iteritems())
-        stats_per_user.sort(key = stats_sort_key, reverse = True)
+            def stats_sort_key(stats):
+                # sort on the last statistic, aka "Total"
+                return stats[len(stats) - 1]
 
-        table = generate_table(header, stats_per_user, defaultdict(int, { 0: 2 }))
+            header = ["Player"] + map(Stats.pretty, allstats)
+            stats_per_user = map(stat_for_user, modestats.iteritems())
+            stats_per_user.sort(key = stats_sort_key, reverse = True)
+
+            table = generate_table(header, stats_per_user, defaultdict(int, { 0: 2 }))
+            tables.append((mode, table))
+
+        if len(tables) > 1:
+            def mode_and_table_to_str(mode_and_table):
+                mode = pretty_mode(mode_and_table[0])
+                table = mode_and_table[1]
+                return "{}\n{}".format(mode or "Normal", table)
+
+            tables_message_str = "\n".join(map(mode_and_table_to_str, tables))
+        else:
+            # no need for mode string
+            tables_message_str = tables[0][1]
 
         if not force_new and channel in self.latest_stats_table:
             # update the table instead
             table_msg = None
             now = datetime.datetime.today().strftime("%H:%M:%S")
             self.update_message(
-                    "{}\nLast updated at {}".format(table, now),
+                    "{}\nLast updated at {}".format(tables_message_str, now),
                     original_timestamp = self.latest_stats_table[channel],
                     original_channel = channel)
         else:
-            table_msg = self.send_message(table)
+            table_msg = self.send_message(tables_message_str)
 
         if table_msg and anchor_message:
             self.latest_stats_table[channel] = table_msg.timestamp

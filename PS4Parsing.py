@@ -54,6 +54,11 @@ def maybe_parse_time(s):
     except ValueError:
         return None
 
+def pretty_mode(mode):
+    if mode == "compet":
+        return "Competitive"
+    return mode
+
 def maybe_parse_game_mode(s):
     if s == "compet" or s == "competitive":
         return "compet"
