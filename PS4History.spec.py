@@ -1,7 +1,7 @@
 import unittest
 import datetime
 
-from PS4History import PS4History
+from PS4History import PS4History, Keys
 from PS4Game import Game
 from SlackPostedMessage import SlackPostedMessage
 
@@ -39,8 +39,8 @@ class TestPS4History(unittest.TestCase):
         self.assertEqual(stats[game_mode]["p2"]["stat.headhunter"], 0)
         self.assertEqual(stats[game_mode]["p2"]["stat.survival"], 1) # uniq'd
 
-        self.assertEqual(stats[game_mode]["p1"]["Total"], 1)
-        self.assertEqual(stats[game_mode]["p2"]["Total"], 1)
+        self.assertEqual(float(stats[game_mode]["p1"][Keys.winratio]), 1)
+        self.assertEqual(float(stats[game_mode]["p2"][Keys.winratio]), 1)
 
     def test_history_ranks_for_total(self):
         history = PS4History()
@@ -55,29 +55,43 @@ class TestPS4History(unittest.TestCase):
         history.add_game(game)
         history.register_stat(when, "p1", "p1", False, "stat.headhunter")
         history.register_stat(when, "p2", "p2", False, "stat.survival")
-        history.register_stat(when, "p2", "p2", False, "stat.survival")
-        history.register_stat(when, "p2", "p2", False, "stat.survival")
+        history.register_stat(when, "p2", "p2", False, "stat.survival2")
+        history.register_stat(when, "p2", "p2", False, "stat.survival3")
 
         ranking = history.user_ranking("channel")
 
         self.assertEqual(ranking, ["p2", "p1"])
 
     def test_history_ranks_for_total_with_negative_stat(self):
-        history = PS4History(set(["stat.fail"]))
+        history = PS4History(set(["stat.fail", "stat.fail2", "stat.fail3"]))
 
         when = datetime.datetime.today()
-        slackmsg = SlackPostedMessage("channel", when, None)
+        when2 = when + datetime.timedelta(30)
+        when3 = when2 + datetime.timedelta(30)
 
+        slackmsg = SlackPostedMessage("channel", when, None)
         game = Game(when, "desc", "channel", "creator", slackmsg, 4, 30, None, False)
         game.add_player("p1")
         game.add_player("p2")
 
+        slackmsg2 = SlackPostedMessage("channel", when2, None)
+        game2 = Game(when2, "desc", "channel", "creator", slackmsg2, 4, 30, None, False)
+        game2.add_player("p1")
+        game2.add_player("p2")
+
+        slackmsg3 = SlackPostedMessage("channel", when3, None)
+        game3 = Game(when3, "desc", "channel", "creator", slackmsg3, 4, 30, None, False)
+        game3.add_player("p1")
+        game3.add_player("p2")
+
         history.add_game(game)
+        history.add_game(game2)
+        history.add_game(game3)
+
         history.register_stat(when, "p1", "p1", False, "stat.headhunter")
         history.register_stat(when, "p2", "p2", False, "stat.survival")
-        history.register_stat(when, "p2", "p2", False, "stat.fail")
-        history.register_stat(when, "p2", "p2", False, "stat.fail")
-        history.register_stat(when, "p2", "p2", False, "stat.fail") # this brings p2 to rank -2
+        history.register_stat(when2, "p2", "p2", False, "stat.fail")
+        history.register_stat(when3, "p2", "p2", False, "stat.fail2") # this brings p2 to rank -1
 
         ranking = history.user_ranking("channel")
 

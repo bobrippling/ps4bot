@@ -8,7 +8,9 @@ from PS4HistoricGame import PS4HistoricGame
 SAVE_FILE = "ps4-stats.txt"
 
 class Keys:
-    total = "Total"
+    game_wins = "Game Wins"
+    played = "Played"
+    winratio = "Win Ratio"
 
 class PS4History:
     def __init__(self, negative_stats = set()):
@@ -87,6 +89,18 @@ class PS4History:
         self.save()
         return True
 
+    def users_stat_in_game(self, searchuser, game):
+        # look for positive first
+        negative = None
+
+        for stat_and_user in game.stats:
+            stat, user = stat_and_user.stat, stat_and_user.user
+            if user == searchuser:
+                if stat not in self.negative_stats:
+                    return stat
+                negative = stat
+        return negative
+
     def summary_stats(self, channel, name = None, since = None):
         stats = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
 
@@ -99,40 +113,59 @@ class PS4History:
             if since and game.message_timestamp < since:
                 continue
 
-            for stat in game.stats:
-                stat, user = stat.stat, stat.user
+            for stat_and_user in game.stats:
+                stat, user = stat_and_user.stat, stat_and_user.user
                 if not allow_user(user):
                     continue
 
                 stats[game.mode][user][stat] += 1
+                # don't count total or played here, may be multiple stats per game
 
-                bonus = -1 if stat in self.negative_stats else 1
-                stats[game.mode][user][Keys.total] += bonus
+            for user in game.players:
+                if not allow_user(user):
+                    continue
 
-            # ensure all players are in:
-            for u in game.players:
-                if allow_user(u):
-                    stats[game.mode][u][Keys.total] += 0
+                stats[game.mode][user][Keys.played] += 1
+                stat = self.users_stat_in_game(user, game)
+                if stat:
+                    bonus = -1 if stat in self.negative_stats else 1
+                    stats[game.mode][user][Keys.game_wins] += bonus
 
-        return stats # { mode: { user: { total: int, [stat]: int ... }, ... } }
+        # calculate win %ages
+        for mode in stats:
+            for user in stats[mode]:
+                userstats = stats[mode][user]
+                game_wins = userstats[Keys.game_wins]
+                played = userstats[Keys.played]
+
+                winratio = float(game_wins) / played if played else 0
+                winratio_str = format(winratio, ".5f")
+                userstats[Keys.winratio] = winratio_str
+
+        return stats # { mode: { user: { [stat]: int ... }, ... } }
 
     def user_ranking(self, channel):
         """
         Return a ranking of users in the channel
         """
-        rankmap = defaultdict(int) # user => score (total)
+        rankmap = defaultdict(lambda: [0, 0]) # user => [wins, played]
 
         for game in self:
             if channel and game.channel != channel:
                 continue
-            for stat in game.stats:
-                stat, user = stat.stat, stat.user
-                bonus = -1 if stat in self.negative_stats else 1
-                rankmap[user] += bonus
+            if game.mode:
+                continue
+            for user in game.players:
+                rankmap[user][1] += 1
 
-            # ensure all players are in:
-            for u in game.players:
-                rankmap[u] += 0
+                stat = self.users_stat_in_game(user, game)
+                if stat:
+                    bonus = -1 if stat in self.negative_stats else 1
+                    rankmap[user][0] += bonus
+
+        def userratio(user):
+            wins, played = rankmap[user]
+            return float(wins) / played if played else 0
 
         # [ user1, user2, ... ]
-        return sorted(rankmap, key = lambda u: rankmap[u], reverse = True)
+        return sorted(rankmap, key = userratio, reverse = True)

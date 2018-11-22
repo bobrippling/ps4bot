@@ -518,11 +518,13 @@ class PS4Bot(Bot):
             allstats = list(allstats)
             allstats.sort()
 
-            if Keys.total in allstats:
+            if Keys.game_wins in allstats:
                 # ensure relative ordering
-                special_keys = [Keys.total]
+                special_keys = [Keys.game_wins, Keys.played, Keys.winratio]
                 allstats = filter(lambda s: s not in special_keys, allstats)
-                allstats.append(Keys.total)
+                allstats.append(Keys.game_wins)
+                allstats.append(Keys.played)
+                allstats.append(Keys.winratio)
 
             def stat_for_user(user_stats):
                 user, users_stats = user_stats
