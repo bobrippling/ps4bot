@@ -93,6 +93,8 @@ class TestGame(unittest.TestCase):
 				creator = "me",
 				msg = "game",
 				max_player_count = 4,
+                                play_time = 30,
+                                mode = None,
 				notified = False)
 
 		self.assertFalse(g.contains(today_at(11, 42)))
