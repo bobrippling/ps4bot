@@ -109,6 +109,21 @@ class DummyChannel:
 	def __init__(self, name):
 		self.name = name
 
+def dummy_load_banter(self, type, *rest, **restkw):
+    if type == "joined":
+        return "welcome to the game"
+    if type == "created":
+        return "game registered, gg"
+    if type == "kickoff":
+        return "match kickoff is now"
+    if type == "dialect":
+        return "areet"
+    if type == "thanked":
+        return "nee bother"
+    if type == "follow-on":
+        return "is straight after"
+    raise ValueError("unknown type {}".format(type))
+
 class TestPS4Bot(unittest.TestCase):
 	def __init__(self, *args):
 		unittest.TestCase.__init__(self, *args)
@@ -123,6 +138,7 @@ class TestPS4Bot(unittest.TestCase):
 		PS4Bot.lookup_user = lambda self, a: a
 		PS4Bot.send_message = record_message
 		PS4Bot.update_message = lambda self, text, **rest: None
+		PS4Bot.load_banter = dummy_load_banter
 
                 PS4History.save = noop
                 PS4History.load = noop
