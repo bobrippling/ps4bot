@@ -13,7 +13,7 @@ from PS4Game import Game
 from PS4Formatting import format_user, format_user_padding, when_str, number_emojis, generate_table
 from PS4Config import DEFAULT_MAX_PLAYERS, PLAY_TIME, GAME_FOLLOWON_TIME
 from PS4Parsing import parse_time, parse_game_initiation, pretty_mode
-from PS4History import PS4History
+from PS4History import PS4History, Keys
 from PS4GameCategory import vote_message, Stats, channel_statmap
 
 DIALECT = ["here", "hew", "areet"]
@@ -518,9 +518,11 @@ class PS4Bot(Bot):
             allstats = list(allstats)
             allstats.sort()
 
-            if "Total" in allstats:
-                allstats.remove("Total") # ensure total is at the end
-                allstats.append("Total")
+            if Keys.total in allstats:
+                # ensure relative ordering
+                special_keys = [Keys.total]
+                allstats = filter(lambda s: s not in special_keys, allstats)
+                allstats.append(Keys.total)
 
             def stat_for_user(user_stats):
                 user, users_stats = user_stats
@@ -528,7 +530,7 @@ class PS4Bot(Bot):
                         + map(lambda stat: users_stats[stat], allstats)
 
             def stats_sort_key(stats):
-                # sort on the last statistic, aka "Total"
+                # sort on the last statistic
                 return stats[len(stats) - 1]
 
             header = ["Player"] + map(Stats.pretty, allstats)

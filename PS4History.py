@@ -7,6 +7,9 @@ from PS4HistoricGame import PS4HistoricGame
 
 SAVE_FILE = "ps4-stats.txt"
 
+class Keys:
+    total = "Total"
+
 class PS4History:
     def __init__(self, negative_stats = set()):
         self.games = []
@@ -104,12 +107,12 @@ class PS4History:
                 stats[game.mode][user][stat] += 1
 
                 bonus = -1 if stat in self.negative_stats else 1
-                stats[game.mode][user]["Total"] += bonus
+                stats[game.mode][user][Keys.total] += bonus
 
             # ensure all players are in:
             for u in game.players:
                 if allow_user(u):
-                    stats[game.mode][u]["Total"] += 0
+                    stats[game.mode][u][Keys.total] += 0
 
         return stats # { mode: { user: { total: int, [stat]: int ... }, ... } }
 
