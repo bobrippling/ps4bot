@@ -13,6 +13,12 @@ def today_at(hour, min):
                     second = 0,
                     microsecond = 0)
 
+def deserialise_time(s):
+    parts = s.split(":")
+    if len(parts) != 2:
+        raise ValueError
+    return today_at(int(parts[0]), int(parts[1]))
+
 def parse_time(s):
     am_pm = ""
     if len(s) >= 3 and s[-1] == "m" and (s[-2] == "a" or s[-2] == "p"):

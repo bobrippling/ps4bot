@@ -12,7 +12,7 @@ from SlackPostedMessage import SlackPostedMessage
 from PS4Game import Game
 from PS4Formatting import format_user, format_user_padding, when_str, number_emojis, generate_table
 from PS4Config import DEFAULT_MAX_PLAYERS, PLAY_TIME, GAME_FOLLOWON_TIME
-from PS4Parsing import parse_time, parse_game_initiation, pretty_mode
+from PS4Parsing import parse_time, deserialise_time, parse_game_initiation, pretty_mode
 from PS4History import PS4History, Keys
 from PS4GameCategory import vote_message, Stats, channel_statmap
 
@@ -96,7 +96,7 @@ class PS4Bot(Bot):
                         extra_text.append(line)
                         line = f.readline()
 
-                    when = parse_time(str_when)
+                    when = deserialise_time(str_when)
                     try:
                         max_player_count = int(str_max_player_count)
                     except ValueError:

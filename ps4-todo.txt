@@ -1,7 +1,6 @@
 Tasks for PS4Bot:
 
 Usage:
-	[small] Fix loading games - don't parse time, or save with explicit am/pm
 	[small] Games can't be created before the current time (within reason)
 
 Messaging:
