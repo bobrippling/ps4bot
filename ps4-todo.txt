@@ -5,9 +5,5 @@ Usage:
 	[small] Games can't be created before the current time (within reason)
 
 Messaging:
-	[large] Update all "ps4bot games" messages when a game changes
 	[medium] If a game isn't full 10 minutes beforehand, send a "@here" requesting additional players
-	[small] Allow "ps4" prefix
 	[small] Move tips category into others
-	[medium] Show total games and win percentage in "ps4bot stats"
-
