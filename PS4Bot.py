@@ -520,7 +520,8 @@ class PS4Bot(Bot):
                 in_channel = message.channel.name)
         self.send_message(reply)
 
-    def update_stats_table(self, channel, stats, force_new = False, anchor_message = True):
+    def update_stats_table(self, channel, stats, \
+            force_new = False, anchor_message = True, last_updated_user_stat = None):
         """
         This method is responsible for taking the stats dictionary and converting it to a
         table, with prettified headers and sorted rows.
@@ -545,8 +546,20 @@ class PS4Bot(Bot):
 
             def stat_for_user(user_stats):
                 user, users_stats = user_stats
+
+                def get_stat_value(stat):
+                    value = users_stats[stat]
+
+                    # maybe highlight the value, if it was the latest
+                    if last_updated_user_stat:
+                        last_u, last_s = last_updated_user_stat
+                        if user == last_u and stat == last_s:
+                            return "[{}]".format(value)
+
+                    return value
+
                 return [(format_user_padding(user), format_user(user))] \
-                        + map(lambda stat: users_stats[stat], allstats)
+                        + map(get_stat_value, allstats)
 
             def stats_sort_key(stats):
                 # sort on the last statistic
@@ -694,32 +707,36 @@ class PS4Bot(Bot):
     def maybe_register_emoji_number_stat(self, gametime, emoji, from_user, removed):
         historic_game = self.history.find_game(gametime)
         if not historic_game:
-            return
+            return None
 
         try:
             index = number_emojis.index(emoji)
         except ValueError:
-            return
+            return None
         try:
             user = historic_game.players[index]
         except IndexError:
-            return
+            return None
 
-        return self.history.register_stat(gametime, user, from_user, removed, Stats.scrub)
+        if self.history.register_stat(gametime, user, from_user, removed, Stats.scrub):
+            return Stats.scrub
+        return None
 
     def maybe_record_stat(self, gametime, channel, user, emoji, removed):
         recorded = False
 
         if emoji in number_emojis:
-            recorded = self.maybe_register_emoji_number_stat(gametime, emoji, user, removed)
+            stat = self.maybe_register_emoji_number_stat(gametime, emoji, user, removed)
+            recorded = stat != None
 
         statmap = channel_statmap(channel)
         if statmap and emoji in statmap:
-            recorded = self.history.register_stat(gametime, user, user, removed, statmap[emoji]);
+            stat = statmap[emoji]
+            recorded = self.history.register_stat(gametime, user, user, removed, stat)
 
         if recorded and channel in self.latest_stats_table:
             stats = self.history.summary_stats(channel)
-            self.update_stats_table(channel, stats)
+            self.update_stats_table(channel, stats, last_updated_user_stat = (user, stat))
 
     def handle_reaction(self, reaction, removed = False):
         emoji = reaction.emoji
