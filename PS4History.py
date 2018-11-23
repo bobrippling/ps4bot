@@ -70,6 +70,13 @@ class PS4History:
         self.games.append(game.to_historic())
         self.save()
 
+    def cancel_game(self, game):
+        found = find(lambda g: g.message_timestamp == game.message.timestamp, self.games)
+        if not found:
+            return
+        self.games.remove(found)
+        self.save()
+
     def find_game(self, gametime):
         return find(lambda g: g.message_timestamp == gametime, self.games)
 

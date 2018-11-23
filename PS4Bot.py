@@ -429,6 +429,8 @@ class PS4Bot(Bot):
         newtext = game.message.text + "\n:warning: Cancelled :warning: :candle::candle:"
         self.update_message(newtext, original_message = game.message)
 
+        self.history.cancel_game(game)
+
         self.save()
 
     def maybe_scuttle_game(self, message, rest):
