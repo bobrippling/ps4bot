@@ -78,7 +78,7 @@ class PS4History:
         if historic_game is None:
             return False
 
-        if user not in historic_game.players:
+        if voter not in historic_game.players:
             return False
 
         if removed:
