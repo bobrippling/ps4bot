@@ -282,10 +282,8 @@ class PS4Bot(Bot):
 
         game = self.new_game(when, desc, channel, user, \
                 posted_message, max_player_count, play_time, mode)
-        game.add_player(user)
-        self.update_game_message(game)
 
-        self.save()
+        self.add_user_to_game(user, game, subtle_message = True)
         return True
 
     def chronological_games(self):
