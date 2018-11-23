@@ -9,6 +9,9 @@ from PS4Bot import Game, PS4Bot
 from PS4History import PS4History
 from SlackMessage import SlackMessage
 from SlackPostedMessage import SlackPostedMessage
+from SlackReaction import SlackReaction
+
+posted_message_when = today_at(11, 43)
 
 def parse(time, hour = None, minute = None):
 	got = parse_game_initiation(time)
@@ -148,8 +151,7 @@ class TestPS4Bot(unittest.TestCase):
 
 		def send_message_stub(msg, to_channel = None):
 			self.messages.append(msg)
-			dummy_when = today_at(11, 43)
-			return SlackPostedMessage(to_channel or "?", dummy_when, msg)
+			return SlackPostedMessage(to_channel or "?", posted_message_when, msg)
 
 		ps4bot = PS4Bot(None, "ps4bot")
 		ps4bot.send_message = send_message_stub
@@ -253,5 +255,31 @@ class TestPS4Bot(unittest.TestCase):
 		self.assertEqual(len(self.messages), 1)
 		self.assertTrue("is straight after" in self.messages[0])
 
+	def test_ps4bot_stats_sync(self):
+		channel_name = "games"
+		dummychannel = DummyChannel(channel_name)
+		ps4bot = self.create_ps4bot()
+
+		# 8:45 is 15 minutes before "current time"
+		ps4bot.handle_message(SlackMessage("ps4bot test game at 8:45", "user", dummychannel, None, None, None, None))
+
+		self.assertEqual(len(self.messages), 1)
+		self.assertEqual(len(ps4bot.games), 1)
+		self.assertEqual(len(ps4bot.history.games), 1)
+		self.messages = []
+
+		self.assertEqual(ps4bot.games[0].players, ["user"])
+		self.assertEqual(ps4bot.history.games[0].players, ["user"])
+
+		reaction = SlackReaction("+1", "tim", None, dummychannel, posted_message_when, None)
+		ps4bot.handle_reaction(reaction)
+		self.assertEqual(len(self.messages), 0)
+
+		self.assertEqual(ps4bot.games[0].players, ["user", "tim"])
+		self.assertEqual(ps4bot.history.games[0].players, ["user", "tim"])
+
+		reaction = SlackReaction("one", "tim", None, dummychannel, posted_message_when, None)
+		ps4bot.handle_reaction(reaction)
+		self.assertEqual(len(self.messages), 0)
 
 unittest.main()
