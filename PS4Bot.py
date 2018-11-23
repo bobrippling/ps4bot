@@ -182,6 +182,21 @@ class PS4Bot(Bot):
         self.history.add_game(g)
         return g
 
+    def history_sync(self):
+        # push player updates to history
+
+        updated = False
+        for g in self.games:
+            h = self.history.find_game(g.message.timestamp)
+            if not h:
+                continue
+
+            h.players = g.players[:]
+            updated = True
+
+        if updated:
+            self.history.save()
+
     def load_banter(self, type, replacements = {}, for_user = None, in_channel = None):
         is_champ = False
         if for_user:
@@ -340,6 +355,8 @@ class PS4Bot(Bot):
                     for_user = user,
                     in_channel = game.channel)
 
+        self.history_sync()
+
         if not subtle_message:
             self.send_message(banter)
         self.update_game_message(game, banter if subtle_message else None)
@@ -357,6 +374,8 @@ class PS4Bot(Bot):
                     when_str(game.when),
                     format_user(user),
                     game.description)
+
+        self.history_sync()
 
         if not subtle_message:
             self.send_message(banter)
