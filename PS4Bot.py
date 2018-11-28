@@ -545,6 +545,15 @@ class PS4Bot(Bot):
                 allstats.append(Keys.played)
                 allstats.append(Keys.winratio)
 
+                stats_to_ignore = list(self.history.negative_stats)
+                stats_to_ignore.append(Keys.game_wins)
+                stats_to_ignore.append(Keys.played)
+                stats_to_ignore.append(Keys.winratio)
+                relevant_stats = filter(lambda s: s not in stats_to_ignore, allstats)
+                if len(relevant_stats) == 1:
+                    # no need to show the game_wins field
+                    allstats.remove(Keys.game_wins)
+
             def stat_for_user(user_stats):
                 user, users_stats = user_stats
 
