@@ -30,7 +30,6 @@ PS4Bot_commands = {
     "scuttle": (True, lambda self, *args: self.maybe_scuttle_game(*args)),
     "stats": (True, lambda self, *args: self.handle_stats_request(*args)),
     "topradge": (False, lambda self, *args: self.handle_stats_request(*args)),
-    "scrublord": (False, lambda self, *args: self.handle_stats_request(*args)),
     "thanks": (False, lambda self, *args: self.send_thanks_reply(*args)),
     "ta": (False, lambda self, *args: self.send_thanks_reply(*args)),
     "cheers": (False, lambda self, *args: self.send_thanks_reply(*args)),
