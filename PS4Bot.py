@@ -715,26 +715,27 @@ class PS4Bot(Bot):
     def maybe_register_emoji_number_stat(self, gametime, emoji, from_user, removed):
         historic_game = self.history.find_game(gametime)
         if not historic_game:
-            return None
+            return None, None
 
         try:
             index = number_emojis.index(emoji)
         except ValueError:
-            return None
+            return None, None
         try:
             user = historic_game.players[index]
         except IndexError:
-            return None
+            return None, None
 
         if self.history.register_stat(gametime, user, from_user, removed, Stats.scrub):
-            return Stats.scrub
-        return None
+            return Stats.scrub, user
+        return None, None
 
     def maybe_record_stat(self, gametime, channel, user, emoji, removed):
         recorded = False
+        target_user = user
 
         if emoji in number_emojis:
-            stat = self.maybe_register_emoji_number_stat(gametime, emoji, user, removed)
+            stat, target_user = self.maybe_register_emoji_number_stat(gametime, emoji, user, removed)
             recorded = stat != None
 
         statmap = channel_statmap(channel)
@@ -744,7 +745,7 @@ class PS4Bot(Bot):
 
         if recorded and channel in self.latest_stats_table:
             stats = self.history.summary_stats(channel)
-            self.update_stats_table(channel, stats, last_updated_user_stat = (user, stat))
+            self.update_stats_table(channel, stats, last_updated_user_stat = (target_user, stat))
 
     def handle_reaction(self, reaction, removed = False):
         emoji = reaction.emoji
