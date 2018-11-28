@@ -96,17 +96,11 @@ class PS4History:
         self.save()
         return True
 
-    def users_stat_in_game(self, searchuser, game):
-        # look for positive first
-        negative = None
-
+    def user_has_winstat_in_game(self, searchuser, game):
         for stat_and_user in game.stats:
-            stat, user = stat_and_user.stat, stat_and_user.user
-            if user == searchuser:
-                if stat not in self.negative_stats:
-                    return stat
-                negative = stat
-        return negative
+            if stat_and_user.user == searchuser and stat_and_user.stat not in self.negative_stats:
+                return True
+        return False
 
     def summary_stats(self, channel, name = None, since = None):
         stats = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
@@ -131,12 +125,9 @@ class PS4History:
             for user in game.players:
                 if not allow_user(user):
                     continue
-
                 stats[game.mode][user][Keys.played] += 1
-                stat = self.users_stat_in_game(user, game)
-                if stat:
-                    bonus = -1 if stat in self.negative_stats else 1
-                    stats[game.mode][user][Keys.game_wins] += bonus
+                if self.user_has_winstat_in_game(user, game):
+                    stats[game.mode][user][Keys.game_wins] += 1
 
         # calculate win %ages
         for mode in stats:
@@ -165,10 +156,8 @@ class PS4History:
             for user in game.players:
                 rankmap[user][1] += 1
 
-                stat = self.users_stat_in_game(user, game)
-                if stat:
-                    bonus = -1 if stat in self.negative_stats else 1
-                    rankmap[user][0] += bonus
+                if self.user_has_winstat_in_game(user, game):
+                    rankmap[user][0] += 1
 
         def userratio(user):
             wins, played = rankmap[user]
