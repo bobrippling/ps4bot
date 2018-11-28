@@ -590,7 +590,10 @@ class PS4Bot(Bot):
             table_msg = None
             now = datetime.datetime.today().strftime("%H:%M:%S")
             self.update_message(
-                    "{}\nLast updated at {} :stopwatch:".format(tables_message_str, now),
+                    "{}\nLast updated at {} :stopwatch:{}".format(
+                        tables_message_str,
+                        now,
+                        " (last updated stat in `[brackets]`)" if last_updated_user_stat else ""),
                     original_timestamp = self.latest_stats_table[channel],
                     original_channel = channel)
         else:
