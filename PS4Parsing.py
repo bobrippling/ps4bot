@@ -63,7 +63,7 @@ def maybe_parse_time(s):
 
 def pretty_mode(mode):
     if mode == "compet":
-        return "Competitive"
+        return "1v1"
     return mode
 
 def parse_game_initiation(str):
