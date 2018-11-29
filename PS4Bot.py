@@ -622,14 +622,12 @@ class PS4Bot(Bot):
         self.update_stats_table(channel_name, stats, force_new = True, anchor_message = is_this_channel)
 
     def handle_command(self, message, command, rest):
-        command = command.lower()
-
         if len(command.strip()) == 0 and len(rest) == 0:
             self.send_dialect_reply(message)
             return
 
-        if command in PS4Bot_commands:
-            PS4Bot_commands[command][1](self, message, rest)
+        if command.lower() in PS4Bot_commands:
+            PS4Bot_commands[command.lower()][1](self, message, rest)
             return
 
         # attempt to parse a big game, if unsuccessful, show usage:
