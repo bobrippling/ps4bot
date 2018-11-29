@@ -19,7 +19,7 @@ class Stats:
 pretty = {
     Stats.scrub: "Scrub",
     Stats.Towerfall.headhunters: "Headhunters",
-    Stats.Towerfall.lastmanstanding: "Last Man Standing",
+    Stats.Towerfall.lastmanstanding: "Survival",
     Stats.Towerfall.teams: "Teams",
     Stats.Fifa.win: "Win",
     Stats.Fifa.win_pens: "Win (Penalties)",
