@@ -175,6 +175,9 @@ class PS4Bot(Bot):
     def games_created_by(self, user):
         return filter(lambda g: g.creator == user, self.games)
 
+    def games_in_channel(self, channel):
+        return filter(lambda g: g.channel == channel, self.games)
+
     def new_game(self, when, desc, channel, creator, msg, max_players, play_time, mode, notified = False):
         g = Game(when, desc, channel, creator, msg, max_players, play_time, mode, notified)
         self.games.append(g)
@@ -318,16 +321,24 @@ class PS4Bot(Bot):
         self.update_message(newtext, original_message = game.message)
 
     def join_or_bail(self, message, rest, bail = False):
-        try:
-            when = parse_time(rest)
-        except ValueError:
-            self.send_message(":warning: howay! `flyin/join/flyout/bail <game-time>`")
-            return
+        if len(rest) == 0:
+            channel_games = self.games_in_channel(message.channel)
+            if len(channel_games) == 1:
+                game = channel_games[0]
+            else:
+                self.send_not1_games_message(channel_games)
+                return
+        else:
+            try:
+                when = parse_time(rest)
+            except ValueError:
+                self.send_message(":warning: howay! `flyin/join/flyout/bail <game-time>`")
+                return
 
-        game = self.game_occuring_at(when)
-        if not game:
-            self.send_game_not_found(when, message.user)
-            return
+            game = self.game_occuring_at(when)
+            if not game:
+                self.send_game_not_found(when, message.user)
+                return
 
         if bail:
             self.remove_user_from_game(message.user, game)
@@ -394,18 +405,36 @@ class PS4Bot(Bot):
             when_str(game.when),
             game.description))
 
+    def send_not1_games_message(self, channel_games):
+            if len(channel_games) > 1:
+                msg = ":warning: there's {} games in this channel, which do you mean?".format(
+                                len(channel_games))
+            else:
+                msg = ":warning: there's no games in this channel to cancel"
+
+            self.send_message(msg)
+
     def maybe_cancel_game(self, message, rest):
         user = message.user
-        try:
-            when = parse_time(rest)
-        except ValueError:
-            self.send_message(":warning: scrubadubdub, when's this game you want to cancel?".format(rest))
-            return
 
-        game = self.game_occuring_at(when)
-        if not game:
-            self.send_game_not_found(when, user)
-            return
+        if len(rest) == 0:
+            channel_games = self.games_in_channel(message.channel)
+            if len(channel_games) == 1:
+                game = channel_games[0]
+            else:
+                self.send_not1_games_message(channel_games)
+                return
+        else:
+            try:
+                when = parse_time(rest)
+            except ValueError:
+                self.send_message(":warning: scrubadubdub, when's this game you want to cancel?".format(rest))
+                return
+
+            game = self.game_occuring_at(when)
+            if not game:
+                self.send_game_not_found(when, user)
+                return
 
         if game.creator != user:
             self.send_message(":warning: scrubadubdub, only {} can cancel the {} {}".format(
