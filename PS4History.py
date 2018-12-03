@@ -42,8 +42,8 @@ class PS4History:
             with open(SAVE_FILE, "r") as f:
                 current_game = None
                 for line in iter(f.readline, ""):
-                    line = line.rstrip("\n")
-                    tokens = filter(len, line.split(" "))
+                    line = line.rstrip("\n").lstrip(" ")
+                    tokens = line.split(" ")
 
                     if tokens[0] == "game":
                         message_timestamp = tokens[1]
