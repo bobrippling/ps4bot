@@ -612,9 +612,9 @@ class PS4Bot(Bot):
         if not force_new and channel in self.latest_stats_table:
             # update the table instead
             table_msg = None
-            now = datetime.datetime.today().strftime("%H:%M:%S")
+            now = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
             self.update_message(
-                    "{}\nLast updated at {} :stopwatch:{}".format(
+                    "{}\n:stopwatch: Last updated {}{}".format(
                         tables_message_str,
                         now,
                         " (last updated stat in `[brackets]`)" if last_updated_user_stat else ""),
