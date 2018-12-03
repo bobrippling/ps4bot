@@ -91,10 +91,11 @@ class TestPS4History(unittest.TestCase):
         history.register_stat(when, "p1", "p1", False, "stat.headhunter")
         history.register_stat(when, "p2", "p2", False, "stat.survival")
         history.register_stat(when2, "p2", "p2", False, "stat.fail")
-        history.register_stat(when3, "p2", "p2", False, "stat.fail2") # this brings p2 to rank -1
+        history.register_stat(when3, "p2", "p2", False, "stat.fail2")
 
         ranking = history.user_ranking("channel")
 
-        self.assertEqual(ranking, ["p1", "p2"])
+        # negative stats should have no change
+        self.assertEqual(ranking, ["p2", "p1"])
 
 unittest.main()
