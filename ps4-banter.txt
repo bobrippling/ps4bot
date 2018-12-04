@@ -1,7 +1,7 @@
 created-champ: game created by a big lad, prepare you selves to get rekt like last time
 created-champ: game created by %s, going to DEFCON 1
 created-champ: game created by %s, get the body bags ready
-created-champ: game created by %s, the look in their eye shows they aren't meesing around this time
+created-champ: game created by %s, the look in their eye shows they aren't messing around this time
 created-champ: FOR THE LOVE OF GOD GAME CREATED BY %s DO THEY HAVE NO MERCY?!!!
 created-champ: game created by %s, calling their own shots, making their own rules
 created-champ: game created by %s, making big moves as usual
@@ -16,7 +16,7 @@ created: BIGGEST GAME SINCE SLICED BREAD
 created: game made by %s, keep your eye on them
 created: how many nerds does it take to organise a match, just one this time, game made by %s
 created: game made by %s, I am not sure why they even bother at this point
-created: game made by %s, gotta love a tryer
+created: game made by %s, gotta love a trier
 created: game made by %s, if a numpty beats three gibbons did they really win?
 created: game created by %s, they won last time, won't be so lucky this time. quit while you're ahead
 created: and thus the cycle of scrubbery continues, initiated by %s
