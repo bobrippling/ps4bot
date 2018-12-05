@@ -3,7 +3,15 @@
 `pip install slackclient`
 
 Create a config file, `./config.py` with the following contents:
-```slack_token = "YOUR_TOKEN_HERE"```
+```python
+slack_token = "YOUR_TOKEN_HERE"
+
+# internal name => rendered name
+user_renames = {
+}
+```
+
+User renames is for users whose internal slack name isn't as it appears when rendered in slack.
 
 # Running
 
