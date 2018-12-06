@@ -315,7 +315,7 @@ class PS4Bot(Bot):
 
         self.send_message("{0} game{1}:\n{2}".format(
             len(self.games),
-            plural(self.games),
+            plural(len(self.games)),
             "\n".join([g.pretty() for g in self.chronological_games()])
         ))
 
