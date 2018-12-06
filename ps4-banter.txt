@@ -31,7 +31,7 @@ created: tip of the day, "pressing square gets you no sympathy"
 created: tip of the day, "if you are struggling to win BIG GAMES just git gud"
 created: game created by %s, and so the journey of 1000 wins begins
 created: game created by %s, obviously thinks they are the gREateSt 3 big games longer than they actually were
-created: game created by %s, risking their 0 win steak
+created: game created by %s, risking their 0 win streak
 created: game created by %s, dis gon be gud
 created: game created by %s, their future is looking very dim
 created: game created by %s, wow, it always seemed to me they would struggle to dress themselves in the morning
