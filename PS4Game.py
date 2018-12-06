@@ -4,6 +4,12 @@ from PS4Config import DEFAULT_MAX_PLAYERS, PLAY_TIME
 from PS4HistoricGame import PS4HistoricGame
 from PS4Parsing import pretty_mode
 
+class GameStates:
+    scheduled = 0
+    active = 1
+    finished = 2
+    dead = 3
+
 class Game:
     @staticmethod
     def create_message(banter, desc, when, max_player_count, mode):
@@ -15,14 +21,14 @@ class Game:
                 + ("mode: {}\n".format(pretty_mode(mode)) if mode else "") \
                 + "time: " + when_str(when)
 
-    def __init__(self, when, desc, channel, creator, msg, max_player_count, play_time, mode, notified):
+    def __init__(self, when, desc, channel, creator, msg, max_player_count, play_time, mode, state):
         self.when = when
         self.description = desc
         self.players = []
         self.channel = channel
         self.message = msg
         self.creator = creator
-        self.notified = notified
+        self.state = state
         self.max_player_count = max_player_count
         self.play_time = play_time
         self.mode = mode
@@ -53,7 +59,7 @@ class Game:
 
     def update_when(self, new_when, new_banter):
         self.when = new_when
-        self.notified = False
+        self.state = GameStates.scheduled
         self.message.text = Game.create_message(new_banter, self.description, self.when, self.max_player_count, self.mode)
 
     def pretty_players(self, with_creator = True):

@@ -9,7 +9,7 @@ from Functional import find
 
 from Bot import Bot
 from SlackPostedMessage import SlackPostedMessage
-from PS4Game import Game
+from PS4Game import Game, GameStates
 from PS4Formatting import format_user, format_user_padding, when_str, number_emojis, generate_table
 from PS4Config import DEFAULT_MAX_PLAYERS, PLAY_TIME, GAME_FOLLOWON_TIME
 from PS4Parsing import parse_time, deserialise_time, parse_game_initiation, pretty_mode
@@ -71,7 +71,7 @@ class PS4Bot(Bot):
                         print "invalid line \"{}\"".format(line)
                         continue
 
-                    str_when, channel, creator, str_notified, \
+                    str_when, channel, creator, str_state, \
                             str_players, str_max_player_count, str_play_time, \
                             mode, description = tokens
                     timestamp_str = f.readline()
@@ -107,13 +107,18 @@ class PS4Bot(Bot):
                         print "invalid play_time \"{}\"".format(str_play_time)
                         continue
 
-                    notified = str_notified == "True"
+                    try:
+                        state = int(str_state)
+                    except ValueError:
+                        print "invalid state \"{}\"".format(str_state)
+                        continue
+
                     players = str_players.split(",")
                     message = SlackPostedMessage(msg_channel, timestamp_str, "\n".join(extra_text))
 
                     g = self.new_game(when, description, channel, creator, \
                             message, max_player_count, play_time, \
-                            mode if mode != "None" else None, notified)
+                            mode if mode != "None" else None, state)
 
                     for p in players:
                         if len(p):
@@ -129,7 +134,7 @@ class PS4Bot(Bot):
                             when_str(g.when),
                             g.channel,
                             g.creator,
-                            g.notified,
+                            g.state,
                             ",".join(g.players),
                             g.max_player_count,
                             g.play_time,
@@ -178,8 +183,13 @@ class PS4Bot(Bot):
     def games_in_channel(self, channel):
         return filter(lambda g: g.channel == channel, self.games)
 
-    def new_game(self, when, desc, channel, creator, msg, max_players, play_time, mode, notified = False):
-        g = Game(when, desc, channel, creator, msg, max_players, play_time, mode, notified)
+    def new_game(
+            self,
+            when, desc, channel, creator, msg,
+            max_players, play_time, mode,
+            state = GameStates.scheduled
+        ):
+        g = Game(when, desc, channel, creator, msg, max_players, play_time, mode, state)
         self.games.append(g)
         self.history.add_game(g)
         return g
@@ -695,27 +705,36 @@ class PS4Bot(Bot):
                     self.botname,
                     "/".join(command for command, (show, _) in PS4Bot_commands.iteritems() if show)))
 
-    def handle_imminent_games(self):
+    def update_game_states(self):
         now = datetime.datetime.today()
         fiveminutes = datetime.timedelta(minutes = 5)
+        twelvehours = datetime.timedelta(hours = 12)
 
-        def game_is_imminent(g):
-            return not g.notified and g.when <= now + fiveminutes
-
-        def game_active_or_scheduled(g):
-            return now < g.endtime()
-
-        imminent = filter(game_is_imminent, self.games)
-        active = []
-        dead = []
         for g in self.games:
-            if game_active_or_scheduled(g):
-                active.append(g)
-            else:
-                dead.append(g)
-        self.games = active
+            if g.state == GameStates.scheduled:
+                if now > g.when - fiveminutes:
+                    g.state = GameStates.active
+            elif g.state == GameStates.active:
+                if now > g.endtime():
+                    g.state = GameStates.finished
+            elif g.state == GameStates.finished:
+                timestamp_date = datetime.datetime.fromtimestamp(float(g.message.timestamp))
+                if now - timestamp_date > twelvehours:
+                    g.state = GameStates.dead
 
-        for g in imminent:
+    def handle_imminent_games(self):
+        scheduled_games = filter(lambda g: g.state == GameStates.scheduled, self.games)
+        active_games = filter(lambda g: g.state == GameStates.active, self.games)
+
+        self.update_game_states()
+
+        # keep games until end-of-day (to allow late entrants, etc)
+        self.games = filter(lambda g: g.state != GameStates.dead, self.games)
+
+        imminent_games = filter(lambda g: g.state == GameStates.active, scheduled_games)
+        just_finished_games = filter(lambda g: g.state == GameStates.finished, active_games)
+
+        for g in imminent_games:
             if len(g.players) == 0:
                 banter = "big game ({0}) about to kick off at {1}, no one wants to play?".format(
                     g.description, when_str(g.when))
@@ -738,7 +757,7 @@ class PS4Bot(Bot):
             self.send_message(banter, to_channel = g.channel)
             g.notified = True
 
-        for g in dead:
+        for g in just_finished_games:
             msg = vote_message(g)
             if msg:
                 self.update_game_message(g, msg)
