@@ -771,16 +771,16 @@ class PS4Bot(Bot):
 
     def handle_game_reaction(self, game, reacting_user, emoji, removed):
         now = datetime.datetime.today()
-        if now < game.endtime():
-            join_emojis = ["+1", "thumbsup", "plus1" "heavy_plus_sign"]
-            if emoji in join_emojis:
+        join_emojis = ["+1", "thumbsup", "plus1" "heavy_plus_sign"]
+        if emoji in join_emojis:
+            if now < game.endtime():
                 if removed:
                     self.remove_user_from_game(reacting_user, game, subtle_message = True)
                 else:
                     self.add_user_to_game(reacting_user, game, subtle_message = True)
-        else:
-            self.update_game_message(game, "game's over {}, can't {}".format(
-                format_user(reacting_user), "flyout" if removed else "flyin"))
+            else:
+                self.update_game_message(game, "game's over {}, can't {}".format(
+                    format_user(reacting_user), "flyout" if removed else "flyin"))
 
     def maybe_register_emoji_number_stat(self, gametime, emoji, from_user, removed):
         historic_game = self.history.find_game(gametime)
