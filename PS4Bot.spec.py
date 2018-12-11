@@ -5,7 +5,7 @@ sys.modules['datetime'] = __import__('mock_datetime')
 
 import datetime
 from PS4Parsing import parse_game_initiation, today_at
-from PS4Bot import Game, PS4Bot
+from PS4Bot import Game, PS4Bot, GameStates
 from PS4History import PS4History
 from SlackMessage import SlackMessage
 from SlackPostedMessage import SlackPostedMessage
@@ -96,9 +96,9 @@ class TestGame(unittest.TestCase):
 				creator = "me",
 				msg = "game",
 				max_player_count = 4,
-                                play_time = 30,
-                                mode = None,
-				notified = False)
+				play_time = 30,
+				mode = None,
+				state = GameStates.scheduled)
 
 		self.assertFalse(g.contains(today_at(11, 42)))
 		self.assertTrue(g.contains(today_at(11, 43)))

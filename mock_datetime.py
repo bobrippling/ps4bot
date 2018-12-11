@@ -44,6 +44,20 @@ class StubDate:
 
         return new
 
+    def __sub__(self, other):
+        new = self.clone()
+
+        hour = int(other.delta / 60)
+        minutes = other.delta % 60
+
+        new.hour -= hour
+        new.minute -= minutes
+        if new.minute < 0:
+            new.hour -= 1
+            new.minute += 60
+
+        return new
+
     def __lt__(self, other):
         if self.hour < other.hour:
             return True
@@ -68,5 +82,5 @@ class datetime:
     def today():
         return StubDate()
 
-def timedelta(minutes):
-    return StubTimeDelta(minutes)
+def timedelta(minutes = 0, hours = 0):
+    return StubTimeDelta(minutes = minutes + hours * 60)
