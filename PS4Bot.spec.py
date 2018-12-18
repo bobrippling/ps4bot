@@ -14,7 +14,7 @@ from SlackReaction import SlackReaction
 posted_message_when = today_at(11, 43)
 
 def parse(time, hour = None, minute = None):
-	got = parse_game_initiation(time)
+	got = parse_game_initiation(time, "channel")
 	if not got:
 		return False
 	when = got[0]
@@ -26,14 +26,14 @@ def parse(time, hour = None, minute = None):
 			and when.minute == minute
 
 def parse_desc(to_parse, expected):
-	got = parse_game_initiation(to_parse)
+	got = parse_game_initiation(to_parse, "channel")
 	if not got:
 		return False
 	desc = got[1]
 	return desc == expected
 
 def parse_desc_and_count(to_parse, expected, count):
-	got = parse_game_initiation(to_parse)
+	got = parse_game_initiation(to_parse, "channel")
 	if not got:
 		return False
 	got_desc = got[1]

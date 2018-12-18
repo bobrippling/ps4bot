@@ -270,7 +270,7 @@ class PS4Bot(Bot):
         Attempts to create a new game from freeform text
         Returns True on parse success (even if game creation failed)
         """
-        parsed = parse_game_initiation(rest)
+        parsed = parse_game_initiation(rest, channel)
         if not parsed:
             return False
 
@@ -289,7 +289,7 @@ class PS4Bot(Bot):
                 for_user = user,
                 in_channel = channel)
 
-        message = Game.create_message(banter, desc, when, max_player_count, mode)
+        message = Game.create_message(banter, desc, when, max_player_count, mode, channel)
         posted_message = self.send_message(message)
 
         game = self.new_game(when, desc, channel, user, \

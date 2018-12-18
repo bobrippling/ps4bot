@@ -9,6 +9,10 @@ slack_token = "YOUR_TOKEN_HERE"
 # internal name => rendered name
 user_renames = {
 }
+
+# channel name => max player count
+channel_max_players = {
+}
 ```
 
 User renames is for users whose internal slack name isn't as it appears when rendered in slack.

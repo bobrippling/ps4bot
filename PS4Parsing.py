@@ -1,6 +1,6 @@
 import datetime
 
-from PS4Config import DEFAULT_MAX_PLAYERS, PLAY_TIME
+from PS4Config import default_max_players, PLAY_TIME
 
 punctuation = [".", "?", ","]
 time_prefixes = ["at"]
@@ -66,12 +66,12 @@ def pretty_mode(mode):
         return "1v1"
     return mode
 
-def parse_game_initiation(str):
+def parse_game_initiation(str, channel):
     parts = str.split(" ")
 
     when = None
     desc_parts = []
-    player_count = DEFAULT_MAX_PLAYERS
+    player_count = default_max_players(channel)
     mode = None
     play_time = PLAY_TIME
     for part in parts:
