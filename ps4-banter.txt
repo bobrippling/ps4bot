@@ -2,7 +2,6 @@ created-champ: game created by a big lad, prepare you selves to get rekt like la
 created-champ: game created by %s, going to DEFCON 1
 created-champ: game created by %s, get the body bags ready
 created-champ: game created by %s, the look in their eye shows they aren't messing around this time
-created-champ: FOR THE LOVE OF GOD GAME CREATED BY %s DO THEY HAVE NO MERCY?!!!
 created-champ: game created by %s, calling their own shots, making their own rules
 created-champ: game created by %s, making big moves as usual
 created-champ: it's over losers, %s has the high ground
@@ -177,12 +176,11 @@ thanked-champ: Flattery will get you everywhere %s!
 thanked-champ: No problem %s. You are my favourite :)
 thanked: Nee botha %s, ya flippin' big lad
 
-follow-on: %s's %d (%c) is straight after - feel free to leave the PS4 on, or turn if off if you dislike %s
+follow-on: %s's %d (%c) is straight after - feel free to leave the PS4 on
 follow-on: %s's %d (%c) is straight afterwards, so make sure to turn the PS4 off after you are done to show maximum disrespect
-follow-on: %s's %d (%c) is after yours :japanese_ogre: so the opportunity to do the perfect crime presents itself. Steal the PS4 and blame them
 follow-on: %s's %d (%c) is straight after yours but don't let that stop you playing. If they want to play that bad, make them fight you for it
 follow-on: %s has a game (%d / %c) scheduled straight after yours. A moment's silence please, for the scrublords that play %c
-follow-on: Another game's scheduled straight after yours - %c's %d. It would be a shame if something were to happen to the PS4 before then :japanese_ogre:
+follow-on: Another game's scheduled straight after yours - %c's %d. It would be a shame if something were to happen to the PS4 before then
 follow-on: Lots of games scheduled today. %s has one booked for straight after yours (%d / %c). Be sure to press the kettle's "water filter changed" button to let them know you've finished your session
-follow-on: %s is threatening to use the PS4 straight after you for %c's %d. Maybe try stacking some of those chairs in front of the kitchen door to prevent their entrance :+1:
+follow-on: %s is threatening to use the PS4 straight after you for %c's %d. Maybe try stacking some of those chairs in front of the kitchen door to prevent their entrance
 follow-on: Be sure to hide the PS4 controllers, %s has %c's %d after yours but rumour has it they really wanted to play hide and seek
