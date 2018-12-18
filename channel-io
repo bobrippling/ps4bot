@@ -5,130 +5,88 @@ import sys
 import select
 import config
 
-#if len(sys.argv) != 3:
-#    print >>sys.stderr, "Usage: {} [channel | --all] botname".format(sys.argv[0])
-#    sys.exit(2)
+def dump_channels():
+    for i in conn.server.channels:
+        print "name={} id={}".format(i.name, i.id)
+        #print conn.api_call("groups.info", channel = i.id)
 
-#channel_name = sys.argv[1]
-#name = sys.argv[2]
+def dump_users():
+    for u in conn.server.users:
+        print "id={} name={} real_name={}".format(u.id, u.name, u.real_name)
 
-TOKEN_SL = config.slack_token
-#TOKEN_HS = ""
+def chat():
+    def ENCODE(s):
+        return s.encode('utf-8')
 
-conn = SlackClient(TOKEN_SL)
+    def find_channel(id):
+        for i in conn.server.channels:
+            if i.id == id:
+                return i
+        return None
+
+    def find_user(id):
+        for i in conn.server.users:
+            if i.id == id:
+                return i.name
+        return None
+
+    def handle_stdin():
+        try:
+            line = raw_input()
+        except EOFError:
+            sys.exit(0)
+
+        conn.api_call(
+                "chat.postMessage",
+                channel = channel,
+                text = line,
+                username = botname,
+                icon_emoji = ":{}:".format(botemoji),
+                as_user = False)
+
+    def handle_slack():
+        for slack_message in conn.rtm_read():
+            print slack_message
+
+    print "connected"
+    while True:
+        ready = select.select([sys.stdin, conn.server.websocket], [], [])
+        ready_in = ready[0]
+
+        if sys.stdin in ready_in:
+            handle_stdin()
+        if conn.server.websocket in ready_in:
+            handle_slack()
+
+def usage():
+    print >>sys.stderr, "Usage: {} chat channel botname botemoji".format(sys.argv[0])
+    print >>sys.stderr, "       {} dump-channels".format(sys.argv[0])
+    print >>sys.stderr, "       {} dump-users".format(sys.argv[0])
+    sys.exit(2)
+
+if len(sys.argv) < 2:
+    usage()
+if sys.argv[1] == "chat":
+    if len(sys.argv) != 5:
+        usage()
+    channel = sys.argv[2]
+    botname = sys.argv[3]
+    botemoji = sys.argv[4]
+    main = chat
+elif sys.argv[1] == "dump-channels":
+    if len(sys.argv) != 2:
+        usage()
+    main = dump_channels
+elif sys.argv[1] == "dump-users":
+    if len(sys.argv) != 2:
+        usage()
+    main = dump_users
+else:
+    usage()
+
+conn = SlackClient(config.slack_token)
 if not conn.rtm_connect():
     print >>sys.stderr, "couldn't connect"
     sys.exit(1)
 
-#for i in conn.server.channels:
-#    if i.id == i.name:
-#        print "private: %s"
-#        ret = conn.api_call("groups.info", channel = i.id)
-#        print "ret = "
-#        print ret
-
-#conn.api_call(
-#        "chat.postMessage",
-#        channel = 'flat-antics',
-#        text = 'Roll success',
-#        username = 'Almighty Rolla',
-#        as_user = False)
-
-#s = sys.argv[1]
-
-#for u in conn.server.users:
-#    if s in u.name or s in u.real_name:
-#        print "found? {} {} {}".format(u.id, u.name, u.real_name)
-#
-#sys.exit(0)
-#while True:
-#    pass
-# ------------------------------------------------------------
-
-chan = None
-
-print "connected"
-
-def ENCODE(s):
-    return s.encode('utf-8')
-
-def handle_stdin():
-    global chan
-    try:
-        line = raw_input()
-    except EOFError:
-        sys.exit(0)
-
-    if chan is None:
-        print >>sys.stderr, "no current channel"
-        return
-
-    conn.api_call(
-            "chat.postMessage",
-            channel = chan.id,
-            text = line,
-            username = name,
-            as_user = False)
-
-def find_channel(id):
-    for i in conn.server.channels:
-        if i.id == id:
-            return i
-    return None
-
-def find_user(id):
-    for i in conn.server.users:
-        if i.id == id:
-            return i.name
-    return None
-
-def handle_slack():
-    for slack_message in conn.rtm_read():
-        print "got slack message, type:"
-        print slack_message.get('type')
-        print slack_message
-        continue
-
-        if slack_message.get("type") is None:
-            continue
-
-        text = slack_message.get("text")
-        user_id = slack_message.get("user")
-        channel_id = slack_message.get("channel")
-
-        if channel_id is None:
-            continue
-        local_chan = find_channel(channel_id)
-
-        if local_chan is None:
-            continue
-
-        if user_id is None:
-            continue
-        local_user = find_user(user_id)
-
-        if not text or not local_user or not local_chan:
-            continue
-
-        if ENCODE(local_chan.name) != channel_name and channel_name != '--all':
-            continue
-
-        # if we're --all, only post messages with our name mentioned:
-        if channel_name == '--all':
-            global name
-            if text.find('@{}'.format(name)) < 0:
-                continue
-
-        # remember current channel
-        global chan
-        chan = local_chan
-        print "%s: @%s: %s" % (ENCODE(local_chan.name), ENCODE(local_user), ENCODE(text))
-
-while True:
-    ready = select.select([sys.stdin, conn.server.websocket], [], [])
-    ready_in = ready[0]
-
-    #if sys.stdin in ready_in:
-    #    handle_stdin()
-    if conn.server.websocket in ready_in:
-        handle_slack()
+main()
