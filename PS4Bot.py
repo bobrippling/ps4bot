@@ -58,6 +58,11 @@ class LatestStats:
         self.timestamp = timestamp
         self.year = year
 
+class Prediction:
+    def __init__(self, winners, losers):
+        self.winners = winners
+        self.losers = losers
+
 class PS4Bot(Bot):
     def __init__(self, slackconnection, botname):
         Bot.__init__(self, slackconnection, botname)
@@ -793,6 +798,27 @@ class PS4Bot(Bot):
                 if now - timestamp_date > twelvehours:
                     g.state = GameStates.dead
 
+    def predict_outcome(self, game):
+        ranking = self.history.user_ranking(game.channel)
+
+        def rankof(player):
+            try:
+                return ranking.index(p1)
+            except ValueError:
+                return len(ranking) + 1
+
+        def rank_cmp(p1, p2):
+            i1 = rankof(p1)
+            i2 = rankof(p2)
+            return i1 - i2
+
+        if len(players) == 4:
+            # FIXME: split players into teams vs. just one winner
+            # FIXME: what about sextuple / 8tuple games?
+            pass
+        players = sorted(game.players, rank_cmp)
+        return Prediction() # FIXME
+
     def handle_imminent_games(self):
         scheduled_games = filter(lambda g: g.state == GameStates.scheduled, self.games)
         active_games = filter(lambda g: g.state == GameStates.active, self.games)
@@ -810,10 +836,13 @@ class PS4Bot(Bot):
                 banter = "big game ({0}) about to kick off at {1}, no one wants to play?".format(
                     g.description, when_str(g.when))
             else:
+                prediction = self.predict_outcome(g)
                 banter = self.load_banter("kickoff", {
                     "s": g.pretty_players(),
                     "t": when_str(g.when),
                     "d": g.description,
+                    "w": prediction.winners,
+                    "l": prediction.losers,
                 })
 
             suggested_teams = suggest_teams(g)
