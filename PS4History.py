@@ -103,18 +103,21 @@ class PS4History:
                 return True
         return False
 
-    def summary_stats(self, channel, name = None, since = None):
+    def summary_stats(self, channel, name = None, year = None):
         stats = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
 
         def allow_user(u):
             return name is None or u == name
 
+        nextyear = year.replace(year = year.year + 1) if year else None
+
         for game in self:
             if channel and game.channel != channel:
                 continue
-            if since:
+            if year:
                 gametime = datetime.datetime.fromtimestamp(float(game.message_timestamp))
-                if gametime < since:
+                involved = year <= gametime < nextyear
+                if not involved:
                     continue
 
             for stat_and_user in game.stats:

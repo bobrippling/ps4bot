@@ -673,7 +673,7 @@ class PS4Bot(Bot):
     def handle_stats_request(self, message, rest):
         anchor_message = True
         channel_name = None
-        since = None
+        year = None
 
         if len(rest):
             anchor_message = False
@@ -682,12 +682,12 @@ class PS4Bot(Bot):
                 self.send_message(":warning: ere {}: \"stats [year] [channel]\"".format(
                     format_user(message.user)))
                 return
-            channel_name, since = parsed
+            channel_name, year = parsed
 
         if not channel_name:
             channel_name = message.channel.name
 
-        stats = self.history.summary_stats(channel_name, since = since)
+        stats = self.history.summary_stats(channel_name, year = year)
         self.update_stats_table(channel_name, stats, force_new = True, anchor_message = anchor_message)
 
     def handle_command(self, message, command, rest):
