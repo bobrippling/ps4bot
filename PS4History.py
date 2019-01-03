@@ -1,5 +1,6 @@
 import sys
 from collections import defaultdict
+import datetime
 
 from Functional import find
 
@@ -111,8 +112,10 @@ class PS4History:
         for game in self:
             if channel and game.channel != channel:
                 continue
-            if since and game.message_timestamp < since:
-                continue
+            if since:
+                gametime = datetime.datetime.fromtimestamp(float(game.message_timestamp))
+                if gametime < since:
+                    continue
 
             for stat_and_user in game.stats:
                 stat, user = stat_and_user.stat, stat_and_user.user

@@ -13,6 +13,9 @@ def today_at(hour, min):
                     second = 0,
                     microsecond = 0)
 
+def date_with_year(year):
+    return datetime.datetime(year, 1, 1)
+
 def deserialise_time(s):
     parts = s.split(":")
     if len(parts) != 2:
@@ -60,6 +63,28 @@ def maybe_parse_time(s):
         return parse_time(s)
     except ValueError:
         return None
+
+def parse_stats_request(request):
+    channel_name = None
+    since = None
+
+    parts = request.split(" ")
+    for part in parts:
+        if not since and len(part) == 4:
+            try:
+                since = int(part)
+                continue
+            except ValueError:
+                pass
+
+        if not channel_name:
+            channel_name = part
+            continue
+
+        # unrecognised
+        return None
+
+    return channel_name, date_with_year(since) if since else None
 
 def pretty_mode(mode):
     if mode == "compet":

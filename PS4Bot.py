@@ -12,7 +12,8 @@ from SlackPostedMessage import SlackPostedMessage
 from PS4Game import Game, GameStates
 from PS4Formatting import format_user, format_user_padding, when_str, number_emojis, generate_table
 from PS4Config import PLAY_TIME, GAME_FOLLOWON_TIME
-from PS4Parsing import parse_time, deserialise_time, parse_game_initiation, pretty_mode
+from PS4Parsing import parse_time, deserialise_time, parse_game_initiation, \
+        pretty_mode, parse_stats_request
 from PS4History import PS4History, Keys
 from PS4GameCategory import vote_message, Stats, channel_statmap
 
@@ -670,15 +671,24 @@ class PS4Bot(Bot):
             self.latest_stats_table[channel] = table_msg.timestamp
 
     def handle_stats_request(self, message, rest):
-        is_this_channel = True
+        anchor_message = True
+        channel_name = None
+        since = None
+
         if len(rest):
-            channel_name = rest
-            is_this_channel = False
-        else:
+            anchor_message = False
+            parsed = parse_stats_request(rest)
+            if not parsed:
+                self.send_message(":warning: ere {}: \"stats [year] [channel]\"".format(
+                    format_user(message.user)))
+                return
+            channel_name, since = parsed
+
+        if not channel_name:
             channel_name = message.channel.name
 
-        stats = self.history.summary_stats(channel_name)
-        self.update_stats_table(channel_name, stats, force_new = True, anchor_message = is_this_channel)
+        stats = self.history.summary_stats(channel_name, since = since)
+        self.update_stats_table(channel_name, stats, force_new = True, anchor_message = anchor_message)
 
     def handle_command(self, message, command, rest):
         if len(command.strip()) == 0 and len(rest) == 0:
