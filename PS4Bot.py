@@ -637,6 +637,10 @@ class PS4Bot(Bot):
             table = generate_table(header, stats_per_user, defaultdict(int, { 0: 2 }))
             tables.append((mode, table))
 
+        if len(tables) == 0:
+            self.send_message(":warning: no stats for \"{}\"".format(channel))
+            return
+
         if len(tables) > 1:
             def mode_and_table_to_str(mode_and_table):
                 mode = pretty_mode(mode_and_table[0])
