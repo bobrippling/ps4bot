@@ -20,7 +20,7 @@ def format_user_padding(user):
     if user not in user_renames:
         return 0
     to = user_renames[user]
-    return len(user) - len(to)
+    return len(to) - len(user)
 
 def row_string(entry):
     if type(entry) is tuple:
@@ -62,7 +62,7 @@ def generate_table(header, rows, padding = defaultdict(int)):
         resolved = row_string(entry)
         delta = row_delta(entry)
 
-        width = row_lengths[i] + (0 if is_header else padding[i]) + delta
+        width = row_lengths[i] + (0 if is_header else padding[i]) - delta
         return resolved.center(width)
 
     header_row = " | ".join([
