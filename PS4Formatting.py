@@ -45,7 +45,7 @@ def generate_table(header, rows, padding = defaultdict(int)):
 
     Rows may be either strings or tuples of (delta, string), where delta is the
     difference in length between what we see as the string, and how slack
-    displays it. Some usernames are seen by us as the original and displayed be
+    displays it. Some usernames are seen by us as the original and displayed by
     slack as a renamed one, so this essentially allows us to pad, per-entry.
     """
 
