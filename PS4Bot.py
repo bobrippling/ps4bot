@@ -44,6 +44,10 @@ def replace_dict(str, dict):
 def plural(int):
     return "" if int == 1 else "s"
 
+class LatestStats:
+    def __init__(self, timestamp = None):
+        self.timestamp = timestamp
+
 class PS4Bot(Bot):
     def __init__(self, slackconnection, botname):
         Bot.__init__(self, slackconnection, botname)
@@ -51,7 +55,7 @@ class PS4Bot(Bot):
         self.icon_emoji = ":video_game:"
         self.games = []
         self.history = PS4History(negative_stats = set([Stats.scrub]))
-        self.latest_stats_table = {} # channel => timestamp
+        self.latest_stats_table = defaultdict(LatestStats) # channel => LatestStats
         self.load()
 
     def load(self):
@@ -64,7 +68,7 @@ class PS4Bot(Bot):
 
                     if line[:6] == "stats ":
                         tokens = line.split()
-                        self.latest_stats_table[tokens[1]] = tokens[2]
+                        self.latest_stats_table[tokens[1]] = LatestStats(tokens[2])
                         continue
 
                     tokens = line.split(" ", 8)
@@ -146,8 +150,8 @@ class PS4Bot(Bot):
                     print >>f, "{}\n{}\n{}".format(msg.timestamp, msg.channel, msg.text)
                     print >>f, ""
 
-                for channel, timestamp in self.latest_stats_table.iteritems():
-                    print >>f, "stats {} {}".format(channel, timestamp)
+                for channel, latest in self.latest_stats_table.iteritems():
+                    print >>f, "stats {} {}".format(channel, latest.timestamp)
 
         except IOError as e:
             print >>sys.stderr, "exception saving state: {}".format(e)
@@ -662,13 +666,13 @@ class PS4Bot(Bot):
                         tables_message_str,
                         now,
                         " (last updated stat in `[brackets]`)" if last_updated_user_stat else ""),
-                    original_timestamp = self.latest_stats_table[channel],
+                    original_timestamp = self.latest_stats_table[channel].timestamp,
                     original_channel = channel)
         else:
             table_msg = self.send_message(tables_message_str)
 
         if table_msg and anchor_message:
-            self.latest_stats_table[channel] = table_msg.timestamp
+            self.latest_stats_table[channel].timestamp = table_msg.timestamp
 
     def handle_stats_request(self, message, rest):
         anchor_message = True
