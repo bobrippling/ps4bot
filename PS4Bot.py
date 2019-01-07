@@ -13,7 +13,7 @@ from PS4Game import Game, GameStates
 from PS4Formatting import format_user, format_user_padding, when_str, number_emojis, generate_table
 from PS4Config import PLAY_TIME, GAME_FOLLOWON_TIME
 from PS4Parsing import parse_time, deserialise_time, parse_game_initiation, \
-        pretty_mode, parse_stats_request
+        pretty_mode, parse_stats_request, date_with_year
 from PS4History import PS4History, Keys
 from PS4GameCategory import vote_message, Stats, channel_statmap
 
@@ -45,8 +45,9 @@ def plural(int):
     return "" if int == 1 else "s"
 
 class LatestStats:
-    def __init__(self, timestamp = None):
+    def __init__(self, timestamp = None, year = None):
         self.timestamp = timestamp
+        self.year = year
 
 class PS4Bot(Bot):
     def __init__(self, slackconnection, botname):
@@ -68,7 +69,9 @@ class PS4Bot(Bot):
 
                     if line[:6] == "stats ":
                         tokens = line.split()
-                        self.latest_stats_table[tokens[1]] = LatestStats(tokens[2])
+                        self.latest_stats_table[tokens[1]] = LatestStats(
+                                tokens[2],
+                                date_with_year(int(tokens[3])) if len(tokens) > 3 else None)
                         continue
 
                     tokens = line.split(" ", 8)
@@ -151,7 +154,7 @@ class PS4Bot(Bot):
                     print >>f, ""
 
                 for channel, latest in self.latest_stats_table.iteritems():
-                    print >>f, "stats {} {}".format(channel, latest.timestamp)
+                    print >>f, "stats {} {} {}".format(channel, latest.timestamp, latest.year.year if latest.year else "")
 
         except IOError as e:
             print >>sys.stderr, "exception saving state: {}".format(e)
@@ -680,19 +683,21 @@ class PS4Bot(Bot):
         year = None
 
         if len(rest):
-            anchor_message = False
             parsed = parse_stats_request(rest)
             if not parsed:
                 self.send_message(":warning: ere {}: \"stats [year] [channel]\"".format(
                     format_user(message.user)))
                 return
             channel_name, year = parsed
+            anchor_message = (channel_name is None or channel_name == message.channel.name) \
+                    and (year is None or year.year == datetime.date.today().year)
 
         if not channel_name:
             channel_name = message.channel.name
 
         stats = self.history.summary_stats(channel_name, year = year)
         self.update_stats_table(channel_name, stats, force_new = True, anchor_message = anchor_message)
+        self.latest_stats_table[channel_name].year = year
 
     def handle_command(self, message, command, rest):
         if len(command.strip()) == 0 and len(rest) == 0:
@@ -832,7 +837,7 @@ class PS4Bot(Bot):
             recorded = self.history.register_stat(gametime, user, user, removed, stat)
 
         if recorded and channel in self.latest_stats_table:
-            stats = self.history.summary_stats(channel)
+            stats = self.history.summary_stats(channel, year = self.latest_stats_table[channel].year)
             self.update_stats_table(channel, stats, last_updated_user_stat = (target_user, stat))
 
     def handle_reaction(self, reaction, removed = False):
