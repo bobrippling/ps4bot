@@ -432,6 +432,16 @@ class PS4Bot(Bot):
 
             self.send_message(msg)
 
+    def send_too_many_owned_games_message(self, owned_games, verb):
+        if len(owned_games) == 0:
+            self.send_message(":warning: scrubadubdub, you've got no games to {}".format(verb))
+            return
+
+        self.send_message(":warning: scrubadubdub, which of your {} game{} do you want to {}?".format(
+                len(owned_games),
+                plural(len(owned_games)),
+                verb))
+
     def maybe_cancel_game(self, message, rest):
         user = message.user
 
@@ -524,13 +534,8 @@ class PS4Bot(Bot):
         else:
             # no explicit game to move, if the user has just one, move it
             created_games = self.games_created_by(message.user)
-            if len(created_games) > 1:
-                self.send_message(":warning: scrubadubdub, which of your {} game{} do you want to move?".format(
-                        len(created_games),
-                        plural(len(created_games))))
-                return
-            if len(created_games) == 0:
-                self.send_message(":warning: scrubadubdub, you've got no games to move")
+            if len(created_games) != 1:
+                self.send_too_many_owned_games_message(created_games, "move")
                 return
             game_to_move = created_games[0]
 
