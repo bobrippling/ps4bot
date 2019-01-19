@@ -446,11 +446,11 @@ class PS4Bot(Bot):
         user = message.user
 
         if len(rest) == 0:
-            channel_games = self.games_in_channel(message.channel)
-            if len(channel_games) == 1:
-                game = channel_games[0]
+            user_games = self.games_created_by(message.user)
+            if len(user_games) == 1:
+                game = user_games[0]
             else:
-                self.send_not1_games_message(channel_games)
+                self.send_too_many_owned_games_message(user_games, "cancel")
                 return
         else:
             try:
