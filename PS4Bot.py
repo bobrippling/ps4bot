@@ -535,7 +535,7 @@ class PS4Bot(Bot):
             # no explicit game to move, if the user has just one, move it
             created_games = self.games_created_by(message.user)
             if len(created_games) != 1:
-                self.send_too_many_owned_games_message(created_games, "move")
+                self.send_too_many_owned_games_message(created_games, "scuttle")
                 return
             game_to_move = created_games[0]
 
