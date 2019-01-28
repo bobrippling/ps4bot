@@ -15,7 +15,7 @@ from PS4Config import PLAY_TIME, GAME_FOLLOWON_TIME
 from PS4Parsing import parse_time, deserialise_time, parse_game_initiation, \
         pretty_mode, parse_stats_request, date_with_year
 from PS4History import PS4History, Keys
-from PS4GameCategory import vote_message, Stats, channel_statmap
+from PS4GameCategory import vote_message, Stats, channel_statmap, suggest_teams
 
 DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
@@ -773,6 +773,10 @@ class PS4Bot(Bot):
                     "t": when_str(g.when),
                     "d": g.description,
                 })
+
+            suggested_teams = suggest_teams(g)
+            if suggested_teams:
+                banter += "\n{}".format(suggested_teams)
 
             nextgame = self.game_straight_after(g, threshold = GAME_FOLLOWON_TIME)
             if nextgame:

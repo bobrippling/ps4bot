@@ -1,5 +1,6 @@
+import random
 from collections import defaultdict
-from PS4Formatting import format_user, number_emojis
+from PS4Formatting import format_user, number_emojis, pretty_players
 
 class Stats:
     scrub = "scrub"
@@ -30,6 +31,24 @@ def channel_is_towerfall(channel):
 
 def channel_is_fifa(channel):
     return "fifa" in channel
+
+def should_suggest_teams(channel):
+    return channel_is_fifa(channel)
+
+def suggest_teams(game):
+    if not should_suggest_teams(game.channel):
+        return None
+
+    if len(game.players) <= 2:
+        return None
+
+    split = game.players[:]
+    random.shuffle(split)
+
+    team1 = split[:len(split)/2]
+    team2 = split[len(split)/2:]
+
+    return "Team 1: {}\nTeam 2: {}".format(pretty_players(team1), pretty_players(team2))
 
 def scrub_entry(player, i):
     return ":{}: {}".format(number_emojis[i], format_user(player))
