@@ -13,6 +13,17 @@ class Keys:
     played = "Played"
     winratio = "Win Ratio"
 
+def should_skip_game_year(game, year, nextyear):
+    if not year:
+        return False
+
+    gametime = datetime.datetime.fromtimestamp(float(game.message_timestamp))
+    involved = year <= gametime < nextyear
+    return not involved
+
+def calc_nextyear(year):
+    return year.replace(year = year.year + 1) if year else None
+
 class PS4History:
     def __init__(self, negative_stats = set()):
         self.games = []
@@ -109,17 +120,13 @@ class PS4History:
         def allow_user(u):
             return name is None or u == name
 
-        nextyear = year.replace(year = year.year + 1) if year else None
+        nextyear = calc_nextyear(year)
 
         for game in self:
             if channel and game.channel != channel:
                 continue
-            if year:
-                gametime = datetime.datetime.fromtimestamp(float(game.message_timestamp))
-                involved = year <= gametime < nextyear
-                if not involved:
-                    continue
-
+            if should_skip_game_year(game, year, nextyear):
+                continue
             for stat_and_user in game.stats:
                 stat, user = stat_and_user.stat, stat_and_user.user
                 if not allow_user(user):
