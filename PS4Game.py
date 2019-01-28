@@ -1,5 +1,5 @@
 import datetime
-from PS4Formatting import format_user, when_str
+from PS4Formatting import format_user, when_str, pretty_players
 from PS4Config import default_max_players, PLAY_TIME
 from PS4HistoricGame import PS4HistoricGame
 from PS4Parsing import pretty_mode
@@ -70,13 +70,7 @@ class Game:
         else:
             players = filter(lambda p: p != self.creator, self.players)
 
-        if len(players) == 0:
-            return ""
-        if len(players) == 1:
-            return format_user(players[0])
-
-        return ", ".join(map(format_user, players[:-1])) \
-                + " and " + format_user(players[-1])
+        return pretty_players(players)
 
     def pretty(self):
         current_time = datetime.datetime.now()
