@@ -788,7 +788,6 @@ class PS4Bot(Bot):
                 banter += "\n({})".format(nextgame_banter)
 
             self.send_message(banter, to_channel = g.channel)
-            g.notified = True
 
         for g in just_finished_games:
             msg = vote_message(g)
