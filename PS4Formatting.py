@@ -22,6 +22,15 @@ def format_user_padding(user):
     to = user_renames[user]
     return len(to) - len(user)
 
+def pretty_players(players):
+    if len(players) == 0:
+        return ""
+    if len(players) == 1:
+        return format_user(players[0])
+
+    return ", ".join(map(format_user, players[:-1])) \
+            + " and " + format_user(players[-1])
+
 def row_string(entry):
     if type(entry) is tuple:
         return str(entry[1])
