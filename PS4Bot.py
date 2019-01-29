@@ -21,6 +21,9 @@ DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
 SAVE_FILE = "ps4-games.txt"
 
+class UserOption:
+    mute = "mute"
+
 # command => (show-in-usage, handler)
 PS4Bot_commands = {
     # args given are self, message, rest
@@ -55,6 +58,7 @@ class PS4Bot(Bot):
 
         self.icon_emoji = ":video_game:"
         self.games = []
+        self.user_options = defaultdict(set) # name => set([flag1, flag2...])
         self.history = PS4History(negative_stats = set([Stats.scrub]))
         self.latest_stats_table = defaultdict(LatestStats) # channel => LatestStats
         self.load()
@@ -72,6 +76,10 @@ class PS4Bot(Bot):
                         self.latest_stats_table[tokens[1]] = LatestStats(
                                 tokens[2],
                                 date_with_year(int(tokens[3])) if len(tokens) > 3 else None)
+                        continue
+                    if line[:5] == "user ":
+                        tokens = line.split()
+                        self.user_options[tokens[1]] = set(tokens[2:])
                         continue
 
                     tokens = line.split(" ", 8)
@@ -155,6 +163,10 @@ class PS4Bot(Bot):
 
                 for channel, latest in self.latest_stats_table.iteritems():
                     print >>f, "stats {} {} {}".format(channel, latest.timestamp, latest.year.year if latest.year else "")
+
+                for user, options in self.user_options.iteritems():
+                    if len(options):
+                        print >>f, "user {} {}".format(user, " ".join(options))
 
         except IOError as e:
             print >>sys.stderr, "exception saving state: {}".format(e)
@@ -637,9 +649,14 @@ class PS4Bot(Bot):
 
                     return value
 
-                padding_for_slackat = -2
-                user_name = format_user(user)
-                user_padding = format_user_padding(user) + padding_for_slackat
+                if UserOption.mute in self.user_options[user]:
+                    # we won't be @ing this user
+                    user_name = user
+                    user_padding = 0
+                else:
+                    padding_for_slackat = -2
+                    user_name = format_user(user)
+                    user_padding = format_user_padding(user) + padding_for_slackat
 
                 return [(user_padding, user_name)] \
                         + map(get_stat_value, allstats)
@@ -853,6 +870,41 @@ class PS4Bot(Bot):
             stats = self.history.summary_stats(channel, year = self.latest_stats_table[channel].year)
             self.update_stats_table(channel, stats, last_updated_user_stat = (target_user, stat))
 
+    def maybe_record_useroption(self, reaction, removed, reacting_user):
+        channel = reaction.channel.name
+
+        if channel not in self.latest_stats_table:
+            return
+
+        ts = self.latest_stats_table[channel].timestamp
+        if reaction.original_msg_time != ts:
+            return
+
+        emoji = reaction.emoji
+
+        # found a reaction on the latest stats table
+        option_emojis = ["mute", "sound"]
+        if emoji not in option_emojis:
+            return
+
+        # if it's just the removal of a sound emoji, ignore (must explicitly mute)
+        if removed and emoji == "sound":
+            return
+
+        should_mute = (emoji == "mute")
+        if removed:
+            should_mute ^= 1
+
+        if should_mute:
+            self.user_options[reacting_user].add(UserOption.mute)
+        else:
+            try:
+                self.user_options[reacting_user].remove(UserOption.mute)
+            except KeyError:
+                pass
+
+        self.save()
+
     def handle_reaction(self, reaction, removed = False):
         emoji = reaction.emoji
         msg_when = reaction.original_msg_time
@@ -863,6 +915,8 @@ class PS4Bot(Bot):
             self.handle_game_reaction(game, reacting_user, emoji, removed)
 
         self.maybe_record_stat(msg_when, reaction.channel.name, reacting_user, emoji, removed)
+
+        self.maybe_record_useroption(reaction, removed, reacting_user)
 
     def handle_unreaction(self, reaction):
         self.handle_reaction(reaction, removed = True)
