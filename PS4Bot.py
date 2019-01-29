@@ -637,7 +637,11 @@ class PS4Bot(Bot):
 
                     return value
 
-                return [(format_user_padding(user), format_user(user))] \
+                padding_for_slackat = -2
+                user_name = format_user(user)
+                user_padding = format_user_padding(user) + padding_for_slackat
+
+                return [(user_padding, user_name)] \
                         + map(get_stat_value, allstats)
 
             def stats_sort_key(stats):
@@ -648,7 +652,7 @@ class PS4Bot(Bot):
             stats_per_user = map(stat_for_user, modestats.iteritems())
             stats_per_user.sort(key = stats_sort_key, reverse = True)
 
-            table = generate_table(header, stats_per_user, defaultdict(int, { 0: 2 }))
+            table = generate_table(header, stats_per_user)
             tables.append((mode, table))
 
         if len(tables) == 0:

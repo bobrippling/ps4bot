@@ -44,13 +44,14 @@ def row_delta(entry):
 def row_length(entry):
     return len(str(row_string(entry))) + row_delta(entry)
 
-def generate_table(header, rows, padding = defaultdict(int)):
+def generate_table(header, rows):
     """
     Generate an ascii table, consisting of header and rows
 
     Padding may be given, which is for padding data columns where characters may
     not be rendered as printable, e.g. "<@user1>" is rendered by slack as "@user1",
-    so we may want to pad these columns by two, to compensate for the missing "<>"
+    so we may want to pad these columns by two, to compensate for the missing "<>".
+    This padding should be passed as specified below:
 
     Rows may be either strings or tuples of (delta, string), where delta is the
     difference in length between what we see as the string, and how slack
@@ -65,13 +66,13 @@ def generate_table(header, rows, padding = defaultdict(int)):
     for row in rows:
         for i, entry in enumerate(row):
             length = row_length(entry)
-            row_lengths[i] = max(row_lengths[i], length + padding[i])
+            row_lengths[i] = max(row_lengths[i], length)
 
     def pad(entry, i, is_header = False):
         resolved = row_string(entry)
         delta = row_delta(entry)
 
-        width = row_lengths[i] + (0 if is_header else padding[i]) - delta
+        width = row_lengths[i] - delta
         return resolved.center(width)
 
     header_row = " | ".join([
