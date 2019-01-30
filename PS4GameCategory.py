@@ -33,7 +33,7 @@ def channel_is_fifa(channel):
     return "fifa" in channel
 
 def should_suggest_teams(channel):
-    return channel_is_fifa(channel)
+    return channel_is_fifa(channel) or channel_is_towerfall(channel)
 
 def suggest_teams(game):
     if not should_suggest_teams(game.channel):
