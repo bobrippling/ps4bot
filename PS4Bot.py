@@ -903,6 +903,9 @@ class PS4Bot(Bot):
             except KeyError:
                 pass
 
+        stats = self.history.summary_stats(channel, year = self.latest_stats_table[channel].year)
+        self.update_stats_table(channel, stats)
+
         self.save()
 
     def handle_reaction(self, reaction, removed = False):
