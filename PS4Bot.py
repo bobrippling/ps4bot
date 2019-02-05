@@ -750,6 +750,7 @@ class PS4Bot(Bot):
                 "\n:muscle: More localisation: <@morchard>" +
                 "\n:scroll: Banter: <@danallsop>" +
                 "\n:javascript: More banter: <@craigayre>" +
+                "\n:mantelpiece_clock: Scheduling advisor: <@eclennett>" +
                 "").format(
                     format_user(message.user),
                     self.botname,

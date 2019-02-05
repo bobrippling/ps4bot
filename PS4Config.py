@@ -1,6 +1,6 @@
 from config import channel_max_players
 
-PLAY_TIME = 30
+PLAY_TIME = 25
 GAME_FOLLOWON_TIME = 5
 
 def default_max_players(channel):
