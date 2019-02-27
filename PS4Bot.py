@@ -33,6 +33,7 @@ PS4Bot_commands = {
     "bail": (True, lambda self, *args: self.join_or_bail(*args, bail = True)),
     "scuttle": (True, lambda self, *args: self.maybe_scuttle_game(*args)),
     "stats": (True, lambda self, *args: self.handle_stats_request(*args)),
+    "credits": (True, lambda self, *args: self.send_credits(*args)),
     "topradge": (False, lambda self, *args: self.handle_stats_request(*args)),
     "thanks": (False, lambda self, *args: self.send_thanks_reply(*args)),
     "ta": (False, lambda self, *args: self.send_thanks_reply(*args)),
@@ -602,6 +603,20 @@ class PS4Bot(Bot):
                 in_channel = message.channel.name)
         self.send_message(reply)
 
+    def send_credits(self, message, rest):
+        self.send_message(
+            "\n\n:film_projector: Credits :clapper:" +
+            "\n-------------------" +
+            "\n:toilet: Barely functional codebase: <@rpilling>" +
+            "\n:bee: Codebase fluffer: <@jpearce>" +
+            "\n:ship: Boom Operator: <@danallsop>" +
+            "\n:survival-steve: Localisation: <@sjob>" +
+            "\n:movie_camera: Cinematographer: <@danallsop>" +
+            "\n:muscle: More localisation: <@morchard>" +
+            "\n:scroll: Banter: <@danallsop>" +
+            "\n:javascript: More banter: <@craigayre>" +
+            "\n:mantelpiece_clock: Scheduling advisor: <@eclennett>")
+
     def update_stats_table(self, channel, stats, \
             force_new = False, anchor_message = True, last_updated_user_stat = None):
         """
@@ -738,23 +753,13 @@ class PS4Bot(Bot):
         # attempt to parse a big game, if unsuccessful, show usage:
         if not self.maybe_new_game(message.user, message.channel.name, command + " " + rest):
             self.send_message((
-                ":warning: Hew {}, here's what I listen to: `{} {}`," +
-                "\nor try adding a :+1: to a game invite (or typing `+:+1:` as a response)." +
-                "\n\n:film_projector: Credits :clapper:" +
-                "\n-------------------" +
-                "\n:toilet: Barely functional codebase: <@rpilling>" +
-                "\n:bee: Codebase fluffer: <@jpearce>" +
-                "\n:ship: Boom Operator: <@danallsop>" +
-                "\n:survival-steve: Localisation: <@sjob>" +
-                "\n:movie_camera: Cinematographer: <@danallsop>" +
-                "\n:muscle: More localisation: <@morchard>" +
-                "\n:scroll: Banter: <@danallsop>" +
-                "\n:javascript: More banter: <@craigayre>" +
-                "\n:mantelpiece_clock: Scheduling advisor: <@eclennett>" +
-                "").format(
-                    format_user(message.user),
-                    self.botname,
-                    "/".join(command for command, (show, _) in PS4Bot_commands.iteritems() if show)))
+                ":warning: Hew {}, here's what I listen to: `{} {}`, " +
+                "or try adding a :+1: to a game invite (or typing `+:+1:` as a response)."
+            ).format(
+                format_user(message.user),
+                self.botname,
+                "/".join(command for command, (show, _) in PS4Bot_commands.iteritems() if show)
+            ))
 
     def update_game_states(self):
         now = datetime.datetime.today()
