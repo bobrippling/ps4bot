@@ -108,9 +108,12 @@ class PS4History:
         self.save()
         return True
 
+    def stat_is_positive(self, stat):
+        return stat not in self.negative_stats
+
     def user_has_winstat_in_game(self, searchuser, game):
         for stat_and_user in game.stats:
-            if stat_and_user.user == searchuser and stat_and_user.stat not in self.negative_stats:
+            if stat_and_user.user == searchuser and self.stat_is_positive(stat_and_user.stat):
                 return True
         return False
 
