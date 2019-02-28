@@ -5,6 +5,7 @@ import datetime
 from Functional import find
 
 from PS4HistoricGame import PS4HistoricGame
+from PS4GameCategory import limit_game_to_single_win
 
 SAVE_FILE = "ps4-stats.txt"
 
@@ -130,10 +131,18 @@ class PS4History:
                 continue
             if should_skip_game_year(game, year, nextyear):
                 continue
+
+            users_handled_in_this_game = set()
             for stat_and_user in game.stats:
                 stat, user = stat_and_user.stat, stat_and_user.user
                 if not allow_user(user):
                     continue
+
+                if limit_game_to_single_win(channel) \
+                and self.stat_is_positive(stat) \
+                and user in users_handled_in_this_game:
+                    continue
+                users_handled_in_this_game.add(user)
 
                 stats[game.mode][user][stat] += 1
                 # don't count total or played here, may be multiple stats per game

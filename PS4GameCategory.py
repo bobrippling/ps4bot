@@ -35,6 +35,9 @@ def channel_is_fifa(channel):
 def should_suggest_teams(channel):
     return channel_is_fifa(channel) or channel_is_towerfall(channel)
 
+def limit_game_to_single_win(channel):
+    return channel_is_fifa(channel)
+
 def suggest_teams(game):
     if not should_suggest_teams(game.channel):
         return None
