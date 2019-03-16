@@ -11,8 +11,7 @@ scrub_modifier = 0.5
 
 class Result(Enum):
     win = 1
-    loss = -1
-    draw = 0
+    loss = 0
 
 
 class Player:
@@ -47,7 +46,10 @@ class Game:
 
 
 def getExpectedScore(ranking, other_ranking):
-    return 1 / (1 + 10 ** ((ranking - other_ranking) / 400))
+
+    diff = 10 ** ((other_ranking - ranking) / float(400))
+
+    return float(1) / (1 + diff)
 
 
 def getRankingDelta(ranking, other_ranking, result, k=k_factor):
@@ -57,7 +59,15 @@ def getRankingDelta(ranking, other_ranking, result, k=k_factor):
 
     expected_ranking = getExpectedScore(ranking, other_ranking)
 
-    return round(k * (result.value - expected_ranking))
+    initial_delta = round(k * (result.value - expected_ranking))
+
+    if (initial_delta == 0):
+        if (result == Result.win):
+            return 1
+        if (result == Result.loss):
+            return -1
+
+    return initial_delta
 
 
 def getCombinedRankingForTeam(team, players):
