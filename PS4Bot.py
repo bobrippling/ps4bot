@@ -33,6 +33,7 @@ PS4Bot_commands = {
     "bail": (True, lambda self, *args: self.join_or_bail(*args, bail = True)),
     "scuttle": (True, lambda self, *args: self.maybe_scuttle_game(*args)),
     "stats": (True, lambda self, *args: self.handle_stats_request(*args)),
+    "elo": (True, lambda self, *args: self.handle_elo_request(*args)),
     "credits": (True, lambda self, *args: self.send_credits(*args)),
     "topradge": (False, lambda self, *args: self.handle_stats_request(*args)),
     "thanks": (False, lambda self, *args: self.send_thanks_reply(*args)),
@@ -740,6 +741,36 @@ class PS4Bot(Bot):
         stats = self.history.summary_stats(channel_name, year = year)
         self.update_stats_table(channel_name, stats, force_new = True, anchor_message = anchor_message)
         self.latest_stats_table[channel_name].year = year
+
+    def handle_elo_request(self, message, rest):
+        anchor_message = True
+        channel_name = None
+        year = None
+
+        if len(rest):
+            parsed = parse_stats_request(rest)
+            if not parsed:
+                self.send_message(":warning: ere {}: \"stats [year] [channel]\"".format(
+                    format_user(message.user)))
+                return
+            channel_name, year = parsed
+            anchor_message = (channel_name is None or channel_name == message.channel.name) \
+                    and (year is None or year.year == datetime.date.today().year)
+
+        if not channel_name:
+            channel_name = message.channel.name
+
+        rankings = self.history.summary_elo(channel_name, year = year)
+
+        ranking_values = map(lambda ranking: [ranking.id, ranking.games_played, ranking.individual_ranking, ranking.ranking], rankings.values())
+
+        ranking_values.sort(key=lambda x: x[3], reverse=True)
+
+        self.send_message(":warning:")
+        table = generate_table(['Player', 'Games Played', 'Individual Ranking', 'Ranking'],
+        ranking_values
+        )
+        self.send_message(table)
 
     def handle_command(self, message, command, rest):
         if len(command.strip()) == 0 and len(rest) == 0:

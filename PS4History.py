@@ -5,6 +5,7 @@ import datetime
 from Functional import find
 
 from PS4HistoricGame import PS4HistoricGame
+import PS4Elo
 from PS4GameCategory import limit_game_to_single_win
 
 SAVE_FILE = "ps4-stats.txt"
@@ -126,7 +127,7 @@ class PS4History:
 
         nextyear = calc_nextyear(year)
 
-        for game in self:
+        for game in self.games:
             if channel and game.channel != channel:
                 continue
             if should_skip_game_year(game, year, nextyear):
@@ -165,6 +166,42 @@ class PS4History:
                 userstats[Keys.winratio] = winratio_str
 
         return stats # { mode: { user: { [stat]: int ... }, ... } }
+
+
+
+    def summary_elo(self, channel, name = None, year = None):
+        def convertToEloGame(game):
+
+            print "game {} {} {} {}".format(
+                        game.message_timestamp,
+                        game.channel,
+                        ",".join(game.players),
+                        game.mode or "normal")
+
+            scrub = {}
+            team1 = []
+            for player in game.players:
+                scrub[player] = 0
+            for stat in game.stats:
+                if stat.stat == "scrub":
+                    scrub[stat.user] += 1
+                if stat.stat == "fifa.win" or stat.stat == "fifa.win_pens":
+                    team1.append(stat.user)
+
+            team2 = list(set(game.players) - set(team1))
+            teams = [team1, team2]
+            result = PS4Elo.Result.win
+
+            return PS4Elo.Game(teams, result, scrub)
+
+        elo_games = map(lambda game: convertToEloGame(game), self.games)
+
+        rankings = PS4Elo.calculateRankings(elo_games)
+        
+        for keys, values in rankings.items():
+            print(keys)
+            print(values)
+        return rankings
 
     def user_ranking(self, channel, year = None):
         """
