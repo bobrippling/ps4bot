@@ -170,6 +170,9 @@ class PS4History:
 
 
     def summary_elo(self, channel, name = None, year = None):
+
+        ## TODO handle non fifa stuff here
+        ## or hardcode to fifa2 channel
         def convertToEloGame(game):
 
             scrub = {}
