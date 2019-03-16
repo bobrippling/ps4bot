@@ -6,7 +6,7 @@ initial_ranking = 1500
 
 k_factor = 20
 
-scrub_modifier = 0.5
+scrub_modifier = 1.1
 
 
 class Result(Enum):
@@ -19,7 +19,7 @@ class Player:
     def __init__(self, id, ranking=initial_ranking):
         self.id = id
         self.ranking = ranking
-        self.individual_ranking = ranking
+        self.historical_ranking = []
         self.games_played = 0
 
     def __str__(self):
@@ -28,9 +28,9 @@ class Player:
 
 class Game:
 
-    def __init__(self, teams, result, scrubs={}):
+    def __init__(self, teams, winning_team_index, scrubs={}):
         self.teams = teams
-        self.result = result
+        self.winning_team_index = winning_team_index
         self.scrubs = scrubs
 
     def getPlayerIds(self):
@@ -44,6 +44,13 @@ class Game:
     def __str__(self):
         return str(pprint(vars(self)))
 
+class HisoricalRank:
+    
+    def __init__(self, rank, team, delta, scrub_modifier):
+        self.rank = rank
+        self.team = team
+        self.delta = delta
+        self.scrub_modifier = scrub_modifier
 
 def getExpectedScore(ranking, other_ranking):
 
@@ -76,43 +83,33 @@ def getCombinedRankingForTeam(team, players):
         return 0
     return sum(map(lambda playerId: getPlayerFromId(players, playerId).ranking, team)) / len(team)
 
+def getOtherTeamRanking(teams, players):
+    merged_teams = reduce(list.__add__, teams)
+    return getCombinedRankingForTeam(merged_teams, players)
 
-def getRankingDeltaForGame(teams, players, result):
+def getRankingDeltaForGame(game, players):
 
-    if (len(teams) != 2):
-        # not doing this unless 2 teams
-        return None
-
-    team_rankings = map(lambda team: getCombinedRankingForTeam(team, players), teams)
-
-    ranking_delta = getRankingDelta(
-        team_rankings[0], team_rankings[1], result)
-
-    return [ranking_delta, ranking_delta * -1]
-
-
-def getRankingDeltaForGameIndividuals(teams, players, result):
-
-    if (len(teams) != 2):
-        # not doing this unless 2 teams
-        return None
+    teams = game.teams
+    winning_team_index = game.winning_team_index
 
     team_rankings = map(lambda team: getCombinedRankingForTeam(team, players), teams)
 
     players_delta = {}
     for index, team in enumerate(teams):
         for playerId in team:
-            team_result = result
-            if (index == 1):
-                if (result == Result.win):
-                    team_result = Result.loss
-                else:
-                    team_result = Result.win
 
-            other_team_ranking = team_rankings[0 if (index == 1) else 1]
+            if (index == winning_team_index):
+                team_result = Result.win
 
-            ranking_delta = getRankingDelta(
-                getPlayerFromId(players, playerId).ranking, other_team_ranking, team_result)
+                other_teams = teams[:winning_team_index] + teams[winning_team_index+1 :]
+
+                other_team_ranking = getOtherTeamRanking(other_teams, players)
+            else:
+                team_result = Result.loss
+                other_team_ranking = team_rankings[winning_team_index]
+
+            player_ranking = getPlayerFromId(players, playerId).ranking
+            ranking_delta = getRankingDelta(player_ranking, other_team_ranking, team_result)
             players_delta[playerId] = ranking_delta
 
     return players_delta
@@ -141,24 +138,16 @@ def calculateRankings(games):
             if not (playerId in players):
                 players[playerId] = getPlayerFromId(players, playerId)
 
-        ranking_delta = getRankingDeltaForGame(game.teams, players, game.result)
-        individual_ranking_delta = getRankingDeltaForGameIndividuals(
-            game.teams, players, game.result)
+        individual_ranking_delta = getRankingDeltaForGame(game, players)
 
-        for player in map(lambda playerId: getPlayerFromId(players, playerId), game.teams[0]):
-            player.games_played += 1
-            player.individual_ranking += round(individual_ranking_delta[player.id] *
-                                               calculateScrubModifier(player, game))
-            player.ranking += round(ranking_delta[0] *
-                                    calculateScrubModifier(player, game))
+        for team in game.teams:
+            for player in map(lambda playerId: getPlayerFromId(players, playerId), team):
+                player.games_played += 1
 
-        for player in map(lambda playerId: getPlayerFromId(players, playerId), game.teams[1]):
-            player.games_played += 1
-            player.individual_ranking += round(individual_ranking_delta[player.id] *
-                                               calculateScrubModifier(player, game))
-            player.ranking += round(ranking_delta[1] *
-                                    calculateScrubModifier(player, game))
+                scrub_modifier = calculateScrubModifier(player, game)
 
-    print players
+                ## if the player wins and is sotm they get bonus points TODO fix
+                player.ranking += round(individual_ranking_delta[player.id] * scrub_modifier)
+                player.historical_ranking.append(HisoricalRank(player.ranking, team, individual_ranking_delta, scrub_modifier))
     return players
 

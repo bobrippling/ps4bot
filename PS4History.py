@@ -172,12 +172,6 @@ class PS4History:
     def summary_elo(self, channel, name = None, year = None):
         def convertToEloGame(game):
 
-            print "game {} {} {} {}".format(
-                        game.message_timestamp,
-                        game.channel,
-                        ",".join(game.players),
-                        game.mode or "normal")
-
             scrub = {}
             team1 = []
             for player in game.players:
@@ -190,17 +184,17 @@ class PS4History:
 
             team2 = list(set(game.players) - set(team1))
             teams = [team1, team2]
-            result = PS4Elo.Result.win
+            winning_team_index = 0
 
-            return PS4Elo.Game(teams, result, scrub)
+            return PS4Elo.Game(teams, winning_team_index, scrub)
 
         elo_games = map(lambda game: convertToEloGame(game), self.games)
 
+        # filter out corrupted games
+        elo_games = filter(lambda game: len(game.teams[0]) != 0 and len(game.teams[1]) != 0, elo_games)
+
         rankings = PS4Elo.calculateRankings(elo_games)
         
-        for keys, values in rankings.items():
-            print(keys)
-            print(values)
         return rankings
 
     def user_ranking(self, channel, year = None):

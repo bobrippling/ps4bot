@@ -743,7 +743,6 @@ class PS4Bot(Bot):
         self.latest_stats_table[channel_name].year = year
 
     def handle_elo_request(self, message, rest):
-        anchor_message = True
         channel_name = None
         year = None
 
@@ -754,20 +753,17 @@ class PS4Bot(Bot):
                     format_user(message.user)))
                 return
             channel_name, year = parsed
-            anchor_message = (channel_name is None or channel_name == message.channel.name) \
-                    and (year is None or year.year == datetime.date.today().year)
 
         if not channel_name:
             channel_name = message.channel.name
 
         rankings = self.history.summary_elo(channel_name, year = year)
 
-        ranking_values = map(lambda ranking: [ranking.id, ranking.games_played, ranking.individual_ranking, ranking.ranking], rankings.values())
+        ranking_values = map(lambda ranking: [ranking.id, ranking.games_played, ranking.ranking], rankings.values())
 
-        ranking_values.sort(key=lambda x: x[3], reverse=True)
+        ranking_values.sort(key=lambda x: x[2], reverse=True)
 
-        self.send_message(":warning:")
-        table = generate_table(['Player', 'Games Played', 'Individual Ranking', 'Ranking'],
+        table = generate_table(['Player', 'Games Played', 'Ranking'],
         ranking_values
         )
         self.send_message(table)
