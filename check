@@ -1,0 +1,29 @@
+#!/bin/sh
+
+if test $# -ne 0
+then
+	echo >&2 "Usage: $0"
+	exit 2
+fi
+
+if ! test -e config.py
+then
+	echo >&2 "Creating dummy config.py..."
+
+	cat >config.py <<!
+slack_token = "invalid"
+user_renames = {}
+channel_max_players = {}
+!
+fi
+
+ec=0
+
+for f in *.spec.py
+do
+	if ! python "$f"
+	then ec=1
+	fi
+done
+
+exit $ec
