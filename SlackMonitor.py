@@ -11,6 +11,7 @@ from Bot import USER_RE, lookup_user
 from PS4Formatting import format_user
 
 MSG_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+PING_TIMEOUT = 10
 
 def ENCODE(s):
     if s is None:
@@ -193,6 +194,9 @@ class SlackMonitor():
 
         return handled
 
+    def ping(self):
+        self.slackconnection.server.ping()
+
     def guard(self, fn):
         while True:
             reconnect = False
@@ -219,14 +223,17 @@ class SlackMonitor():
     def run(self):
         idle_time = 0
         timeout_time = 0
+        ping_time = 0
         while True:
             if self.guard(lambda: self.handle_slack_messages()):
                 # handled something, reset idle time
                 idle_time = 0
 
-            time.sleep(0.5)
-            idle_time += 0.5
-            timeout_time += 0.5
+            delay = 0.5
+            time.sleep(delay)
+            idle_time += delay
+            timeout_time += delay
+            ping_time += delay
 
             if idle_time >= self.idle_timeout:
                 def handler(bot):
@@ -240,6 +247,11 @@ class SlackMonitor():
                     bot.timeout()
                 self.guard(lambda: self.iterate_bots(lambda bot: self.run_handler(bot, handler)))
                 timeout_time = 0
+
+            if ping_time >= PING_TIMEOUT:
+                self.guard(self.ping)
+                ping_time = 0
+
 
     def iterate_bots(self, fn):
         for channel in self.handlers:
