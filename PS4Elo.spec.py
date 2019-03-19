@@ -1,9 +1,7 @@
 import unittest
 import PS4Elo
 
-
 class TestPS4Elo(unittest.TestCase):
-
     def test_getExpectedScore(self):
         def calc_score(ranking, other_ranking):
             return round(PS4Elo.getExpectedScore(ranking, other_ranking), 4)
@@ -13,7 +11,6 @@ class TestPS4Elo(unittest.TestCase):
         self.assertEqual(calc_score(1800, 1000), 0.9901)
         self.assertEqual(calc_score(1000, 2000), 0.0032)
         self.assertEqual(calc_score(1000, 3000), 0.0000)
-
 
     def test_getRankingDelta(self):
         rd = PS4Elo.getRankingDelta
@@ -98,7 +95,6 @@ class TestPS4Elo(unittest.TestCase):
 
         self.assertDictEqual(rdfg(game, players), result)
 
-
     def test_calculateScrubRanking(self):
         sm = PS4Elo.calculateScrubModifier
 
@@ -153,8 +149,5 @@ class TestPS4Elo(unittest.TestCase):
         self.assertEqual(result2[3].ranking, 1528)
         self.assertEqual(result2[4].ranking, 1528)
 
-
-
 if __name__ == '__main__':
     unittest.main()
-

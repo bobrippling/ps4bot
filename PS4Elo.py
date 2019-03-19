@@ -3,19 +3,14 @@ from pprint import pprint
 import math
 
 initial_ranking = 1500
-
 k_factor = 20
-
 scrub_modifier = 1.1
-
 
 class Result(Enum):
     win = 1
     loss = 0
 
-
 class Player:
-
     def __init__(self, id, ranking=initial_ranking):
         self.id = id
         self.ranking = ranking
@@ -25,9 +20,7 @@ class Player:
     def __str__(self):
         return str(pprint(vars(self)))
 
-
 class Game:
-
     def __init__(self, teams, winning_team_index, scrubs={}):
         self.teams = teams
         self.winning_team_index = winning_team_index
@@ -45,7 +38,6 @@ class Game:
         return str(pprint(vars(self)))
 
 class HisoricalRank:
-
     def __init__(self, rank, team, delta, scrub_modifier):
         self.rank = rank
         self.team = team
@@ -53,14 +45,10 @@ class HisoricalRank:
         self.scrub_modifier = scrub_modifier
 
 def getExpectedScore(ranking, other_ranking):
-
     diff = 10 ** ((other_ranking - ranking) / float(400))
-
     return float(1) / (1 + diff)
 
-
 def getRankingDelta(ranking, other_ranking, result, k=k_factor):
-
     if (result == None):
         return None
 
@@ -76,9 +64,7 @@ def getRankingDelta(ranking, other_ranking, result, k=k_factor):
 
     return initial_delta
 
-
 def getCombinedRankingForTeam(team, players):
-
     if len(team) == 0:
         return 0
     return sum(map(lambda playerId: getPlayerFromId(players, playerId).ranking, team)) / len(team)
@@ -88,7 +74,6 @@ def getOtherTeamRanking(teams, players):
     return getCombinedRankingForTeam(merged_teams, players)
 
 def getRankingDeltaForGame(game, players):
-
     teams = game.teams
     winning_team_index = game.winning_team_index
 
@@ -114,7 +99,6 @@ def getRankingDeltaForGame(game, players):
 
     return players_delta
 
-
 def calculateScrubModifier(player, game):
     if (player.id in game.scrubs):
         return scrub_modifier ** game.scrubs[player.id]
@@ -129,7 +113,6 @@ def getPlayerFromId(players, playerId):
     return player_found
 
 def calculateRankings(games):
-
     players = {}
 
     for game in games:
@@ -149,5 +132,5 @@ def calculateRankings(games):
                 ## if the player wins and is sotm they get bonus points TODO fix
                 player.ranking += round(individual_ranking_delta[player.id] * scrub_modifier)
                 player.historical_ranking.append(HisoricalRank(player.ranking, team, individual_ranking_delta, scrub_modifier))
-    return players
 
+    return players
