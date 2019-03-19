@@ -41,17 +41,17 @@ def expected_score(ranking, other_ranking):
     return float(1) / (1 + diff)
 
 def ranking_delta(ranking, other_ranking, result, k=k_factor):
-    if (result == None):
+    if result == None:
         return None
 
     expected_ranking = expected_score(ranking, other_ranking)
 
     initial_delta = round(k * (result.value - expected_ranking))
 
-    if (initial_delta == 0):
-        if (result == Result.win):
+    if initial_delta == 0:
+        if result == Result.win:
             return 1
-        if (result == Result.loss):
+        if result == Result.loss:
             return -1
 
     return initial_delta
@@ -74,8 +74,7 @@ def ranking_delta_for_game(game, players):
     players_delta = {}
     for index, team in enumerate(teams):
         for player_id in team:
-
-            if (index == winning_team_index):
+            if index == winning_team_index:
                 team_result = Result.win
 
                 other_teams = teams[:winning_team_index] + teams[winning_team_index+1 :]
@@ -92,7 +91,7 @@ def ranking_delta_for_game(game, players):
     return players_delta
 
 def calculate_scrub_modifier(player, game):
-    if (player.id in game.scrubs):
+    if player.id in game.scrubs:
         return scrub_modifier ** game.scrubs[player.id]
     return 1
 
