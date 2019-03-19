@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/bobrippling/lunchbot.svg?branch=master)](https://travis-ci.org/bobrippling/lunchbot)
+
 # Setup
 
 `pip install slackclient`
@@ -27,6 +29,10 @@ This runs those bots, listening on the specified channels.
 `channelspec` may be a channel name or `*`, for all channels (this should be quoted to avoid shell expansion).
 
 Note that lunchbot is written in python2.7.
+
+# Testing
+
+Tests are ran on travis, but to run locally: `./check`
 
 # Banter
 
