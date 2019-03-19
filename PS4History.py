@@ -6,7 +6,7 @@ from Functional import find
 
 from PS4HistoricGame import PS4HistoricGame
 import PS4Elo
-from PS4GameCategory import limit_game_to_single_win
+from PS4GameCategory import limit_game_to_single_win, Stats
 
 SAVE_FILE = "ps4-stats.txt"
 
@@ -167,33 +167,32 @@ class PS4History:
 
 
     def summary_elo(self, channel, name = None, year = None):
-
-        ## TODO handle non fifa stuff here
-        ## or hardcode to fifa2 channel
-        def convertToEloGame(game):
-
-            scrub = {}
-            team1 = []
-            for player in game.players:
-                scrub[player] = 0
+        def convert_to_elo_game(game):
+            scrub = defaultdict(int)
+            winners = []
             for stat in game.stats:
-                if stat.stat == "scrub":
+                if self.stat_is_positive(stat.stat):
+                    winners.append(stat.user)
+                else:
                     scrub[stat.user] += 1
-                if stat.stat == "fifa.win" or stat.stat == "fifa.win_pens":
-                    team1.append(stat.user)
 
-            team2 = list(set(game.players) - set(team1))
-            teams = [team1, team2]
+            losers = list(set(game.players) - set(winners))
+            teams = [winners, losers]
             winning_team_index = 0
 
             return PS4Elo.Game(teams, winning_team_index, scrub)
 
-        elo_games = map(lambda game: convertToEloGame(game), self.games)
+        def game_can_elo(game):
+            for team in game.teams:
+                if len(team) == 0:
+                    return False
+            return True
 
-        # filter out corrupted games
-        elo_games = filter(lambda game: len(game.teams[0]) != 0 and len(game.teams[1]) != 0, elo_games)
+        elo_games = self.games
+        elo_games = map(convert_to_elo_game, elo_games)
+        elo_games = filter(game_can_elo, elo_games)
 
-        rankings = PS4Elo.calculateRankings(elo_games)
+        rankings = PS4Elo.calculate_rankings(elo_games)
 
         return rankings
 
