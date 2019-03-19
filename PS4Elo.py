@@ -1,5 +1,4 @@
 from enum import Enum
-import math
 
 initial_ranking = 1500
 k_factor = 20
