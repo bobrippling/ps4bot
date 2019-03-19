@@ -32,9 +32,6 @@ class PS4History:
         self.negative_stats = negative_stats
         self.load()
 
-    def __iter__(self):
-        return self.games.__iter__()
-
     def save(self):
         try:
             with open(SAVE_FILE, "w") as f: # open as "w" since we rewrite the whole thing
@@ -208,7 +205,7 @@ class PS4History:
 
         nextyear = calc_nextyear(year)
 
-        for game in self:
+        for game in self.games:
             if channel and game.channel != channel:
                 continue
             if game.mode:
