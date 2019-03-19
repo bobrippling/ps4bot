@@ -2,9 +2,9 @@ import unittest
 import PS4Elo
 
 class TestPS4Elo(unittest.TestCase):
-    def test_getExpectedScore(self):
+    def test_expected_score(self):
         def calc_score(ranking, other_ranking):
-            return round(PS4Elo.getExpectedScore(ranking, other_ranking), 4)
+            return round(PS4Elo.expected_score(ranking, other_ranking), 4)
         self.assertEqual(calc_score(1500, 1500), 0.5)
         self.assertEqual(calc_score(1500, 1490), 0.5144)
         self.assertEqual(calc_score(1490, 1500), 0.4856)
@@ -12,8 +12,8 @@ class TestPS4Elo(unittest.TestCase):
         self.assertEqual(calc_score(1000, 2000), 0.0032)
         self.assertEqual(calc_score(1000, 3000), 0.0000)
 
-    def test_getRankingDelta(self):
-        rd = PS4Elo.getRankingDelta
+    def test_ranking_delta(self):
+        rd = PS4Elo.ranking_delta
         self.assertEqual(rd(1500, 1500, PS4Elo.Result.win, 32), 16)
         self.assertEqual(rd(1500, 1500, PS4Elo.Result.loss, 32), -16)
         self.assertEqual(rd(2000, 1500, PS4Elo.Result.win, 32), 2)
@@ -22,8 +22,8 @@ class TestPS4Elo(unittest.TestCase):
         self.assertEqual(rd(3000, 1000, PS4Elo.Result.loss, 32), -32)
         self.assertEqual(rd(1000, 3000, PS4Elo.Result.loss, 32), -1)
 
-    def test_getRankingDeltaForGame(self):
-        rdfg = PS4Elo.getRankingDeltaForGame
+    def test_ranking_delta_for_game(self):
+        rdfg = PS4Elo.ranking_delta_for_game
 
         team1 = [1, 2]
         team2 = [3, 4]
@@ -67,8 +67,8 @@ class TestPS4Elo(unittest.TestCase):
         self.assertDictEqual(rdfg(game2, players), result2)
         self.assertDictEqual(rdfg(game3, players), result3)
 
-    def test_getRankingDeltaForGame_multi_team(self):
-        rdfg = PS4Elo.getRankingDeltaForGame
+    def test_ranking_delta_for_game_multi_team(self):
+        rdfg = PS4Elo.ranking_delta_for_game
 
         team1 = [1, 2]
         team2 = [3, 4]
@@ -95,8 +95,8 @@ class TestPS4Elo(unittest.TestCase):
 
         self.assertDictEqual(rdfg(game, players), result)
 
-    def test_calculateScrubRanking(self):
-        sm = PS4Elo.calculateScrubModifier
+    def test_calculate_scrub_ranking(self):
+        sm = PS4Elo.calculate_scrub_modifier
 
         team1 = [1, 2]
         team2 = [3, 4]
@@ -118,8 +118,8 @@ class TestPS4Elo(unittest.TestCase):
         self.assertEqual(round(sm(player3, game),4), 1.331)
         self.assertEqual(round(sm(player4, game),4), 1)
 
-    def test_calculateRanking(self):
-        cr = PS4Elo.calculateRankings
+    def test_calculate_ranking(self):
+        cr = PS4Elo.calculate_rankings
         Game = PS4Elo.Game
 
         team1 = [1,2]
