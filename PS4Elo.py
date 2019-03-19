@@ -22,12 +22,7 @@ class Game:
         self.scrubs = scrubs
 
     def player_ids(self):
-        player_ids = []
-        for team in self.teams:
-            for player_id in team:
-                player_ids.append(player_id)
-
-        return player_ids
+        return reduce(list.__add__, self.teams)
 
 class HisoricalRank:
     def __init__(self, rank, team, delta, scrub_modifier):
@@ -96,12 +91,9 @@ def calculate_scrub_modifier(player, game):
     return 1
 
 def player_from_id(players, player_id):
-    player_found = None
     if player_id in players:
-        player_found = players[player_id]
-    else:
-        player_found = Player(player_id)
-    return player_found
+        return players[player_id]
+    return Player(player_id)
 
 def calculate_rankings(games):
     players = {}
