@@ -224,9 +224,10 @@ class SlackMonitor():
                 # handled something, reset idle time
                 idle_time = 0
 
-            time.sleep(0.5)
-            idle_time += 0.5
-            timeout_time += 0.5
+            delay = 0.5
+            time.sleep(delay)
+            idle_time += delay
+            timeout_time += delay
 
             if idle_time >= self.idle_timeout:
                 def handler(bot):
