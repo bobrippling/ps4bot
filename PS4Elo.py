@@ -45,7 +45,7 @@ class Game:
         return str(pprint(vars(self)))
 
 class HisoricalRank:
-    
+
     def __init__(self, rank, team, delta, scrub_modifier):
         self.rank = rank
         self.team = team

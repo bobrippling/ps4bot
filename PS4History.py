@@ -194,7 +194,7 @@ class PS4History:
         elo_games = filter(lambda game: len(game.teams[0]) != 0 and len(game.teams[1]) != 0, elo_games)
 
         rankings = PS4Elo.calculateRankings(elo_games)
-        
+
         return rankings
 
     def user_ranking(self, channel, year = None):
