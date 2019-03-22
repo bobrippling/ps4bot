@@ -59,7 +59,7 @@ class PS4History:
                     if tokens[0] == "game":
                         message_timestamp = tokens[1]
                         channel = tokens[2]
-                        players = tokens[3].split(",")
+                        players = filter(len, tokens[3].split(","))
                         mode = None if tokens[4] == "normal" else tokens[4]
                         current_game = PS4HistoricGame(message_timestamp, players, channel, mode)
                         games.append(current_game)
