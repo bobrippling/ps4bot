@@ -164,8 +164,6 @@ class PS4History:
 
         return stats # { mode: { user: { [stat]: int ... }, ... } }
 
-
-
     def summary_elo(self, channel, name = None, year = None):
         def convert_to_elo_game(game):
             scrub = defaultdict(int)
