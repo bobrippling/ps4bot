@@ -36,7 +36,7 @@ class TestPS4Elo(unittest.TestCase):
             5: PS4Elo.Player(1, 1000),
             6: PS4Elo.Player(1, 3000),
         }
-        game1 = PS4Elo.Game(teams, 0)
+        game1 = PS4Elo.Game(teams, 0, {})
         result1 = {
             1: 1,
             2: 10,
@@ -48,7 +48,7 @@ class TestPS4Elo(unittest.TestCase):
         team3 = [2, 3]
         team4 = [5, 6]
         teams2 = [team3, team4]
-        game2 = PS4Elo.Game(teams2, 1)
+        game2 = PS4Elo.Game(teams2, 1, {})
         result2 = {
             2: -1,
             3: -1,
@@ -57,7 +57,7 @@ class TestPS4Elo(unittest.TestCase):
         }
         self.assertDictEqual(game_rankdelta(game2, players), result2)
 
-        game3 = PS4Elo.Game(teams2, 0)
+        game3 = PS4Elo.Game(teams2, 0, {})
         result3 = {
             2: 19,
             3: 19,
@@ -81,7 +81,7 @@ class TestPS4Elo(unittest.TestCase):
             5: PS4Elo.Player(1, 1000),
             6: PS4Elo.Player(1, 3000),
         }
-        game = PS4Elo.Game(teams, 0)
+        game = PS4Elo.Game(teams, 0, {})
 
         result = {
             1:4,
@@ -129,7 +129,7 @@ class TestPS4Elo(unittest.TestCase):
         teams = [team1, team2]
         scrubs = { 3: 4 }
         game1 = Game(teams, 0, scrubs)
-        game2 = Game(teams, 1)
+        game2 = Game(teams, 1, {})
 
         games1 = [game1, game2]
 

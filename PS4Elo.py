@@ -13,7 +13,7 @@ class Player:
         self.games_played = 0
 
 class Game:
-    def __init__(self, teams, winning_team_index, scrubs={}):
+    def __init__(self, teams, winning_team_index, scrubs):
         self.teams = teams
         self.winning_team_index = winning_team_index
         self.scrubs = scrubs
