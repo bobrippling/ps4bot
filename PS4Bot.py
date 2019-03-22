@@ -725,7 +725,7 @@ class PS4Bot(Bot):
             self.latest_stats_table[channel].timestamp = table_msg.timestamp
 
     # type: "basic" | "elo"
-    def handle_stats_request(self, message, rest, type = "basic"):
+    def handle_stats_request(self, message, rest, type=StatRequest.stats):
         anchor_message = True
         channel_name = None
         year = None
@@ -734,8 +734,7 @@ class PS4Bot(Bot):
             parsed = parse_stats_request(rest)
             if not parsed:
                 self.send_message(":warning: ere {}: \"{} [year] [channel]\"".format(
-                    StatRequest.stats if type == "basic" else StatRequest.elo,
-                    format_user(message.user)))
+                    type, format_user(message.user)))
                 return
             channel_name, year = parsed
             anchor_message = (channel_name is None or channel_name == message.channel.name) \
@@ -744,7 +743,7 @@ class PS4Bot(Bot):
         if not channel_name:
             channel_name = message.channel.name
 
-        if type == "basic":
+        if type == StatRequest.elo:
             rankings = self.history.summary_elo(channel_name, year = year)
             ranking_values = map(lambda ranking: [ranking.id, ranking.games_played, ranking.ranking], rankings.values())
             ranking_values.sort(key=lambda x: x[2], reverse=True)
