@@ -12,7 +12,6 @@ class Player:
     def __init__(self, id, ranking=initial_ranking):
         self.id = id
         self.ranking = ranking
-        self.historical_ranking = []
         self.games_played = 0
 
 class Game:
@@ -23,13 +22,6 @@ class Game:
 
     def player_ids(self):
         return reduce(list.__add__, self.teams)
-
-class HisoricalRank:
-    def __init__(self, rank, team, delta, scrub_modifier):
-        self.rank = rank
-        self.team = team
-        self.delta = delta
-        self.scrub_modifier = scrub_modifier
 
 def expected_score(ranking, other_ranking):
     diff = 10 ** ((other_ranking - ranking) / float(400))
@@ -114,6 +106,5 @@ def calculate_rankings(games):
 
                 ## if the player wins and is sotm they get bonus points TODO fix
                 player.ranking += round(individual_ranking_delta[player.id] * scrub_modifier)
-                player.historical_ranking.append(Hisorical_rank(player.ranking, team, individual_ranking_delta, scrub_modifier))
 
     return players
