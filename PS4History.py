@@ -165,6 +165,9 @@ class PS4History:
         return stats # { mode: { user: { [stat]: int ... }, ... } }
 
     def summary_elo(self, channel, name = None, year = None):
+        def game_is_this_channel(game):
+            return game.channel == channel
+
         def convert_to_elo_game(game):
             scrub = defaultdict(int)
             winners = []
@@ -187,6 +190,7 @@ class PS4History:
             return True
 
         elo_games = self.games
+        elo_games = filter(game_is_this_channel, elo_games)
         elo_games = map(convert_to_elo_game, elo_games)
         elo_games = filter(game_can_elo, elo_games)
 
