@@ -93,7 +93,7 @@ def calculate_rankings(games):
     for game in games:
         game_players = game.player_ids()
         for player_id in game_players:
-            if not (player_id in players):
+            if player_id not in players:
                 players[player_id] = player_from_id(players, player_id)
 
         individual_ranking_delta = ranking_delta_for_game(game, players)
