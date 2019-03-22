@@ -137,7 +137,7 @@ class TestPS4Elo(unittest.TestCase):
 
         self.assertEqual(result1[1].ranking, 1499)
         self.assertEqual(result1[2].ranking, 1499)
-        self.assertEqual(result1[3].ranking, 1496)
+        self.assertEqual(result1[3].ranking, 1501)
         self.assertEqual(result1[4].ranking, 1501)
 
         games2 = [game2, game2, game2]

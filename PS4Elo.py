@@ -82,6 +82,15 @@ def player_from_id(players, player_id):
         return players[player_id]
     return Player(player_id)
 
+def player_in_winning_team(player, game):
+    team_index = -1
+    for index, team in enumerate(game.teams):
+        if player.id in team:
+            team_index = index
+            break
+
+    return team_index == game.winning_team_index
+
 def calculate_rankings(games):
     players = {}
 
@@ -97,9 +106,10 @@ def calculate_rankings(games):
             for player in map(lambda player_id: player_from_id(players, player_id), team):
                 player.games_played += 1
 
-                scrub_modifier = calculate_scrub_modifier(player, game)
+                scrub_modifier = 1
+                if player_in_winning_team(player, game):
+                    scrub_modifier = calculate_scrub_modifier(player, game)
 
-                ## if the player wins and is sotm they get bonus points TODO fix
                 player.ranking += round(individual_ranking_delta[player.id] * scrub_modifier)
 
     return players
