@@ -5,7 +5,8 @@ import datetime
 from Functional import find
 
 from PS4HistoricGame import PS4HistoricGame
-from PS4GameCategory import limit_game_to_single_win
+import PS4Elo
+from PS4GameCategory import limit_game_to_single_win, Stats
 
 SAVE_FILE = "ps4-stats.txt"
 
@@ -30,9 +31,6 @@ class PS4History:
         self.games = []
         self.negative_stats = negative_stats
         self.load()
-
-    def __iter__(self):
-        return self.games.__iter__()
 
     def save(self):
         try:
@@ -126,7 +124,7 @@ class PS4History:
 
         nextyear = calc_nextyear(year)
 
-        for game in self:
+        for game in self.games:
             if channel and game.channel != channel:
                 continue
             if should_skip_game_year(game, year, nextyear):
@@ -166,6 +164,40 @@ class PS4History:
 
         return stats # { mode: { user: { [stat]: int ... }, ... } }
 
+    def summary_elo(self, channel, name = None, year = None):
+        def game_is_this_channel(game):
+            return game.channel == channel
+
+        def convert_to_elo_game(game):
+            scrub = defaultdict(int)
+            winners = []
+            for stat in game.stats:
+                if self.stat_is_positive(stat.stat):
+                    winners.append(stat.user)
+                else:
+                    scrub[stat.user] += 1
+
+            losers = list(set(game.players) - set(winners))
+            teams = [winners, losers]
+            winning_team_index = 0
+
+            return PS4Elo.Game(teams, winning_team_index, scrub)
+
+        def game_can_elo(game):
+            for team in game.teams:
+                if len(team) == 0:
+                    return False
+            return True
+
+        elo_games = self.games
+        elo_games = filter(game_is_this_channel, elo_games)
+        elo_games = map(convert_to_elo_game, elo_games)
+        elo_games = filter(game_can_elo, elo_games)
+
+        rankings = PS4Elo.calculate_rankings(elo_games)
+
+        return rankings
+
     def user_ranking(self, channel, year = None):
         """
         Return a ranking of users in the channel
@@ -174,7 +206,7 @@ class PS4History:
 
         nextyear = calc_nextyear(year)
 
-        for game in self:
+        for game in self.games:
             if channel and game.channel != channel:
                 continue
             if game.mode:

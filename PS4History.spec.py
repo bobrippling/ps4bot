@@ -98,4 +98,5 @@ class TestPS4History(unittest.TestCase):
         # negative stats should have no change
         self.assertEqual(ranking, ["p2", "p1"])
 
-unittest.main()
+if __name__ == '__main__':
+    unittest.main()

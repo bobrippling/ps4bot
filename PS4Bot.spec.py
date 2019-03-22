@@ -297,4 +297,5 @@ class TestPS4Bot(unittest.TestCase):
 		ps4bot.handle_reaction(reaction)
 		self.assertEqual(len(self.messages), 0)
 
-unittest.main()
+if __name__ == '__main__':
+    unittest.main()
