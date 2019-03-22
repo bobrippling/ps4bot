@@ -61,14 +61,14 @@ def ranking_delta_for_game(game, players):
 
                 other_teams = teams[:winning_team_index] + teams[winning_team_index+1 :]
 
-                other_team_ranking = other_team_ranking(other_teams, players)
+                other_team_rank = other_team_ranking(other_teams, players)
             else:
                 team_result = Result.loss
-                other_team_ranking = team_rankings[winning_team_index]
+                other_team_rank = team_rankings[winning_team_index]
 
             player_ranking = player_from_id(players, player_id).ranking
-            ranking_delta = ranking_delta(player_ranking, other_team_ranking, team_result)
-            players_delta[player_id] = ranking_delta
+            rank_delta = ranking_delta(player_ranking, other_team_rank, team_result)
+            players_delta[player_id] = rank_delta
 
     return players_delta
 
