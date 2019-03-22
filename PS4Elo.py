@@ -1,10 +1,8 @@
-from enum import Enum
-
 initial_ranking = 1500
 k_factor = 20
 scrub_modifier = 1.1
 
-class Result(Enum):
+class Result:
     win = 1
     loss = 0
 
@@ -28,12 +26,9 @@ def expected_score(ranking, other_ranking):
     return float(1) / (1 + diff)
 
 def ranking_delta(ranking, other_ranking, result, k=k_factor):
-    if result == None:
-        return None
-
     expected_ranking = expected_score(ranking, other_ranking)
 
-    initial_delta = round(k * (result.value - expected_ranking))
+    initial_delta = round(k * (result - expected_ranking))
 
     if initial_delta == 0:
         if result == Result.win:
