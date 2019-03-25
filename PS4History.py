@@ -157,8 +157,13 @@ class PS4History:
         return stats # { mode: { user: { [stat]: int ... }, ... } }
 
     def summary_elo(self, channel, year = None):
+        nextyear = calc_nextyear(year)
+
         def game_is_this_channel(game):
             return game.channel == channel
+
+        def game_in_this_year(game):
+            return not should_skip_game_year(game, year, nextyear)
 
         def convert_to_elo_game(game):
             scrub = defaultdict(int)
@@ -183,6 +188,7 @@ class PS4History:
 
         elo_games = self.games
         elo_games = filter(game_is_this_channel, elo_games)
+        elo_games = filter(game_in_this_year, elo_games)
         elo_games = map(convert_to_elo_game, elo_games)
         elo_games = filter(game_can_elo, elo_games)
 
