@@ -116,11 +116,8 @@ class PS4History:
                 return True
         return False
 
-    def summary_stats(self, channel, name = None, year = None):
+    def summary_stats(self, channel, year = None):
         stats = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-
-        def allow_user(u):
-            return name is None or u == name
 
         nextyear = calc_nextyear(year)
 
@@ -133,9 +130,6 @@ class PS4History:
             game_winners = set()
             for stat_and_user in game.stats:
                 stat, user = stat_and_user.stat, stat_and_user.user
-                if not allow_user(user):
-                    continue
-
                 if limit_game_to_single_win(channel) and self.stat_is_positive(stat):
                     if user in game_winners:
                         continue
@@ -145,8 +139,6 @@ class PS4History:
                 # don't count total or played here, may be multiple stats per game
 
             for user in game.players:
-                if not allow_user(user):
-                    continue
                 stats[game.mode][user][Keys.played] += 1
                 if self.user_has_winstat_in_game(user, game):
                     stats[game.mode][user][Keys.game_wins] += 1
@@ -164,7 +156,7 @@ class PS4History:
 
         return stats # { mode: { user: { [stat]: int ... }, ... } }
 
-    def summary_elo(self, channel, name = None, year = None):
+    def summary_elo(self, channel, year = None):
         def game_is_this_channel(game):
             return game.channel == channel
 
