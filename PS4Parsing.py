@@ -96,7 +96,7 @@ def parse_stats_request(request):
                 except ValueError:
                     pass
             continue
-        
+
         if not channel_name:
             channel_name = part
             continue
