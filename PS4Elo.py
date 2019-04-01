@@ -25,11 +25,8 @@ class Player:
         return str(self.ranking) + '?'
 
     def get_history(self, history_length):
-
-        history = ''
-
-        if not history_length:
-            return None
+        if history_length <= 0:
+            return ""
 
         results = []
         previous_rank = None
@@ -45,10 +42,7 @@ class Player:
             results.append(previous_rank.rank < rank.rank)
             previous_rank = rank
 
-        history = reduce(lambda result, value: result +
-                         'W ' if value else result + 'L ', results, ' ')
-
-        return history
+        return reduce(lambda result, value: result + ("W " if value else "L "), results, "")
 
 
 class HisoricalRank:
