@@ -67,6 +67,7 @@ def maybe_parse_time(s):
 def parse_stats_request(request):
     channel_name = None
     since = None
+    k_factor = None
 
     parts = request.split(" ")
     for part in parts:
@@ -77,14 +78,21 @@ def parse_stats_request(request):
             except ValueError:
                 pass
 
-        if not channel_name:
+        if part.startswith("k="):
+            if not k_factor:
+                try:
+                    k_factor = int(part[2:])
+                    continue
+                except ValueError:
+                    pass
+        elif not channel_name:
             channel_name = part
             continue
 
         # unrecognised
         return None
 
-    return channel_name, date_with_year(since) if since else None
+    return channel_name, date_with_year(since) if since else None, k_factor
 
 def pretty_mode(mode):
     if mode == "compet":

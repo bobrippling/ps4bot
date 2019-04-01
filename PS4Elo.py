@@ -1,5 +1,5 @@
 initial_ranking = 1500
-k_factor = 20
+default_k_factor = 20
 scrub_modifier = 1.1
 
 class Result:
@@ -25,10 +25,14 @@ def expected_score(ranking, other_ranking):
     diff = 10 ** ((other_ranking - ranking) / float(400))
     return float(1) / (1 + diff)
 
-def ranking_delta(ranking, other_ranking, result, k=k_factor):
+def ranking_delta(ranking, other_ranking, result, k_factor):
+
+    if not k_factor:
+        k_factor = default_k_factor
+
     expected_ranking = expected_score(ranking, other_ranking)
 
-    initial_delta = round(k * (result - expected_ranking))
+    initial_delta = round(k_factor * (result - expected_ranking))
 
     if initial_delta == 0:
         if result == Result.win:
@@ -47,7 +51,7 @@ def other_team_ranking(teams, players):
     merged_teams = reduce(list.__add__, teams)
     return combined_ranking_for_team(merged_teams, players)
 
-def ranking_delta_for_game(game, players):
+def ranking_delta_for_game(game, players, k_factor):
     teams = game.teams
     winning_team_index = game.winning_team_index
 
@@ -67,7 +71,7 @@ def ranking_delta_for_game(game, players):
                 other_team_rank = team_rankings[winning_team_index]
 
             player_ranking = player_from_id(players, player_id).ranking
-            rank_delta = ranking_delta(player_ranking, other_team_rank, team_result)
+            rank_delta = ranking_delta(player_ranking, other_team_rank, team_result, k_factor)
             players_delta[player_id] = rank_delta
 
     return players_delta
@@ -91,7 +95,7 @@ def player_in_winning_team(player, game):
 
     return team_index == game.winning_team_index
 
-def calculate_rankings(games):
+def calculate_rankings(games, k_factor):
     players = {}
 
     for game in games:
@@ -100,7 +104,7 @@ def calculate_rankings(games):
             if player_id not in players:
                 players[player_id] = player_from_id(players, player_id)
 
-        individual_ranking_delta = ranking_delta_for_game(game, players)
+        individual_ranking_delta = ranking_delta_for_game(game, players, k_factor)
 
         for team in game.teams:
             for player in map(lambda player_id: player_from_id(players, player_id), team):
