@@ -68,6 +68,7 @@ def parse_stats_request(request):
     channel_name = None
     since = None
     k_factor = None
+    history_length = None
 
     parts = request.split(" ")
     for part in parts:
@@ -85,14 +86,25 @@ def parse_stats_request(request):
                     continue
                 except ValueError:
                     pass
-        elif not channel_name:
+            continue
+
+        if part.startswith("h="):
+            if not history_length:
+                try:
+                    history_length = int(part[2:])
+                    continue
+                except ValueError:
+                    pass
+            continue
+        
+        if not channel_name:
             channel_name = part
             continue
 
         # unrecognised
         return None
 
-    return channel_name, date_with_year(since) if since else None, k_factor
+    return channel_name, date_with_year(since) if since else None, k_factor, history_length
 
 def pretty_mode(mode):
     if mode == "compet":

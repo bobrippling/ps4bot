@@ -730,6 +730,7 @@ class PS4Bot(Bot):
         channel_name = None
         year = None
         k_factor = None
+        history_length = None
 
         if len(rest):
             parsed = parse_stats_request(rest)
@@ -737,7 +738,7 @@ class PS4Bot(Bot):
                 self.send_message(":warning: ere {}: \"{} [year] [channel]\"".format(
                     type, format_user(message.user)))
                 return
-            channel_name, year, k_factor = parsed
+            channel_name, year, k_factor, history_length = parsed
             anchor_message = (channel_name is None or channel_name == message.channel.name) \
                     and (year is None or year.year == datetime.date.today().year)
 
@@ -745,11 +746,20 @@ class PS4Bot(Bot):
             channel_name = message.channel.name
 
         if type == StatRequest.elo:
-            rankings = self.history.summary_elo(channel_name, year = year, k_factor = k_factor)
-            ranking_values = map(lambda ranking: [ranking.id, ranking.games_played, ranking.ranking], rankings.values())
-            ranking_values.sort(key=lambda x: x[2], reverse=True)
+            rankings = self.history.summary_elo(
+                channel_name,
+                year = year,
+                k_factor = k_factor
+            )
 
-            table = generate_table(['Player', 'Games Played', 'Ranking'], ranking_values)
+            if history_length:
+                ranking_values = map(lambda ranking: [ranking.id, ranking.games_played, ranking.ranking, ranking.getHistory(history_length)], rankings.values())
+                ranking_values.sort(key=lambda x: x[2], reverse=True)
+                table = generate_table(['Player', 'Games Played', 'Ranking', 'Form'], ranking_values)
+            else: 
+                ranking_values = map(lambda ranking: [ranking.id, ranking.games_played, ranking.ranking], rankings.values())
+                ranking_values.sort(key=lambda x: x[2], reverse=True)
+                table = generate_table(['Player', 'Games Played', 'Ranking'], ranking_values)
 
             self.send_message(table)
         else:
