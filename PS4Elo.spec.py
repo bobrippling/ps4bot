@@ -43,7 +43,7 @@ class TestPS4Elo(unittest.TestCase):
             3: -4,
             4: -4
         }
-        self.assertDictEqual(game_rankdelta(game1, players), result1)
+        self.assertDictEqual(game_rankdelta(game1, players, None), result1)
 
         team3 = [2, 3]
         team4 = [5, 6]
@@ -55,7 +55,7 @@ class TestPS4Elo(unittest.TestCase):
             5: 19,
             6: 1
         }
-        self.assertDictEqual(game_rankdelta(game2, players), result2)
+        self.assertDictEqual(game_rankdelta(game2, players, None), result2)
 
         game3 = PS4Elo.Game(teams2, 0, {})
         result3 = {
@@ -64,7 +64,7 @@ class TestPS4Elo(unittest.TestCase):
             5: -1,
             6: -20
         }
-        self.assertDictEqual(game_rankdelta(game3, players), result3)
+        self.assertDictEqual(game_rankdelta(game3, players, None), result3)
 
     def test_ranking_delta_for_game_multi_team(self):
         game_rankdelta = PS4Elo.ranking_delta_for_game
@@ -92,7 +92,7 @@ class TestPS4Elo(unittest.TestCase):
             6:-20
         }
 
-        self.assertDictEqual(game_rankdelta(game, players), result)
+        self.assertDictEqual(game_rankdelta(game, players, None), result)
 
     def test_calculate_scrub_ranking(self):
         scrub_mod = PS4Elo.calculate_scrub_modifier
@@ -133,7 +133,7 @@ class TestPS4Elo(unittest.TestCase):
 
         games1 = [game1, game2]
 
-        result1 = calc_ranks(games1)
+        result1 = calc_ranks(games1, None)
 
         self.assertEqual(result1[1].ranking, 1499)
         self.assertEqual(result1[2].ranking, 1499)
@@ -142,7 +142,7 @@ class TestPS4Elo(unittest.TestCase):
 
         games2 = [game2, game2, game2]
 
-        result2 = calc_ranks(games2)
+        result2 = calc_ranks(games2, None)
         self.assertEqual(result2[1].ranking, 1472)
         self.assertEqual(result2[2].ranking, 1472)
         self.assertEqual(result2[3].ranking, 1528)
