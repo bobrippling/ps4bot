@@ -15,6 +15,16 @@ class Player:
         self.games_played = 0
         self.historical_ranking = []
 
+    def getName(self):
+        if (self.games_played > 10):
+            return self.id
+        return self.id + '*'
+
+    def getFormattedRanking(self):
+        if (self.games_played > 10):
+            return self.ranking
+        return str(self.ranking) + '?'
+
     def getHistory(self, history_length):
 
         history = ''

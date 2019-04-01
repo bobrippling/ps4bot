@@ -753,12 +753,12 @@ class PS4Bot(Bot):
             )
 
             if history_length:
-                ranking_values = map(lambda ranking: [ranking.id, ranking.games_played, ranking.ranking, ranking.getHistory(history_length)], rankings.values())
-                ranking_values.sort(key=lambda x: x[2], reverse=True)
+                ranking_values = map(lambda ranking: [ranking.getName(), ranking.games_played, ranking.getFormattedRanking(), ranking.getHistory(history_length)], rankings.values())
+                ranking_values.sort(key=lambda x: (x[1] > 10,  x[2]), reverse=True)
                 table = generate_table(['Player', 'Games Played', 'Ranking', 'Form'], ranking_values)
             else: 
-                ranking_values = map(lambda ranking: [ranking.id, ranking.games_played, ranking.ranking], rankings.values())
-                ranking_values.sort(key=lambda x: x[2], reverse=True)
+                ranking_values = map(lambda ranking: [ranking.getName(), ranking.games_played, ranking.getFormattedRanking()], rankings.values())
+                ranking_values.sort(key=lambda x: (x[1] > 10, x[2]), reverse=True)
                 table = generate_table(['Player', 'Games Played', 'Ranking'], ranking_values)
 
             self.send_message(table)
