@@ -14,12 +14,12 @@ class Player:
         self.historical_ranking = []
 
     def getName(self):
-        if (self.games_played > 10):
+        if self.games_played > 10:
             return self.id
         return self.id + '*'
 
     def getFormattedRanking(self):
-        if (self.games_played > 10):
+        if self.games_played > 10:
             return self.ranking
         return str(self.ranking) + '?'
 
@@ -36,7 +36,7 @@ class Player:
         relevant_history = self.historical_ranking[-(history_length + 1):]
         for rank in relevant_history:
             if not previous_rank:
-                if (len(relevant_history) != history_length + 1):
+                if len(relevant_history) != history_length + 1:
                     previous_rank = HisoricalRank(initial_ranking)
                 else:
                     previous_rank = rank
