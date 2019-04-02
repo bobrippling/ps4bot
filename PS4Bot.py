@@ -730,7 +730,7 @@ class PS4Bot(Bot):
         channel_name = None
         year = None
         k_factor = None
-        history_length = None
+        history_length = 0
 
         if len(rest):
             parsed = parse_stats_request(rest)
@@ -747,15 +747,17 @@ class PS4Bot(Bot):
 
         if type == StatRequest.elo:
             rankings = self.history.summary_elo(channel_name, year = year, k_factor = k_factor)
+            ranking_values = map(
+                    lambda ranking: [
+                        ranking.getName(),
+                        ranking.games_played,
+                        ranking.getFormattedRanking(),
+                        ranking.getHistory(history_length)
+                    ],
+                    rankings.values())
+            ranking_values.sort(key=lambda x: (x[1] > 10,  x[2]), reverse=True)
 
-            if history_length:
-                ranking_values = map(lambda ranking: [ranking.getName(), ranking.games_played, ranking.getFormattedRanking(), ranking.getHistory(history_length)], rankings.values())
-                ranking_values.sort(key=lambda x: (x[1] > 10,  x[2]), reverse=True)
-                table = generate_table(['Player', 'Games Played', 'Ranking', 'Form'], ranking_values)
-            else:
-                ranking_values = map(lambda ranking: [ranking.getName(), ranking.games_played, ranking.getFormattedRanking()], rankings.values())
-                ranking_values.sort(key=lambda x: (x[1] > 10, x[2]), reverse=True)
-                table = generate_table(['Player', 'Games Played', 'Ranking'], ranking_values)
+            table = generate_table(['Player', 'Games Played', 'Ranking', 'Form'], ranking_values)
 
             self.send_message(table)
         else:
