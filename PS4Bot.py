@@ -757,7 +757,13 @@ class PS4Bot(Bot):
                     rankings.values())
             ranking_values.sort(key=lambda x: (x[1] > minimum_games_played,  x[2]), reverse=True)
 
-            table = generate_table(['Player', 'Games Played', 'Ranking', 'Form'], ranking_values)
+            headers = ['Player', 'Games Played', 'Ranking', 'Form']
+            if parameters["h"] is None:
+                # drop the Form column
+                ranking_values = map(lambda ranking: ranking[0:3], ranking_values)
+                headers = headers[0:3]
+
+            table = generate_table(headers, ranking_values)
 
             self.send_message(table)
         else:
