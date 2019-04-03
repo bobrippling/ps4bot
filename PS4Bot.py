@@ -750,10 +750,10 @@ class PS4Bot(Bot):
             rankings = self.history.summary_elo(channel_name, year = year, k_factor = k_factor)
             ranking_values = map(
                     lambda ranking: [
-                        ranking.getName(),
+                        ranking.get_name(),
                         ranking.games_played,
-                        ranking.getFormattedRanking(),
-                        ranking.getHistory(history_length)
+                        ranking.get_formatted_ranking(),
+                        ranking.get_history(history_length)
                     ],
                     rankings.values())
             ranking_values.sort(key=lambda x: (x[1] > minimum_games_played,  x[2]), reverse=True)
