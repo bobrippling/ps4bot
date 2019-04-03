@@ -16,6 +16,7 @@ from PS4Parsing import parse_time, deserialise_time, parse_game_initiation, \
         pretty_mode, parse_stats_request, date_with_year
 from PS4History import PS4History, Keys
 from PS4GameCategory import vote_message, Stats, channel_statmap, suggest_teams
+from PS4Elo import minimum_games_played
 
 DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
@@ -755,7 +756,7 @@ class PS4Bot(Bot):
                         ranking.getHistory(history_length)
                     ],
                     rankings.values())
-            ranking_values.sort(key=lambda x: (x[1] > 10,  x[2]), reverse=True)
+            ranking_values.sort(key=lambda x: (x[1] > minimum_games_played,  x[2]), reverse=True)
 
             table = generate_table(['Player', 'Games Played', 'Ranking', 'Form'], ranking_values)
 

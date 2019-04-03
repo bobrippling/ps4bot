@@ -1,6 +1,7 @@
 initial_ranking = 1500
 default_k_factor = 20
 scrub_modifier = 1.1
+minimum_games_played = 10
 
 class Result:
     win = 1
@@ -14,12 +15,12 @@ class Player:
         self.historical_ranking = []
 
     def getName(self):
-        if self.games_played > 10:
+        if self.games_played > minimum_games_played:
             return self.id
         return self.id + '*'
 
     def getFormattedRanking(self):
-        if self.games_played > 10:
+        if self.games_played > minimum_games_played:
             return self.ranking
         return str(self.ranking) + '?'
 
