@@ -71,7 +71,10 @@ def expected_score(ranking, other_ranking):
     diff = 10 ** ((other_ranking - ranking) / float(400))
     return float(1) / (1 + diff)
 
-def ranking_delta(ranking, other_ranking, result, k_factor = default_k_factor):
+def ranking_delta(ranking, other_ranking, result, k_factor):
+    if not k_factor:
+        k_factor = default_k_factor
+
     expected_ranking = expected_score(ranking, other_ranking)
 
     initial_delta = round(k_factor * (result - expected_ranking))
