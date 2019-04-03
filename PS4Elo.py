@@ -35,7 +35,7 @@ class Player:
         for rank in relevant_history:
             if not previous_rank:
                 if len(relevant_history) != history_length + 1:
-                    previous_rank = HisoricalRank(initial_ranking)
+                    previous_rank = HistoricalRank(initial_ranking)
                 else:
                     previous_rank = rank
                     continue
@@ -45,7 +45,7 @@ class Player:
         return reduce(lambda result, value: result + ("W " if value else "L "), results, "")
 
 
-class HisoricalRank:
+class HistoricalRank:
     def __init__(self, rank, team = None, delta = None, scrub_modifier = None):
         self.rank = rank
         self.team = team
@@ -154,7 +154,7 @@ def calculate_rankings(games, k_factor):
                     scrub_modifier = calculate_scrub_modifier(player, game)
 
                 player.ranking += round(individual_ranking_delta[player.id] * scrub_modifier)
-                player.historical_ranking.append(HisoricalRank(
+                player.historical_ranking.append(HistoricalRank(
                     player.ranking, team, individual_ranking_delta, scrub_modifier))
 
     return players
