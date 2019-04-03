@@ -2,11 +2,11 @@ import sys
 from collections import defaultdict
 import datetime
 
-from Functional import find
+from functional import find
 
-from PS4HistoricGame import PS4HistoricGame
-import PS4Elo
-from PS4GameCategory import limit_game_to_single_win, Stats
+from ps4historicgame import PS4HistoricGame
+import ps4elo
+from ps4gamecategory import limit_game_to_single_win, Stats
 
 SAVE_FILE = "ps4-stats.txt"
 
@@ -178,7 +178,7 @@ class PS4History:
             teams = [winners, losers]
             winning_team_index = 0
 
-            return PS4Elo.Game(teams, winning_team_index, scrub)
+            return ps4elo.Game(teams, winning_team_index, scrub)
 
         def game_can_elo(game):
             for team in game.teams:
@@ -192,7 +192,7 @@ class PS4History:
         elo_games = map(convert_to_elo_game, elo_games)
         elo_games = filter(game_can_elo, elo_games)
 
-        rankings = PS4Elo.calculate_rankings(elo_games, k_factor)
+        rankings = ps4elo.calculate_rankings(elo_games, k_factor)
 
         return rankings
 

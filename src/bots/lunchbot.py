@@ -1,6 +1,6 @@
-from Bot import Bot
-from Rating import Rating
-from Destination import Destination
+from bot import Bot
+from rating import Rating
+from destination import Destination
 import random
 import datetime
 import re

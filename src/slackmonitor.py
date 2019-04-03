@@ -3,12 +3,12 @@ import time
 import websocket
 import socket
 import traceback
-from SlackMessage import SlackMessage
-from SlackEdit import SlackEdit
-from SlackReaction import SlackReaction
-from SlackDeletion import SlackDeletion
-from Bot import USER_RE, lookup_user
-from PS4Formatting import format_user
+from msg.slackmessage import SlackMessage
+from msg.slackedit import SlackEdit
+from msg.slackreaction import SlackReaction
+from msg.slackdeletion import SlackDeletion
+from bots.bot import USER_RE, lookup_user
+from bots.ps4.ps4formatting import format_user
 
 MSG_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 PING_TIMEOUT = 10

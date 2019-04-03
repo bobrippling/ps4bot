@@ -1,4 +1,4 @@
-from Rating import Rating
+from rating import Rating
 import time
 
 class Destination():

@@ -1,6 +1,6 @@
 import random
 from collections import defaultdict
-from PS4Formatting import format_user, number_emojis, pretty_players
+from ps4formatting import format_user, number_emojis, pretty_players
 
 class Stats:
     scrub = "scrub"

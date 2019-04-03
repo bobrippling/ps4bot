@@ -2,7 +2,7 @@ from collections import defaultdict
 import datetime
 import re
 
-from PS4Config import default_max_players, PLAY_TIME
+from ps4config import default_max_players, PLAY_TIME
 
 punctuation = [".", "?", ","]
 time_prefixes = ["at"]

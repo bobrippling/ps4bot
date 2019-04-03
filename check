@@ -6,11 +6,12 @@ then
 	exit 2
 fi
 
-if ! test -e config.py
+cfg=src/config.py
+if ! test -e "$cfg"
 then
 	echo >&2 "Creating dummy config.py..."
 
-	cat >config.py <<!
+	cat >"$cfg" <<!
 slack_token = "invalid"
 user_renames = {}
 channel_max_players = {}
@@ -19,7 +20,7 @@ fi
 
 ec=0
 
-for f in *.spec.py
+for f in $(find src -iname '*.spec.py')
 do
 	if ! python "$f"
 	then ec=1

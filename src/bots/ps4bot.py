@@ -5,18 +5,18 @@ import sys
 import re
 import traceback
 
-from Functional import find
+from functional import find
 
-from Bot import Bot
-from SlackPostedMessage import SlackPostedMessage
-from PS4Game import Game, GameStates
-from PS4Formatting import format_user, format_user_padding, when_str, number_emojis, generate_table
-from PS4Config import PLAY_TIME, GAME_FOLLOWON_TIME
-from PS4Parsing import parse_time, deserialise_time, parse_game_initiation, \
+from bot import Bot
+from msg.slackpostedmessage import SlackPostedMessage
+from ps4.ps4game import Game, GameStates
+from ps4.ps4formatting import format_user, format_user_padding, when_str, number_emojis, generate_table
+from ps4.ps4config import PLAY_TIME, GAME_FOLLOWON_TIME
+from ps4.ps4parsing import parse_time, deserialise_time, parse_game_initiation, \
         pretty_mode, parse_stats_request, date_with_year
-from PS4History import PS4History, Keys
-from PS4GameCategory import vote_message, Stats, channel_statmap, suggest_teams
-from PS4Elo import minimum_games_played
+from ps4.ps4history import PS4History, Keys
+from ps4.ps4gamecategory import vote_message, Stats, channel_statmap, suggest_teams
+from ps4.ps4elo import minimum_games_played
 
 DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")

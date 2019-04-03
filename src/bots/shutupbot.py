@@ -1,4 +1,4 @@
-from Bot import Bot
+from bot import Bot
 
 class ShutupBot(Bot):
     def __init__(self, slackconnection, botname):

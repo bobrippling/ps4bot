@@ -1,4 +1,4 @@
-from Bot import Bot
+from bot import Bot
 import os
 import datetime
 import time

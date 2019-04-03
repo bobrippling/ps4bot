@@ -3,13 +3,18 @@ import unittest
 import sys
 sys.modules['datetime'] = __import__('mock_datetime')
 
+from os import path
+import sys
+fcwd = path.dirname(__file__)
+sys.path.insert(0, path.abspath("{}/../../".format(fcwd)))
+
 import datetime
-from PS4Parsing import parse_game_initiation, today_at
-from PS4Bot import Game, PS4Bot, GameStates
-from PS4History import PS4History
-from SlackMessage import SlackMessage
-from SlackPostedMessage import SlackPostedMessage
-from SlackReaction import SlackReaction
+from bots.ps4.ps4parsing import parse_game_initiation, today_at
+from bots.ps4bot import Game, PS4Bot, GameStates
+from bots.ps4.ps4history import PS4History
+from msg.slackmessage import SlackMessage
+from msg.slackpostedmessage import SlackPostedMessage
+from msg.slackreaction import SlackReaction
 
 posted_message_when = today_at(11, 43)
 

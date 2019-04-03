@@ -1,4 +1,4 @@
-from Functional import find
+from functional import find
 
 # represents the stats for a single game
 class Stats:

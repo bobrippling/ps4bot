@@ -98,7 +98,7 @@ commands = {
     }
 }
 
-from Bot import Bot
+from bot import Bot
 
 class DoodleBot(Bot):
     def __init__(self, slackconnection, botname):

@@ -1,7 +1,7 @@
 import re
 import time
 
-from SlackPostedMessage import SlackPostedMessage
+from msg.slackpostedmessage import SlackPostedMessage
 
 USER_RE_ANCHORED = re.compile('^<@(U[^>|]+)(\|[^>]+)?>')
 USER_RE = re.compile('<@(U[^>|]+)(\|[^>]+)?>')

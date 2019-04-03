@@ -1,9 +1,14 @@
 import unittest
 import datetime
 
-from PS4History import PS4History, Keys
-from PS4Game import Game
-from SlackPostedMessage import SlackPostedMessage
+from os import path
+import sys
+fcwd = path.dirname(__file__)
+sys.path.insert(0, path.abspath("{}/../../".format(fcwd)))
+
+from bots.ps4.ps4history import PS4History, Keys
+from bots.ps4.ps4game import Game
+from msg.slackpostedmessage import SlackPostedMessage
 
 def noop(*args):
     pass

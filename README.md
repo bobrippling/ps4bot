@@ -4,7 +4,7 @@
 
 `pip install slackclient`
 
-Create a config file, `./config.py` with the following contents:
+Create a config file, `./src/config.py` with the following contents:
 ```python
 slack_token = "YOUR_TOKEN_HERE"
 
@@ -21,7 +21,7 @@ User renames is for users whose internal slack name isn't as it appears when ren
 
 # Running
 
-`./lunchbot channelspecs... -- botspecs...`
+`./src/main channelspecs... -- botspecs...`
 
 This runs those bots, listening on the specified channels.
 

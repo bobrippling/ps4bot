@@ -4,16 +4,17 @@ from slackclient import SlackClient
 import signal
 import sys
 import config
-from LunchBot import LunchBot
-from DumpBot import DumpBot
-from DoodleBot import DoodleBot
-from SwiftBot import SwiftBot
-from LogBot import LogBot
-from ShutupBot import ShutupBot
-from SportBot import SportBot
-from MemeBot import MemeBot
-from PS4Bot import PS4Bot
-from SlackMonitor import SlackMonitor
+
+from bots.lunchbot import LunchBot
+from bots.dumpbot import DumpBot
+from bots.doodlebot import DoodleBot
+from bots.swiftbot import SwiftBot
+from bots.logbot import LogBot
+from bots.shutupbot import ShutupBot
+from bots.sportbot import SportBot
+from bots.memebot import MemeBot
+from bots.ps4bot import PS4Bot
+from slackmonitor import SlackMonitor
 
 def usage():
     print >>sys.stderr, "Usage: {} channel(s...) -- bot(s...)".format(sys.argv[0])
