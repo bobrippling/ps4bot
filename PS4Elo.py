@@ -34,7 +34,8 @@ class Player:
         relevant_history = self.historical_ranking[-(history_length + 1):]
         for rank in relevant_history:
             if not previous_rank:
-                if len(relevant_history) != history_length + 1:
+                short_history = len(relevant_history) != history_length + 1
+                if short_history:
                     previous_rank = HistoricalRank(initial_ranking)
                 else:
                     previous_rank = rank
