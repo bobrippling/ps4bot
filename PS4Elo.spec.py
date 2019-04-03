@@ -1,6 +1,9 @@
 import unittest
 import PS4Elo
 
+def game_rankdelta(game, players):
+    return PS4Elo.ranking_delta_for_game(game, players, None)
+
 class TestPS4Elo(unittest.TestCase):
     def test_expected_score(self):
         def calc_score(ranking, other_ranking):
@@ -23,8 +26,6 @@ class TestPS4Elo(unittest.TestCase):
         self.assertEqual(rank_delta(1000, 3000, PS4Elo.Result.loss, 32), -1)
 
     def test_ranking_delta_for_game(self):
-        game_rankdelta = PS4Elo.ranking_delta_for_game
-
         team1 = [1, 2]
         team2 = [3, 4]
         teams = [team1, team2]
@@ -67,8 +68,6 @@ class TestPS4Elo(unittest.TestCase):
         self.assertDictEqual(game_rankdelta(game3, players), result3)
 
     def test_ranking_delta_for_game_multi_team(self):
-        game_rankdelta = PS4Elo.ranking_delta_for_game
-
         team1 = [1, 2]
         team2 = [3, 4]
         team3 = [5, 6]
@@ -118,7 +117,8 @@ class TestPS4Elo(unittest.TestCase):
         self.assertEqual(round(scrub_mod(player4, game), 4), 1)
 
     def test_calculate_ranking(self):
-        calc_ranks = PS4Elo.calculate_rankings
+        def calc_ranks(game):
+            return PS4Elo.calculate_rankings(game, None)
         Game = PS4Elo.Game
 
         team1 = [1, 2]

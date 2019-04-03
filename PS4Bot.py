@@ -16,6 +16,7 @@ from PS4Parsing import parse_time, deserialise_time, parse_game_initiation, \
         pretty_mode, parse_stats_request, date_with_year
 from PS4History import PS4History, Keys
 from PS4GameCategory import vote_message, Stats, channel_statmap, suggest_teams
+from PS4Elo import minimum_games_played
 
 DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
@@ -729,6 +730,7 @@ class PS4Bot(Bot):
         anchor_message = True
         channel_name = None
         year = None
+        parameters = defaultdict(lambda: None)
 
         if len(rest):
             parsed = parse_stats_request(rest)
@@ -736,7 +738,7 @@ class PS4Bot(Bot):
                 self.send_message(":warning: ere {}: \"{} [year] [channel]\"".format(
                     type, format_user(message.user)))
                 return
-            channel_name, year = parsed
+            channel_name, year, parameters = parsed
             anchor_message = (channel_name is None or channel_name == message.channel.name) \
                     and (year is None or year.year == datetime.date.today().year)
 
@@ -744,11 +746,24 @@ class PS4Bot(Bot):
             channel_name = message.channel.name
 
         if type == StatRequest.elo:
-            rankings = self.history.summary_elo(channel_name, year = year)
-            ranking_values = map(lambda ranking: [ranking.id, ranking.games_played, ranking.ranking], rankings.values())
-            ranking_values.sort(key=lambda x: x[2], reverse=True)
+            rankings = self.history.summary_elo(channel_name, year = year, k_factor = parameters["k"])
+            ranking_values = map(
+                    lambda ranking: [
+                        ranking.get_name(),
+                        ranking.games_played,
+                        ranking.get_formatted_ranking(),
+                        ranking.get_history(parameters["h"])
+                    ],
+                    rankings.values())
+            ranking_values.sort(key=lambda x: (x[1] > minimum_games_played,  x[2]), reverse=True)
 
-            table = generate_table(['Player', 'Games Played', 'Ranking'], ranking_values)
+            headers = ['Player', 'Games Played', 'Ranking', 'Form']
+            if parameters["h"] is None:
+                # drop the Form column
+                ranking_values = map(lambda ranking: ranking[0:3], ranking_values)
+                headers = headers[0:3]
+
+            table = generate_table(headers, ranking_values)
 
             self.send_message(table)
         else:

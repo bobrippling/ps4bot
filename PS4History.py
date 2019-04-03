@@ -156,7 +156,7 @@ class PS4History:
 
         return stats # { mode: { user: { [stat]: int ... }, ... } }
 
-    def summary_elo(self, channel, year = None):
+    def summary_elo(self, channel, year = None, k_factor = None):
         nextyear = calc_nextyear(year)
 
         def game_is_this_channel(game):
@@ -192,7 +192,7 @@ class PS4History:
         elo_games = map(convert_to_elo_game, elo_games)
         elo_games = filter(game_can_elo, elo_games)
 
-        rankings = PS4Elo.calculate_rankings(elo_games)
+        rankings = PS4Elo.calculate_rankings(elo_games, k_factor)
 
         return rankings
 
