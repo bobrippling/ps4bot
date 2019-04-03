@@ -1,10 +1,13 @@
+from collections import defaultdict
 import datetime
+import re
 
 from PS4Config import default_max_players, PLAY_TIME
 
 punctuation = [".", "?", ","]
 time_prefixes = ["at"]
 competitive_keywords = ["compet", "competitive", "1v1", "1v1me"]
+parameter_re = re.compile('^([a-z]+)=(.*)')
 
 def today_at(hour, min):
     return datetime.datetime.today().replace(
@@ -67,8 +70,7 @@ def maybe_parse_time(s):
 def parse_stats_request(request):
     channel_name = None
     since = None
-    k_factor = None
-    history_length = None
+    parameters = defaultdict(lambda: None)
 
     parts = request.split(" ")
     for part in parts:
@@ -79,23 +81,13 @@ def parse_stats_request(request):
             except ValueError:
                 pass
 
-        if part.startswith("k="):
-            if not k_factor:
-                try:
-                    k_factor = int(part[2:])
-                    continue
-                except ValueError:
-                    pass
-            continue
-
-        if part.startswith("h="):
-            if not history_length:
-                try:
-                    history_length = int(part[2:])
-                    continue
-                except ValueError:
-                    pass
-            continue
+        parameter_match = parameter_re.search(part)
+        if parameter_match:
+            try:
+                parameters[parameter_match.group(1)] = int(parameter_match.group(2))
+                continue
+            except ValueError:
+                return None
 
         if not channel_name:
             channel_name = part
@@ -104,7 +96,7 @@ def parse_stats_request(request):
         # unrecognised
         return None
 
-    return channel_name, date_with_year(since) if since else None, k_factor, history_length
+    return channel_name, date_with_year(since) if since else None, parameters
 
 def pretty_mode(mode):
     if mode == "compet":

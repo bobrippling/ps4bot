@@ -730,8 +730,7 @@ class PS4Bot(Bot):
         anchor_message = True
         channel_name = None
         year = None
-        k_factor = None
-        history_length = 0
+        parameters = defaultdict(lambda: None)
 
         if len(rest):
             parsed = parse_stats_request(rest)
@@ -739,7 +738,7 @@ class PS4Bot(Bot):
                 self.send_message(":warning: ere {}: \"{} [year] [channel]\"".format(
                     type, format_user(message.user)))
                 return
-            channel_name, year, k_factor, history_length = parsed
+            channel_name, year, parameters = parsed
             anchor_message = (channel_name is None or channel_name == message.channel.name) \
                     and (year is None or year.year == datetime.date.today().year)
 
@@ -747,13 +746,13 @@ class PS4Bot(Bot):
             channel_name = message.channel.name
 
         if type == StatRequest.elo:
-            rankings = self.history.summary_elo(channel_name, year = year, k_factor = k_factor)
+            rankings = self.history.summary_elo(channel_name, year = year, k_factor = parameters["k"])
             ranking_values = map(
                     lambda ranking: [
                         ranking.get_name(),
                         ranking.games_played,
                         ranking.get_formatted_ranking(),
-                        ranking.get_history(history_length)
+                        ranking.get_history(parameters["h"])
                     ],
                     rankings.values())
             ranking_values.sort(key=lambda x: (x[1] > minimum_games_played,  x[2]), reverse=True)
