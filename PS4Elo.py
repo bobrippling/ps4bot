@@ -33,21 +33,21 @@ class Player:
 
         relevant_history = self.historical_ranking[-(history_length + 1):]
         for rank in relevant_history:
-            if not previous_rank:
+            if previous_rank is None:
                 short_history = len(relevant_history) != history_length + 1
                 if short_history:
-                    previous_rank = HistoricalRank(initial_ranking)
+                    previous_rank = initial_ranking
                 else:
-                    previous_rank = rank
+                    previous_rank = rank.rank
                     continue
-            results.append(previous_rank.rank < rank.rank)
+            results.append(previous_rank < rank)
             previous_rank = rank
 
         return reduce(lambda result, value: result + ("W " if value else "L "), results, "")
 
 
 class HistoricalRank:
-    def __init__(self, rank, team = None, delta = None, scrub_modifier = None):
+    def __init__(self, rank, team, delta, scrub_modifier):
         self.rank = rank
         self.team = team
         self.delta = delta
