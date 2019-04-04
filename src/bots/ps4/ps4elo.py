@@ -40,8 +40,8 @@ class Player:
                 else:
                     previous_rank = rank.rank
                     continue
-            results.append(previous_rank < rank)
-            previous_rank = rank
+            results.append(previous_rank < rank.rank)
+            previous_rank = rank.rank
 
         return reduce(lambda result, value: result + ("W " if value else "L "), results, "")
 
