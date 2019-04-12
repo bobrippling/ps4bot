@@ -704,7 +704,12 @@ class PS4Bot(Bot):
 
             def stats_sort_key(stats):
                 # sort on the penultimate statistic (elorank)
-                return stats[len(stats) - 2]
+                elorank = stats[len(stats) - 2]
+                try:
+                    return float(elorank)
+                except:
+                    # not ranked yet, sort at bottom
+                    return -1
 
             header = ["Player"] + map(Stats.pretty, allstats)
             stats_per_user = map(stat_for_user, modestats.iteritems())
