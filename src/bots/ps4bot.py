@@ -16,7 +16,6 @@ from ps4.ps4parsing import parse_time, deserialise_time, parse_game_initiation, 
         pretty_mode, parse_stats_request, date_with_year
 from ps4.ps4history import PS4History, Keys
 from ps4.ps4gamecategory import vote_message, Stats, channel_statmap, suggest_teams
-from ps4.ps4elo import minimum_games_played
 
 DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
@@ -24,10 +23,6 @@ SAVE_FILE = "ps4-games.txt"
 
 class UserOption:
     mute = "mute"
-
-class StatRequest:
-    stats = "stats"
-    elo = "elo"
 
 # command => (show-in-usage, handler)
 PS4Bot_commands = {
@@ -37,8 +32,8 @@ PS4Bot_commands = {
     "flyin": (True, lambda self, *args: self.join_or_bail(*args)),
     "bail": (True, lambda self, *args: self.join_or_bail(*args, bail = True)),
     "scuttle": (True, lambda self, *args: self.maybe_scuttle_game(*args)),
-    StatRequest.stats: (True, lambda self, *args: self.handle_stats_request(*args)),
-    StatRequest.elo: (True, lambda self, *args: self.handle_stats_request(*args, type=StatRequest.elo)),
+    "stats": (True, lambda self, *args: self.handle_stats_request(*args)),
+    "elo": (True, lambda self, *args: self.handle_stats_request(*args)),
     "credits": (True, lambda self, *args: self.send_credits(*args)),
     "topradge": (False, lambda self, *args: self.handle_stats_request(*args)),
     "thanks": (False, lambda self, *args: self.send_thanks_reply(*args)),
@@ -725,8 +720,7 @@ class PS4Bot(Bot):
         if table_msg and anchor_message:
             self.latest_stats_table[channel].timestamp = table_msg.timestamp
 
-    # type: "basic" | "elo"
-    def handle_stats_request(self, message, rest, type=StatRequest.stats):
+    def handle_stats_request(self, message, rest):
         anchor_message = True
         channel_name = None
         year = None
@@ -735,8 +729,8 @@ class PS4Bot(Bot):
         if len(rest):
             parsed = parse_stats_request(rest)
             if not parsed:
-                self.send_message(":warning: ere {}: \"{} [year] [channel]\"".format(
-                    type, format_user(message.user)))
+                self.send_message(":warning: ere {}: \"stats [year] [channel]\"".format(
+                    format_user(message.user)))
                 return
             channel_name, year, parameters = parsed
             anchor_message = (channel_name is None or channel_name == message.channel.name) \
@@ -745,31 +739,10 @@ class PS4Bot(Bot):
         if not channel_name:
             channel_name = message.channel.name
 
-        if type == StatRequest.elo:
-            rankings = self.history.summary_elo(channel_name, year = year, k_factor = parameters["k"])
-            ranking_values = map(
-                    lambda ranking: [
-                        ranking.get_name(),
-                        ranking.games_played,
-                        ranking.get_formatted_ranking(),
-                        ranking.get_history(parameters["h"])
-                    ],
-                    rankings.values())
-            ranking_values.sort(key=lambda x: (x[1] > minimum_games_played,  x[2]), reverse=True)
+        stats = self.history.summary_stats(channel_name, year = year, k_factor = parameters["k"])
 
-            headers = ['Player', 'Games Played', 'Ranking', 'Form']
-            if parameters["h"] is None:
-                # drop the Form column
-                ranking_values = map(lambda ranking: ranking[0:3], ranking_values)
-                headers = headers[0:3]
-
-            table = generate_table(headers, ranking_values)
-
-            self.send_message(table)
-        else:
-            stats = self.history.summary_stats(channel_name, year = year)
-            self.update_stats_table(channel_name, stats, force_new = True, anchor_message = anchor_message)
-            self.latest_stats_table[channel_name].year = year
+        self.update_stats_table(channel_name, stats, force_new = True, anchor_message = anchor_message)
+        self.latest_stats_table[channel_name].year = year
 
     def handle_command(self, message, command, rest):
         if len(command.strip()) == 0 and len(rest) == 0:
