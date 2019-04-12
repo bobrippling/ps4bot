@@ -27,7 +27,7 @@ pretty = {
 }
 
 def channel_is_towerfall(channel):
-    return "towerfall" in channel
+    return "towerfall" in channel or "_test" in channel
 
 def channel_is_fifa(channel):
     return "fifa" in channel
