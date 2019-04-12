@@ -13,7 +13,7 @@ from ps4.ps4game import Game, GameStates
 from ps4.ps4formatting import format_user, format_user_padding, when_str, number_emojis, generate_table
 from ps4.ps4config import PLAY_TIME, GAME_FOLLOWON_TIME
 from ps4.ps4parsing import parse_time, deserialise_time, parse_game_initiation, \
-        pretty_mode, parse_stats_request, date_with_year
+        pretty_mode, parse_stats_request, date_with_year, empty_parameters
 from ps4.ps4history import PS4History, Keys
 from ps4.ps4gamecategory import vote_message, Stats, channel_statmap, suggest_teams
 
@@ -724,7 +724,7 @@ class PS4Bot(Bot):
         anchor_message = True
         channel_name = None
         year = None
-        parameters = defaultdict(lambda: None)
+        parameters = empty_parameters()
 
         if len(rest):
             parsed = parse_stats_request(rest)
