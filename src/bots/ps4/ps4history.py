@@ -198,9 +198,9 @@ class PS4History:
 
         return rankings
 
-    def summary_stats(self, channel, year = None, k_factor = None):
+    def summary_stats(self, channel, year, parameters):
         rawstats = self.raw_stats(channel, year)
-        rawelo = self.raw_elo(channel, year, k_factor)
+        rawelo = self.raw_elo(channel, year, k_factor = parameters["k"])
 
         mode_to_merge = None
         for user, statmap in rawstats[mode_to_merge].iteritems():
@@ -208,7 +208,7 @@ class PS4History:
                 user_elo = rawelo[user]
 
                 statmap[Keys.elorank] = user_elo.get_formatted_ranking()
-                statmap[Keys.history] = user_elo.get_history(10) # FIXME: hardcoded
+                statmap[Keys.history] = user_elo.get_history(parameters["h"] or 10)
 
         return rawstats
 

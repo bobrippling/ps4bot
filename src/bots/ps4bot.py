@@ -739,7 +739,7 @@ class PS4Bot(Bot):
         if not channel_name:
             channel_name = message.channel.name
 
-        stats = self.history.summary_stats(channel_name, year = year, k_factor = parameters["k"])
+        stats = self.history.summary_stats(channel_name, year = year, parameters = parameters)
 
         self.update_stats_table(channel_name, stats, force_new = True, anchor_message = anchor_message)
         self.latest_stats_table[channel_name].year = year
