@@ -55,6 +55,8 @@ def format_parameters(parameters):
 def parse_parameters(s):
     parameters = empty_parameters()
     for part in s.split(","):
+        if not len(part):
+            continue
         k, v = part.split("=", 2)
         try:
             if v == "None":
