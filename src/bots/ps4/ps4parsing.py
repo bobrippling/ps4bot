@@ -67,10 +67,13 @@ def maybe_parse_time(s):
     except ValueError:
         return None
 
+def empty_parameters():
+    return defaultdict(lambda: None)
+
 def parse_stats_request(request):
     channel_name = None
     since = None
-    parameters = defaultdict(lambda: None)
+    parameters = empty_parameters()
 
     parts = request.split(" ")
     for part in parts:

@@ -14,6 +14,8 @@ class Keys:
     game_wins = "Game Wins"
     played = "Played"
     winratio = "Win Ratio"
+    elorank = "Ranking"
+    history = "History"
 
 def should_skip_game_year(game, year, nextyear):
     if not year:
@@ -116,7 +118,7 @@ class PS4History:
                 return True
         return False
 
-    def summary_stats(self, channel, year = None):
+    def raw_stats(self, channel, year = None):
         stats = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
 
         nextyear = calc_nextyear(year)
@@ -156,7 +158,7 @@ class PS4History:
 
         return stats # { mode: { user: { [stat]: int ... }, ... } }
 
-    def summary_elo(self, channel, year = None, k_factor = None):
+    def raw_elo(self, channel, year = None, k_factor = None):
         nextyear = calc_nextyear(year)
 
         def game_is_this_channel(game):
@@ -195,6 +197,20 @@ class PS4History:
         rankings = ps4elo.calculate_rankings(elo_games, k_factor)
 
         return rankings
+
+    def summary_stats(self, channel, year, parameters):
+        rawstats = self.raw_stats(channel, year)
+        rawelo = self.raw_elo(channel, year, k_factor = parameters["k"])
+
+        mode_to_merge = None
+        for user, statmap in rawstats[mode_to_merge].iteritems():
+            if user in rawelo:
+                user_elo = rawelo[user]
+
+                statmap[Keys.elorank] = user_elo.get_formatted_ranking()
+                statmap[Keys.history] = user_elo.get_history(parameters["h"] or 10)
+
+        return rawstats
 
     def user_ranking(self, channel, year = None):
         """

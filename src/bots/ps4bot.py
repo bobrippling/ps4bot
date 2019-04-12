@@ -13,10 +13,9 @@ from ps4.ps4game import Game, GameStates
 from ps4.ps4formatting import format_user, format_user_padding, when_str, number_emojis, generate_table
 from ps4.ps4config import PLAY_TIME, GAME_FOLLOWON_TIME
 from ps4.ps4parsing import parse_time, deserialise_time, parse_game_initiation, \
-        pretty_mode, parse_stats_request, date_with_year
+        pretty_mode, parse_stats_request, date_with_year, empty_parameters
 from ps4.ps4history import PS4History, Keys
 from ps4.ps4gamecategory import vote_message, Stats, channel_statmap, suggest_teams
-from ps4.ps4elo import minimum_games_played
 
 DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
@@ -24,10 +23,6 @@ SAVE_FILE = "ps4-games.txt"
 
 class UserOption:
     mute = "mute"
-
-class StatRequest:
-    stats = "stats"
-    elo = "elo"
 
 # command => (show-in-usage, handler)
 PS4Bot_commands = {
@@ -37,8 +32,8 @@ PS4Bot_commands = {
     "flyin": (True, lambda self, *args: self.join_or_bail(*args)),
     "bail": (True, lambda self, *args: self.join_or_bail(*args, bail = True)),
     "scuttle": (True, lambda self, *args: self.maybe_scuttle_game(*args)),
-    StatRequest.stats: (True, lambda self, *args: self.handle_stats_request(*args)),
-    StatRequest.elo: (True, lambda self, *args: self.handle_stats_request(*args, type=StatRequest.elo)),
+    "stats": (True, lambda self, *args: self.handle_stats_request(*args)),
+    "elo": (True, lambda self, *args: self.handle_stats_request(*args)),
     "credits": (True, lambda self, *args: self.send_credits(*args)),
     "topradge": (False, lambda self, *args: self.handle_stats_request(*args)),
     "thanks": (False, lambda self, *args: self.send_thanks_reply(*args)),
@@ -54,10 +49,30 @@ def replace_dict(str, dict):
 def plural(int):
     return "" if int == 1 else "s"
 
+def format_parameters(parameters):
+    return ",".join(["{}={}".format(k, v) for k, v in parameters.iteritems() if v])
+
+def parse_parameters(s):
+    parameters = empty_parameters()
+    for part in s.split(","):
+        if not len(part):
+            continue
+        k, v = part.split("=", 2)
+        try:
+            if v == "None":
+                v = None
+            else:
+                v = int(v)
+        except ValueError:
+            pass
+        parameters[k] = v
+    return parameters
+
 class LatestStats:
-    def __init__(self, timestamp = None, year = None):
+    def __init__(self, timestamp = None, year = None, parameters = None):
         self.timestamp = timestamp
         self.year = year
+        self.parameters = parameters if parameters is not None else empty_parameters()
 
 class PS4Bot(Bot):
     def __init__(self, slackconnection, botname):
@@ -79,10 +94,11 @@ class PS4Bot(Bot):
                         continue
 
                     if line[:6] == "stats ":
-                        tokens = line.split()
+                        tokens = line.split(" ", 5)
                         self.latest_stats_table[tokens[1]] = LatestStats(
                                 tokens[2],
-                                date_with_year(int(tokens[3])) if len(tokens) > 3 else None)
+                                date_with_year(int(tokens[3])) if tokens[3] != "-" else None,
+                                parse_parameters(tokens[4]))
                         continue
                     if line[:5] == "user ":
                         tokens = line.split()
@@ -169,7 +185,11 @@ class PS4Bot(Bot):
                     print >>f, ""
 
                 for channel, latest in self.latest_stats_table.iteritems():
-                    print >>f, "stats {} {} {}".format(channel, latest.timestamp, latest.year.year if latest.year else "")
+                    print >>f, "stats {} {} {} {}".format(
+                            channel,
+                            latest.timestamp,
+                            latest.year.year if latest.year else "-",
+                            format_parameters(latest.parameters))
 
                 for user, options in self.user_options.iteritems():
                     if len(options):
@@ -641,16 +661,16 @@ class PS4Bot(Bot):
 
             if Keys.game_wins in allstats:
                 # ensure relative ordering
-                special_keys = [Keys.game_wins, Keys.played, Keys.winratio]
+                special_keys = [Keys.game_wins, Keys.played, Keys.winratio, Keys.elorank, Keys.history]
                 allstats = filter(lambda s: s not in special_keys, allstats)
                 allstats.append(Keys.game_wins)
                 allstats.append(Keys.played)
                 allstats.append(Keys.winratio)
+                allstats.append(Keys.elorank)
+                allstats.append(Keys.history)
 
                 stats_to_ignore = list(self.history.negative_stats)
-                stats_to_ignore.append(Keys.game_wins)
-                stats_to_ignore.append(Keys.played)
-                stats_to_ignore.append(Keys.winratio)
+                stats_to_ignore.extend(special_keys)
                 relevant_stats = filter(lambda s: s not in stats_to_ignore, allstats)
                 if len(relevant_stats) == 1:
                     # no need to show the game_wins field
@@ -683,8 +703,13 @@ class PS4Bot(Bot):
                         + map(get_stat_value, allstats)
 
             def stats_sort_key(stats):
-                # sort on the last statistic
-                return stats[len(stats) - 1]
+                # sort on the penultimate statistic (elorank)
+                elorank = stats[len(stats) - 2]
+                try:
+                    return float(elorank)
+                except:
+                    # not ranked yet, sort at bottom
+                    return -1
 
             header = ["Player"] + map(Stats.pretty, allstats)
             stats_per_user = map(stat_for_user, modestats.iteritems())
@@ -725,18 +750,17 @@ class PS4Bot(Bot):
         if table_msg and anchor_message:
             self.latest_stats_table[channel].timestamp = table_msg.timestamp
 
-    # type: "basic" | "elo"
-    def handle_stats_request(self, message, rest, type=StatRequest.stats):
+    def handle_stats_request(self, message, rest):
         anchor_message = True
         channel_name = None
         year = None
-        parameters = defaultdict(lambda: None)
+        parameters = empty_parameters()
 
         if len(rest):
             parsed = parse_stats_request(rest)
             if not parsed:
-                self.send_message(":warning: ere {}: \"{} [year] [channel]\"".format(
-                    type, format_user(message.user)))
+                self.send_message(":warning: ere {}: \"stats [year] [channel]\"".format(
+                    format_user(message.user)))
                 return
             channel_name, year, parameters = parsed
             anchor_message = (channel_name is None or channel_name == message.channel.name) \
@@ -745,31 +769,11 @@ class PS4Bot(Bot):
         if not channel_name:
             channel_name = message.channel.name
 
-        if type == StatRequest.elo:
-            rankings = self.history.summary_elo(channel_name, year = year, k_factor = parameters["k"])
-            ranking_values = map(
-                    lambda ranking: [
-                        ranking.get_name(),
-                        ranking.games_played,
-                        ranking.get_formatted_ranking(),
-                        ranking.get_history(parameters["h"])
-                    ],
-                    rankings.values())
-            ranking_values.sort(key=lambda x: (x[1] > minimum_games_played,  x[2]), reverse=True)
+        stats = self.history.summary_stats(channel_name, year = year, parameters = parameters)
 
-            headers = ['Player', 'Games Played', 'Ranking', 'Form']
-            if parameters["h"] is None:
-                # drop the Form column
-                ranking_values = map(lambda ranking: ranking[0:3], ranking_values)
-                headers = headers[0:3]
-
-            table = generate_table(headers, ranking_values)
-
-            self.send_message(table)
-        else:
-            stats = self.history.summary_stats(channel_name, year = year)
-            self.update_stats_table(channel_name, stats, force_new = True, anchor_message = anchor_message)
-            self.latest_stats_table[channel_name].year = year
+        self.update_stats_table(channel_name, stats, force_new = True, anchor_message = anchor_message)
+        self.latest_stats_table[channel_name].year = year
+        self.latest_stats_table[channel_name].parameters = parameters
 
     def handle_command(self, message, command, rest):
         if len(command.strip()) == 0 and len(rest) == 0:
@@ -903,7 +907,11 @@ class PS4Bot(Bot):
             recorded = self.history.register_stat(gametime, user, user, removed, stat)
 
         if recorded and channel in self.latest_stats_table:
-            stats = self.history.summary_stats(channel, year = self.latest_stats_table[channel].year)
+            stats = self.history.summary_stats(
+                    channel,
+                    year = self.latest_stats_table[channel].year,
+                    parameters = self.latest_stats_table[channel].parameters)
+
             self.update_stats_table(channel, stats, last_updated_user_stat = (target_user, stat))
 
     def maybe_record_useroption(self, reaction, removed, reacting_user):
@@ -939,7 +947,10 @@ class PS4Bot(Bot):
             except KeyError:
                 pass
 
-        stats = self.history.summary_stats(channel, year = self.latest_stats_table[channel].year)
+        stats = self.history.summary_stats(
+                channel,
+                year = self.latest_stats_table[channel].year,
+                parameters = self.latest_stats_table[channel].parameters)
         self.update_stats_table(channel, stats)
 
         self.save()
