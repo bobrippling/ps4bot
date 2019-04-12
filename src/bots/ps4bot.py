@@ -49,10 +49,28 @@ def replace_dict(str, dict):
 def plural(int):
     return "" if int == 1 else "s"
 
+def format_parameters(parameters):
+    return ",".join(["{}={}".format(k, v) for k, v in parameters.iteritems() if v])
+
+def parse_parameters(s):
+    parameters = empty_parameters()
+    for part in s.split(","):
+        k, v = part.split("=", 2)
+        try:
+            if v == "None":
+                v = None
+            else:
+                v = int(v)
+        except ValueError:
+            pass
+        parameters[k] = v
+    return parameters
+
 class LatestStats:
-    def __init__(self, timestamp = None, year = None):
+    def __init__(self, timestamp = None, year = None, parameters = None):
         self.timestamp = timestamp
         self.year = year
+        self.parameters = parameters if parameters is not None else empty_parameters()
 
 class PS4Bot(Bot):
     def __init__(self, slackconnection, botname):
@@ -74,10 +92,11 @@ class PS4Bot(Bot):
                         continue
 
                     if line[:6] == "stats ":
-                        tokens = line.split()
+                        tokens = line.split(" ", 5)
                         self.latest_stats_table[tokens[1]] = LatestStats(
                                 tokens[2],
-                                date_with_year(int(tokens[3])) if len(tokens) > 3 else None)
+                                date_with_year(int(tokens[3])) if tokens[3] != "-" else None,
+                                parse_parameters(tokens[4]))
                         continue
                     if line[:5] == "user ":
                         tokens = line.split()
@@ -164,7 +183,11 @@ class PS4Bot(Bot):
                     print >>f, ""
 
                 for channel, latest in self.latest_stats_table.iteritems():
-                    print >>f, "stats {} {} {}".format(channel, latest.timestamp, latest.year.year if latest.year else "")
+                    print >>f, "stats {} {} {} {}".format(
+                            channel,
+                            latest.timestamp,
+                            latest.year.year if latest.year else "-",
+                            format_parameters(latest.parameters))
 
                 for user, options in self.user_options.iteritems():
                     if len(options):
@@ -743,6 +766,7 @@ class PS4Bot(Bot):
 
         self.update_stats_table(channel_name, stats, force_new = True, anchor_message = anchor_message)
         self.latest_stats_table[channel_name].year = year
+        self.latest_stats_table[channel_name].parameters = parameters
 
     def handle_command(self, message, command, rest):
         if len(command.strip()) == 0 and len(rest) == 0:
@@ -876,7 +900,11 @@ class PS4Bot(Bot):
             recorded = self.history.register_stat(gametime, user, user, removed, stat)
 
         if recorded and channel in self.latest_stats_table:
-            stats = self.history.summary_stats(channel, year = self.latest_stats_table[channel].year)
+            stats = self.history.summary_stats(
+                    channel,
+                    year = self.latest_stats_table[channel].year,
+                    parameters = self.latest_stats_table[channel].parameters)
+
             self.update_stats_table(channel, stats, last_updated_user_stat = (target_user, stat))
 
     def maybe_record_useroption(self, reaction, removed, reacting_user):
@@ -912,7 +940,10 @@ class PS4Bot(Bot):
             except KeyError:
                 pass
 
-        stats = self.history.summary_stats(channel, year = self.latest_stats_table[channel].year)
+        stats = self.history.summary_stats(
+                channel,
+                year = self.latest_stats_table[channel].year,
+                parameters = self.latest_stats_table[channel].parameters)
         self.update_stats_table(channel, stats)
 
         self.save()
