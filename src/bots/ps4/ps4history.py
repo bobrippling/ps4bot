@@ -14,6 +14,8 @@ class Keys:
     game_wins = "Game Wins"
     played = "Played"
     winratio = "Win Ratio"
+    elorank = "Ranking"
+    history = "History"
 
 def should_skip_game_year(game, year, nextyear):
     if not year:

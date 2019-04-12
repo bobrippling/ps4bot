@@ -636,11 +636,13 @@ class PS4Bot(Bot):
 
             if Keys.game_wins in allstats:
                 # ensure relative ordering
-                special_keys = [Keys.game_wins, Keys.played, Keys.winratio]
+                special_keys = [Keys.game_wins, Keys.played, Keys.winratio, Keys.elorank, Keys.history]
                 allstats = filter(lambda s: s not in special_keys, allstats)
                 allstats.append(Keys.game_wins)
                 allstats.append(Keys.played)
                 allstats.append(Keys.winratio)
+                allstats.append(Keys.elorank)
+                allstats.append(Keys.history)
 
                 stats_to_ignore = list(self.history.negative_stats)
                 stats_to_ignore.append(Keys.game_wins)
@@ -678,8 +680,8 @@ class PS4Bot(Bot):
                         + map(get_stat_value, allstats)
 
             def stats_sort_key(stats):
-                # sort on the last statistic
-                return stats[len(stats) - 1]
+                # sort on the penultimate statistic (elorank)
+                return stats[len(stats) - 2]
 
             header = ["Player"] + map(Stats.pretty, allstats)
             stats_per_user = map(stat_for_user, modestats.iteritems())
