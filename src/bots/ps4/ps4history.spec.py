@@ -8,6 +8,7 @@ sys.path.insert(0, path.abspath("{}/../../".format(fcwd)))
 
 from bots.ps4.ps4history import PS4History, Keys
 from bots.ps4.ps4game import Game
+from bots.ps4.ps4parsing import empty_parameters
 from msg.slackpostedmessage import SlackPostedMessage
 
 def noop(*args):
@@ -37,7 +38,7 @@ class TestPS4History(unittest.TestCase):
         history.register_stat(when, "p2", "p2", False, "stat.survival")
         history.register_stat(when, "p2", "p2", False, "stat.survival")
 
-        stats = history.summary_stats("channel")
+        stats = history.summary_stats("channel", year = None, parameters = empty_parameters())
 
         self.assertEqual(stats[game_mode]["p1"]["stat.headhunter"], 1)
         self.assertEqual(stats[game_mode]["p1"]["stat.survival"], 0)
