@@ -9,6 +9,7 @@ import ps4elo
 from ps4gamecategory import limit_game_to_single_win, Stats
 
 SAVE_FILE = "ps4-stats.txt"
+DEFAULT_GAME_HISTORY = 10
 
 class Keys:
     game_wins = "Game Wins"
@@ -208,7 +209,7 @@ class PS4History:
                 user_elo = rawelo[user]
 
                 statmap[Keys.elorank] = user_elo.get_formatted_ranking()
-                statmap[Keys.history] = user_elo.get_history(parameters["h"] or 10)
+                statmap[Keys.history] = user_elo.get_history(parameters["h"] or DEFAULT_GAME_HISTORY)
 
         return rawstats
 
