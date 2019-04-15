@@ -23,7 +23,7 @@ pretty = {
     Stats.Towerfall.lastmanstanding: "Survival",
     Stats.Towerfall.teams: "Teams",
     Stats.Fifa.win: "Win",
-    Stats.Fifa.win_pens: "Win (Penalties)",
+    Stats.Fifa.win_pens: "Pens",
 }
 
 def channel_is_towerfall(channel):

@@ -9,12 +9,12 @@ import ps4elo
 from ps4gamecategory import limit_game_to_single_win, Stats
 
 SAVE_FILE = "ps4-stats.txt"
-DEFAULT_GAME_HISTORY = 10
+DEFAULT_GAME_HISTORY = 5
 
 class Keys:
     game_wins = "Game Wins"
-    played = "Played"
-    winratio = "Win Ratio"
+    played = "Games"
+    winratio = "W/L"
     elorank = "Ranking"
     history = "History"
 
@@ -154,7 +154,7 @@ class PS4History:
                 played = userstats[Keys.played]
 
                 winratio = float(game_wins) / played if played else 0
-                winratio_str = format(winratio, ".5f")
+                winratio_str = format(winratio, ".2f")
                 userstats[Keys.winratio] = winratio_str
 
         return stats # { mode: { user: { [stat]: int ... }, ... } }
