@@ -769,11 +769,14 @@ class PS4Bot(Bot):
         if not channel_name:
             channel_name = message.channel.name
 
-        stats = self.history.summary_stats(channel_name, year = year, parameters = parameters)
+        try:
+            stats = self.history.summary_stats(channel_name, year = year, parameters = parameters)
 
-        self.update_stats_table(channel_name, stats, force_new = True, anchor_message = anchor_message)
-        self.latest_stats_table[channel_name].year = year
-        self.latest_stats_table[channel_name].parameters = parameters
+            self.update_stats_table(channel_name, stats, force_new = True, anchor_message = anchor_message)
+            self.latest_stats_table[channel_name].year = year
+            self.latest_stats_table[channel_name].parameters = parameters
+        except OverflowError as e:
+            self.send_message(":warning: overflow calculating elo stats, sort yerselves out")
 
     def handle_command(self, message, command, rest):
         if len(command.strip()) == 0 and len(rest) == 0:
