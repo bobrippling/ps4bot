@@ -28,6 +28,7 @@ class UserOption:
 PS4Bot_commands = {
     # args given are self, message, rest
     "nar": (True, lambda self, *args: self.maybe_cancel_game(*args)),
+    "nah": (False, lambda self, *args: self.maybe_cancel_game(*args)),
     "games": (True, lambda self, *args: self.show_games()),
     "flyin": (True, lambda self, *args: self.join_or_bail(*args)),
     "bail": (True, lambda self, *args: self.join_or_bail(*args, bail = True)),
