@@ -9,7 +9,7 @@ from functional import find
 
 from bot import Bot
 from msg.slackpostedmessage import SlackPostedMessage
-from ps4.ps4game import Game, GameStates
+from ps4.ps4game import Game, GameStates, GameFull, PlayerAlreadyPresent
 from ps4.ps4formatting import format_user, format_user_padding, when_str, number_emojis, generate_table
 from ps4.ps4config import PLAY_TIME, GAME_FOLLOWON_TIME
 from ps4.ps4parsing import parse_time, deserialise_time, parse_game_initiation, \
@@ -405,22 +405,26 @@ class PS4Bot(Bot):
             self.add_user_to_game(message.user, game)
 
     def add_user_to_game(self, user, game, subtle_message = False):
-        if len(game.players) >= game.max_player_count:
-            banter = ":warning: game's full, rip {0}".format(format_user(user))
+        try:
+            game.add_player(user)
+            errormsg = None
+        except PlayerAlreadyPresent:
+            errormsg = "you're already in the '{}' game {}".format(game.description, format_user(user))
+        except GameFull:
+            errormsg = ":warning: game's full, rip {}".format(format_user(user))
+
+        if errormsg:
             if subtle_message:
-                self.update_game_message(game, banter)
+                self.update_game_message(game, errormsg)
             else:
-                self.send_message(banter)
+                self.send_message(errormsg)
             return
 
-        if not game.add_player(user):
-            banter = "you're already in the '{}' game {}".format(game.description, format_user(user))
-        else:
-            banter = self.load_banter(
-                    "joined",
-                    { "s": format_user(user), "d": game.description },
-                    for_user = user,
-                    in_channel = game.channel)
+        banter = self.load_banter(
+                "joined",
+                { "s": format_user(user), "d": game.description },
+                for_user = user,
+                in_channel = game.channel)
 
         self.history_sync()
 

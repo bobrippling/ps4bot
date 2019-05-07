@@ -10,6 +10,12 @@ class GameStates:
     finished = 2
     dead = 3
 
+class GameFull:
+    pass
+
+class PlayerAlreadyPresent:
+    pass
+
 class Game:
     @staticmethod
     def create_message(banter, desc, when, max_player_count, mode, channel):
@@ -48,9 +54,10 @@ class Game:
 
     def add_player(self, p):
         if p in self.players:
-            return False
+            raise PlayerAlreadyPresent()
+        if len(self.players) >= self.max_player_count:
+            raise GameFull()
         self.players.append(p)
-        return True
 
     def remove_player(self, p):
         if p not in self.players:
