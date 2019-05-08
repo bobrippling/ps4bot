@@ -56,8 +56,11 @@ def suggest_teams(game):
 
     return "Team 1: {}\nTeam 2: {}".format(pretty_players(team1), pretty_players(team2))
 
+def emoji_numberify(s, i):
+    return ":{}: {}".format(number_emojis[i], s)
+
 def scrub_entry(player, i):
-    return ":{}: {}".format(number_emojis[i], format_user(player))
+    return emoji_numberify(format_user(player), i)
 
 def vote_message(game):
     if channel_is_towerfall(game.channel):
