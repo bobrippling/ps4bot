@@ -3,7 +3,7 @@ from ps4formatting import format_user, when_str, pretty_players
 from ps4config import default_max_players, PLAY_TIME
 from ps4historicgame import PS4HistoricGame
 from ps4parsing import pretty_mode
-from ps4gamecategory import gametype_from_channel
+from ps4gamecategory import gametype_from_channel, gametype_emoji
 
 class GameStates:
     scheduled = 0
@@ -83,7 +83,8 @@ class Game:
 
     def pretty(self):
         current_time = datetime.datetime.now()
-        return "{}{}{}, {}'s {}{} from {}, with {}".format(
+        return "{} {}{}{}, {}'s {}{} from {}, with {}".format(
+                gametype_emoji(self.type),
                 when_str(self.when),
                 " ({} mins)".format(self.play_time) if self.play_time != PLAY_TIME else "",
                 " (in progress :hourglass_flowing_sand:)" \

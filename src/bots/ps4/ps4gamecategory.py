@@ -136,6 +136,13 @@ def gametype_from_channel(channel):
         return "foosball"
     return "ps4"
 
+def gametype_emoji(gametype):
+    if gametype == "foosball":
+        return ":soccer:"
+    if gametype == "ps4":
+        return ":video_game:"
+    return ""
+
 def channel_statmap(channel):
     if channel_is_towerfall(channel):
         return {
