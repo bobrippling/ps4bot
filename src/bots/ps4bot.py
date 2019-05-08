@@ -15,7 +15,7 @@ from ps4.ps4config import PLAY_TIME, GAME_FOLLOWON_TIME
 from ps4.ps4parsing import parse_time, deserialise_time, parse_game_initiation, \
         pretty_mode, parse_stats_request, date_with_year, empty_parameters
 from ps4.ps4history import PS4History, Keys
-from ps4.ps4gamecategory import vote_message, Stats, channel_statmap, suggest_teams, gametype_from_channel
+from ps4.ps4gamecategory import vote_message, Stats, channel_statmap, suggest_teams, gametype_from_channel, channel_has_scrub_stats
 
 DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
@@ -888,7 +888,10 @@ class PS4Bot(Bot):
                 self.update_game_message(game, "game's over {}, can't {}".format(
                     format_user(reacting_user), "flyout" if removed else "flyin"))
 
-    def maybe_register_emoji_number_stat(self, gametime, emoji, from_user, removed):
+    def maybe_register_emoji_number_stat(self, channel, gametime, emoji, from_user, removed):
+        if not channel_has_scrub_stats(channel):
+            return None, None
+
         historic_game = self.history.find_game(gametime)
         if not historic_game:
             return None, None
@@ -911,7 +914,7 @@ class PS4Bot(Bot):
         target_user = user
 
         if emoji in number_emojis:
-            stat, target_user = self.maybe_register_emoji_number_stat(gametime, emoji, user, removed)
+            stat, target_user = self.maybe_register_emoji_number_stat(channel, gametime, emoji, user, removed)
             recorded = stat != None
 
         statmap = channel_statmap(channel)

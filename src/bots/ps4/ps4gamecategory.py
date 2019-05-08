@@ -49,6 +49,9 @@ def should_suggest_teams(channel):
 def limit_game_to_single_win(channel):
     return channel_is_fifa(channel)
 
+def channel_has_scrub_stats(channel):
+    return channel_is_fifa(channel)
+
 class Fixture:
     def __init__(self, team1, team2):
         self.team1 = team1
