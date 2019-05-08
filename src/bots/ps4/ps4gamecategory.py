@@ -32,6 +32,9 @@ def channel_is_towerfall(channel):
 def channel_is_fifa(channel):
     return "fifa" in channel
 
+def channel_is_foosball(channel):
+    return "line-of-glory" in channel
+
 def should_suggest_teams(channel):
     return channel_is_fifa(channel) or channel_is_towerfall(channel)
 
@@ -77,6 +80,11 @@ def vote_message(game):
         )
 
     return None
+
+def gametype_from_channel(channel):
+    if channel_is_foosball(channel):
+        return "foosball"
+    return "ps4"
 
 def channel_statmap(channel):
     if channel_is_towerfall(channel):

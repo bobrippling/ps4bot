@@ -3,6 +3,7 @@ from ps4formatting import format_user, when_str, pretty_players
 from ps4config import default_max_players, PLAY_TIME
 from ps4historicgame import PS4HistoricGame
 from ps4parsing import pretty_mode
+from ps4gamecategory import gametype_from_channel
 
 class GameStates:
     scheduled = 0
@@ -40,6 +41,7 @@ class Game:
         self.max_player_count = max_player_count
         self.play_time = play_time
         self.mode = mode
+        self.type = gametype_from_channel(channel)
 
     def endtime(self):
         duration = datetime.timedelta(minutes = self.play_time)
