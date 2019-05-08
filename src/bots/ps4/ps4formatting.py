@@ -5,6 +5,10 @@ import datetime
 
 number_emojis = ["one", "two", "three", "four", "five", "six"]
 
+class ColourEmojis:
+    reds = ["red_circle", "small_red_triangle", "cherries"]
+    blues = ["large_blue_circle", "small_blue_diamond", "blue_car"]
+
 WHEN_FORMAT = "%H:%M"
 
 def when_str(when):

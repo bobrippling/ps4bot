@@ -1,6 +1,6 @@
 import random
 from collections import defaultdict
-from ps4formatting import format_user, number_emojis, pretty_players
+from ps4formatting import format_user, ColourEmojis, number_emojis, pretty_players
 
 class Stats:
     scrub = "scrub"
@@ -14,9 +14,12 @@ class Stats:
         win_pens = "fifa.win_pens"
 
     class Foosball:
-        win_1 = "foosball.win_1"
-        win_2 = "foosball.win_2"
-        win_3 = "foosball.win_3"
+        win_red0 = "foosball.win_red0"
+        win_blue0 = "foosball.win_blue0"
+        win_red1 = "foosball.win_red1"
+        win_blue1 = "foosball.win_blue1"
+        win_red2 = "foosball.win_red2"
+        win_blue2 = "foosball.win_blue2"
 
     @staticmethod
     def pretty(stat):
@@ -29,9 +32,12 @@ pretty = {
     Stats.Towerfall.teams: "Teams",
     Stats.Fifa.win: "Win",
     Stats.Fifa.win_pens: "Pens",
-    Stats.Foosball.win_1: "Win",
-    Stats.Foosball.win_2: "Win",
-    Stats.Foosball.win_3: "Win",
+    Stats.Foosball.win_red0: "Win",
+    Stats.Foosball.win_blue0: "Win",
+    Stats.Foosball.win_red1: "Win",
+    Stats.Foosball.win_blue1: "Win",
+    Stats.Foosball.win_red2: "Win",
+    Stats.Foosball.win_blue2: "Win",
 }
 
 def channel_is_towerfall(channel):
@@ -126,7 +132,13 @@ def vote_message(game):
             return (
                 "Fixtures:\n{}"
             ).format(
-                "\n".join(emoji_numberify(fixture, i) for i, fixture in enumerate(fixtures))
+                "\n".join(":{}: / :{}: {}".format(
+                    blue,
+                    red,
+                    fixture
+                ) for blue, red, fixture in zip(
+                    ColourEmojis.blues, ColourEmojis.reds, fixtures
+                ))
             )
 
     return None
@@ -167,9 +179,12 @@ def channel_statmap(channel):
 
     if channel_is_foosball(channel):
         return {
-            number_emojis[0]: Stats.Foosball.win_1,
-            number_emojis[1]: Stats.Foosball.win_2,
-            number_emojis[2]: Stats.Foosball.win_3,
+            ColourEmojis.reds[0]: Stats.Foosball.win_red0,
+            ColourEmojis.blues[0]: Stats.Foosball.win_blue0,
+            ColourEmojis.reds[1]: Stats.Foosball.win_red1,
+            ColourEmojis.blues[1]: Stats.Foosball.win_blue1,
+            ColourEmojis.reds[2]: Stats.Foosball.win_red2,
+            ColourEmojis.blues[2]: Stats.Foosball.win_blue2,
         }
 
     return None
