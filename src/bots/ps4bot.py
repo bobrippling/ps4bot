@@ -15,7 +15,7 @@ from ps4.ps4config import PLAY_TIME, GAME_FOLLOWON_TIME
 from ps4.ps4parsing import parse_time, deserialise_time, parse_game_initiation, \
         pretty_mode, parse_stats_request, date_with_year, empty_parameters
 from ps4.ps4history import PS4History, Keys
-from ps4.ps4gamecategory import vote_message, Stats, channel_statmap, suggest_teams
+from ps4.ps4gamecategory import vote_message, Stats, channel_statmap, suggest_teams, gametype_from_channel, channel_has_scrub_stats
 
 DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
@@ -202,16 +202,20 @@ class PS4Bot(Bot):
         self.history.save()
 
 
-    def game_occuring_at(self, when):
+    def game_occuring_at(self, when, gametype):
         for game in self.games:
+            if game.type != gametype:
+                continue
             if game.contains(when):
                 return game
         return None
 
-    def game_overlapping(self, when, play_time, ignoring = None):
+    def game_overlapping(self, when, play_time, gametype, ignoring = None):
         when_end = when + datetime.timedelta(minutes = play_time)
         for game in self.games:
             if game == ignoring:
+                continue
+            if game.type != gametype:
                 continue
             if game.contains(when) or game.contains(when_end, start_overlap = False):
                 return game
@@ -327,7 +331,7 @@ class PS4Bot(Bot):
         if len(desc) == 0:
             desc = "big game"
 
-        game = self.game_overlapping(when, play_time)
+        game = self.game_overlapping(when, play_time, gametype_from_channel(channel))
         if game:
             self.send_duplicate_game_message(game)
             return True
@@ -381,7 +385,7 @@ class PS4Bot(Bot):
 
     def join_or_bail(self, message, rest, bail = False):
         if len(rest) == 0:
-            channel_games = self.games_in_channel(message.channel)
+            channel_games = self.games_in_channel(message.channel.name)
             if len(channel_games) == 1:
                 game = channel_games[0]
             else:
@@ -394,7 +398,7 @@ class PS4Bot(Bot):
                 self.send_message(":warning: howay! `flyin/join/flyout/bail <game-time>`")
                 return
 
-            game = self.game_occuring_at(when)
+            game = self.game_occuring_at(when, gametype_from_channel(message.channel.name))
             if not game:
                 self.send_game_not_found(when, message.user)
                 return
@@ -504,7 +508,7 @@ class PS4Bot(Bot):
                 self.send_message(":warning: scrubadubdub, when's this game you want to cancel?".format(rest))
                 return
 
-            game = self.game_occuring_at(when)
+            game = self.game_occuring_at(when, gametype_from_channel(message.channel.name))
             if not game:
                 self.send_game_not_found(when, user)
                 return
@@ -536,6 +540,7 @@ class PS4Bot(Bot):
 
     def maybe_scuttle_game(self, message, rest):
         tokens = rest.split(" ")
+        gametype = gametype_from_channel(message.channel.name)
 
         if len(tokens) >= 3 and tokens[-2] == "to":
             str_to = tokens[-1]
@@ -572,7 +577,7 @@ class PS4Bot(Bot):
 
         elif when_from:
             # we've been given an explicit game to move
-            game_to_move = self.game_occuring_at(when_from)
+            game_to_move = self.game_occuring_at(when_from, gametype)
             if not game_to_move:
                 self.send_game_not_found(when_from, message.user)
                 return
@@ -591,7 +596,7 @@ class PS4Bot(Bot):
                 game_to_move.description))
             return
 
-        game_in_slot = self.game_overlapping(when_to, game_to_move.play_time, ignoring = game_to_move)
+        game_in_slot = self.game_overlapping(when_to, game_to_move.play_time, gametype, ignoring = game_to_move)
         if game_in_slot:
             self.send_duplicate_game_message(game_in_slot)
             return
@@ -883,7 +888,10 @@ class PS4Bot(Bot):
                 self.update_game_message(game, "game's over {}, can't {}".format(
                     format_user(reacting_user), "flyout" if removed else "flyin"))
 
-    def maybe_register_emoji_number_stat(self, gametime, emoji, from_user, removed):
+    def maybe_register_emoji_number_stat(self, channel, gametime, emoji, from_user, removed):
+        if not channel_has_scrub_stats(channel):
+            return None, None
+
         historic_game = self.history.find_game(gametime)
         if not historic_game:
             return None, None
@@ -906,7 +914,7 @@ class PS4Bot(Bot):
         target_user = user
 
         if emoji in number_emojis:
-            stat, target_user = self.maybe_register_emoji_number_stat(gametime, emoji, user, removed)
+            stat, target_user = self.maybe_register_emoji_number_stat(channel, gametime, emoji, user, removed)
             recorded = stat != None
 
         statmap = channel_statmap(channel)
