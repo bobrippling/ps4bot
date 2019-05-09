@@ -19,6 +19,9 @@ class Bot():
         self.channel = None
         self.icon_emoji = None
 
+    def botname_for_channel(self, channel):
+        return self.botname
+
     def lookup_user(self, id, alt = None):
         match = USER_RE_ANCHORED.search(id)
         if match is not None:
@@ -48,7 +51,7 @@ class Bot():
                 "chat.postMessage",
                 channel = channel.id,
                 text = text,
-                username = self.botname,
+                username = self.botname_for_channel(channel.name),
                 icon_emoji = self.icon_emoji,
                 as_user = False)
 
@@ -64,7 +67,7 @@ class Bot():
                 "chat.update",
                 channel = channel.id,
                 ts = timestamp,
-                username = self.botname,
+                username = self.botname_for_channel(channel.name),
                 as_user = False,
                 text = text)
 
