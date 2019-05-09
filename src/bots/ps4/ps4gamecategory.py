@@ -50,7 +50,7 @@ def limit_game_to_single_win(channel):
     return channel_is_fifa(channel)
 
 def channel_has_scrub_stats(channel):
-    return channel_is_fifa(channel)
+    return channel_is_fifa(channel) or channel_is_towerfall(channel)
 
 class Fixture:
     def __init__(self, team1, team2):
