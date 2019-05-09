@@ -15,7 +15,8 @@ from ps4.ps4config import PLAY_TIME, GAME_FOLLOWON_TIME
 from ps4.ps4parsing import parse_time, deserialise_time, parse_game_initiation, \
         pretty_mode, parse_stats_request, date_with_year, empty_parameters
 from ps4.ps4history import PS4History, Keys
-from ps4.ps4gamecategory import vote_message, Stats, channel_statmap, suggest_teams, gametype_from_channel, channel_has_scrub_stats
+from ps4.ps4gamecategory import vote_message, Stats, channel_statmap, suggest_teams, \
+        gametype_from_channel, channel_has_scrub_stats, channel_is_foosball
 
 DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
@@ -85,6 +86,11 @@ class PS4Bot(Bot):
         self.history = PS4History(negative_stats = set([Stats.scrub]))
         self.latest_stats_table = defaultdict(LatestStats) # channel => LatestStats
         self.load()
+
+    def botname_for_channel(self, channel):
+        if channel_is_foosball(channel):
+            return "logbot"
+        return self.botname
 
     def load(self):
         try:
@@ -804,7 +810,7 @@ class PS4Bot(Bot):
                 "or try adding a :+1: to a game invite (or typing `+:+1:` as a response)."
             ).format(
                 format_user(message.user),
-                self.botname,
+                self.botname_for_channel(message.channel.name),
                 "/".join(command for command, (show, _) in PS4Bot_commands.iteritems() if show)
             ))
 
@@ -987,15 +993,15 @@ class PS4Bot(Bot):
     def handle_unreaction(self, reaction):
         self.handle_reaction(reaction, removed = True)
 
-    def is_message_for_me(self, msg):
-        return msg.lower() == self.botname
+    def is_message_for_me(self, msg, channel):
+        return msg.lower() == self.botname_for_channel(channel)
 
     def handle_edit(self, edit):
         self.handle_message(edit.toMessage())
 
     def handle_message(self, message):
         tokens = message.text.split()
-        if len(tokens) < 1 or not self.is_message_for_me(tokens[0]):
+        if len(tokens) < 1 or not self.is_message_for_me(tokens[0], message.channel.name):
             biggame = BIG_GAME_REGEX.match(message.text, re.IGNORECASE)
             if biggame:
                 self.send_message("... did someone mention a {} game?".format(biggame.groups(0)[0]))
@@ -1011,6 +1017,7 @@ class PS4Bot(Bot):
 
             self.handle_command(message, tokens[1] if len(tokens) > 1 else "", " ".join(tokens[2:]))
         except Exception as e:
-            self.send_message(":rotating_light: {}'s massive computer membrane has ruptured".format(self.botname))
+            self.send_message(":rotating_light: {}'s massive computer membrane has ruptured".format(
+                self.botname_for_channel(message.channel.name)))
             traceback.print_exc()
             raise e
