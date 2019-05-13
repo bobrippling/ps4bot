@@ -126,7 +126,7 @@ def vote_message(game):
             ", ".join([scrub_entry(player, i) for i, player in enumerate(game.players)])
         )
 
-    if channel_is_foosball(game.channel):
+    if False and channel_is_foosball(game.channel):
         fixtures = foosball_fixtures(game.players)
         if fixtures:
             return (
@@ -177,7 +177,7 @@ def channel_statmap(channel):
             "goal_net": Stats.Fifa.win_pens,
         }
 
-    if channel_is_foosball(channel):
+    if False and channel_is_foosball(channel):
         return {
             ColourEmojis.reds[0]: Stats.Foosball.win_red0,
             ColourEmojis.blues[0]: Stats.Foosball.win_blue0,
