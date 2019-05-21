@@ -31,8 +31,6 @@ PS4Bot_commands = {
     "nar": (True, lambda self, *args: self.maybe_cancel_game(*args)),
     "nah": (False, lambda self, *args: self.maybe_cancel_game(*args)),
     "games": (True, lambda self, *args: self.show_games()),
-    "flyin": (True, lambda self, *args: self.join_or_bail(*args)),
-    "bail": (True, lambda self, *args: self.join_or_bail(*args, bail = True)),
     "scuttle": (True, lambda self, *args: self.maybe_scuttle_game(*args)),
     "stats": (True, lambda self, *args: self.handle_stats_request(*args)),
     "elo": (True, lambda self, *args: self.handle_stats_request(*args)),
@@ -388,31 +386,6 @@ class PS4Bot(Bot):
         newtext = game.message.text + players + ("\nlatest news: " + subtle_addition if subtle_addition else "")
 
         self.update_message(newtext, original_message = game.message)
-
-    def join_or_bail(self, message, rest, bail = False):
-        if len(rest) == 0:
-            channel_games = self.games_in_channel(message.channel.name)
-            if len(channel_games) == 1:
-                game = channel_games[0]
-            else:
-                self.send_not1_games_message(channel_games)
-                return
-        else:
-            try:
-                when = parse_time(rest)
-            except ValueError:
-                self.send_message(":warning: howay! `flyin/join/flyout/bail <game-time>`")
-                return
-
-            game = self.game_occuring_at(when, gametype_from_channel(message.channel.name))
-            if not game:
-                self.send_game_not_found(when, message.user)
-                return
-
-        if bail:
-            self.remove_user_from_game(message.user, game)
-        else:
-            self.add_user_to_game(message.user, game)
 
     def add_user_to_game(self, user, game, subtle_message = False):
         try:
