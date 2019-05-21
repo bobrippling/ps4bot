@@ -444,9 +444,9 @@ class PS4Bot(Bot):
 
     def send_game_not_found(self, when, user):
         if random.randint(0, 1) == 0:
-            self.send_message(":warning: {0}, there isnae game at {1}".format(format_user(user), when_str(when)))
+            self.send_message(":warning: {0}, there isnae a game (belonging to you) at {1}".format(format_user(user), when_str(when)))
         else:
-            self.send_message(":warning: scrubadubdub, there's no game at {}".format(when_str(when)))
+            self.send_message(":warning: scrubadubdub, you don't have a game at {}".format(when_str(when)))
 
     def send_scuttle_usage(self):
         self.send_message(":warning: scrubadubdub, try something like \"scuttle 16:00 to 3:30pm\"")
@@ -563,9 +563,6 @@ class PS4Bot(Bot):
         elif when_from:
             # we've been given an explicit game to move
             game_to_move = self.game_occuring_at(when_from, gametype)
-            if not game_to_move:
-                self.send_game_not_found(when_from, message.user)
-                return
         else:
             # no explicit game to move, if the user has just one, move it
             created_games = self.games_created_by(message.user)
@@ -573,6 +570,10 @@ class PS4Bot(Bot):
                 self.send_too_many_owned_games_message(created_games, "scuttle")
                 return
             game_to_move = created_games[0]
+
+        if not game_to_move:
+            self.send_game_not_found(when_from, message.user)
+            return
 
         if game_to_move.creator != message.user:
             self.send_message(":warning: scrubadubdub, only {} can scuttle the {} {}".format(
