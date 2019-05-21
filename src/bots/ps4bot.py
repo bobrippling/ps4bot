@@ -25,20 +25,26 @@ SAVE_FILE = "ps4-games.txt"
 class UserOption:
     mute = "mute"
 
-# command => (show-in-usage, handler)
+class Usage:
+    nar = "Cancel your game, optionally disambiguating with a time"
+    games = "List games"
+    scuttle = "Reschedule a game, optionally disambiguating with a time, e.g. `scuttle 3pm`, `scuttle 2pm to 3pm`"
+    stats = "Show stats, optionally for a given channel, and year, e.g. `stats 2019`, `stats towerfall 2018`"
+
+# command => (usage-or-none, handler)
 PS4Bot_commands = {
     # args given are self, message, rest
-    "nar": (True, lambda self, *args: self.maybe_cancel_game(*args)),
-    "nah": (False, lambda self, *args: self.maybe_cancel_game(*args)),
-    "games": (True, lambda self, *args: self.show_games()),
-    "scuttle": (True, lambda self, *args: self.maybe_scuttle_game(*args)),
-    "stats": (True, lambda self, *args: self.handle_stats_request(*args)),
-    "elo": (True, lambda self, *args: self.handle_stats_request(*args)),
-    "credits": (True, lambda self, *args: self.send_credits(*args)),
-    "topradge": (False, lambda self, *args: self.handle_stats_request(*args)),
-    "thanks": (False, lambda self, *args: self.send_thanks_reply(*args)),
-    "ta": (False, lambda self, *args: self.send_thanks_reply(*args)),
-    "cheers": (False, lambda self, *args: self.send_thanks_reply(*args)),
+    "nar": (Usage.nar, lambda self, *args: self.maybe_cancel_game(*args)),
+    "nah": (None, lambda self, *args: self.maybe_cancel_game(*args)),
+    "games": (Usage.games, lambda self, *args: self.show_games()),
+    "scuttle": (Usage.scuttle, lambda self, *args: self.maybe_scuttle_game(*args)),
+    "stats": (Usage.stats, lambda self, *args: self.handle_stats_request(*args)),
+    "elo": (None, lambda self, *args: self.handle_stats_request(*args)),
+    "credits": (None, lambda self, *args: self.send_credits(*args)),
+    "topradge": (None, lambda self, *args: self.handle_stats_request(*args)),
+    "thanks": (None, lambda self, *args: self.send_thanks_reply(*args)),
+    "ta": (None, lambda self, *args: self.send_thanks_reply(*args)),
+    "cheers": (None, lambda self, *args: self.send_thanks_reply(*args)),
 }
 
 def replace_dict(str, dict):
@@ -778,13 +784,14 @@ class PS4Bot(Bot):
 
         # attempt to parse a big game, if unsuccessful, show usage:
         if not self.maybe_new_game(message.user, message.channel.name, command + " " + rest):
+            botname = self.botname_for_channel(message.channel.name)
+
             self.send_message((
-                ":warning: Hew {}, here's what I listen to: `{} {}`, " +
-                "or try adding a :+1: to a game invite (or typing `+:+1:` as a response)."
+                ":warning: Hew {}:\n{}"
             ).format(
                 format_user(message.user),
-                self.botname_for_channel(message.channel.name),
-                "/".join(command for command, (show, _) in PS4Bot_commands.iteritems() if show)
+                "\n".join("`{} {}`: {}".format(botname, command, usage)
+                    for command, (usage, _) in PS4Bot_commands.iteritems() if usage)
             ))
 
     def update_game_states(self):
