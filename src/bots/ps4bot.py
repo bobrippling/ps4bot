@@ -234,6 +234,8 @@ class PS4Bot(Bot):
     def game_straight_after(self, previous, threshold):
         threshold_delta = datetime.timedelta(minutes = threshold)
         for game in self.games:
+            if game.type != previous.type:
+                continue
             endtime = previous.endtime()
             if endtime <= game.when < endtime + threshold_delta:
                 return game
