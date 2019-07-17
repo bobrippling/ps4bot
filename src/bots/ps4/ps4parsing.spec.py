@@ -15,6 +15,13 @@ class TestPS4Parsing(unittest.TestCase):
         self.assertEqual(expected_hour, got_hour)
         self.assertEqual(expected_minute, got_minute)
 
+    def assertParseTime2(self, previous, desc, expected_hour, expected_minute):
+        parsed = parse_time(desc, previous)
+        got_hour, got_minute = parsed.hour, parsed.minute
+
+        self.assertEqual(expected_hour, got_hour)
+        self.assertEqual(expected_minute, got_minute)
+
     def test_exhaustive_numbers(self):
         with self.assertRaises(ValueError):
             parse_time("-1")
@@ -64,6 +71,12 @@ class TestPS4Parsing(unittest.TestCase):
         self.assertParseTime("5:59", 17, 59)
         with self.assertRaises(ValueError):
             parse_time("1:60")
+
+    def test_fractional(self):
+        self.assertParseTime2("half", "3", 15, 30)
+        self.assertParseTime2("half", "12", 12, 30)
+        self.assertParseTime2("half", "13", 13, 30)
+        self.assertParseTime2("half", "6", 18, 30)
 
 if __name__ == '__main__':
     unittest.main()

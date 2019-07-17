@@ -25,7 +25,8 @@ def deserialise_time(s):
         raise ValueError
     return today_at(int(parts[0]), int(parts[1]))
 
-def parse_time(s):
+def parse_time(s, previous = None):
+    allow_fractional_prefix = False
     am_pm = ""
     if len(s) >= 3 and s[-1] == "m" and (s[-2] == "a" or s[-2] == "p"):
         am_pm = s[-2]
@@ -40,6 +41,9 @@ def parse_time(s):
 
     if len(time_parts) == 1:
         time_parts.append("00")
+
+        # just a number by itself
+        allow_fractional_prefix = True
     elif len(time_parts[1]) != 2:
         raise ValueError
 
@@ -54,16 +58,21 @@ def parse_time(s):
             raise ValueError
         if am_pm == "p":
             hour += 12
+        # ignore allow_fractional_prefix, can't really say "half 2pm"
     else:
         # no am/pm specified, if it's before 8:00, assume they mean afternoon
         if hour < 8:
             hour += 12
 
+        if allow_fractional_prefix:
+            if previous == "half":
+                min = 30
+
     return today_at(hour, min)
 
-def maybe_parse_time(s):
+def maybe_parse_time(s, previous):
     try:
-        return parse_time(s)
+        return parse_time(s, previous)
     except ValueError:
         return None
 
@@ -114,11 +123,13 @@ def parse_game_initiation(str, channel):
     player_count = default_max_players(channel)
     mode = None
     play_time = PLAY_TIME
-    for part in parts:
+    for i, part in enumerate(parts):
         while len(part) and part[-1] in punctuation:
             part = part[:-1]
 
-        maybe_when = maybe_parse_time(part)
+        previous = parts[i - 1] if i > 0 else None
+
+        maybe_when = maybe_parse_time(part, previous)
         if maybe_when:
             if when:
                 return None
