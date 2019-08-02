@@ -547,6 +547,7 @@ class PS4Bot(Bot):
             self.send_scuttle_usage()
             return
 
+        when_from = None
         try:
             when_from = parse_time(str_from) if str_from else None
         except ValueError:
@@ -575,7 +576,10 @@ class PS4Bot(Bot):
             game_to_move = created_games[0]
 
         if not game_to_move:
-            self.send_game_not_found(when_from, message.user)
+            if when_from:
+                self.send_game_not_found(when_from, message.user)
+            else:
+                self.send_scuttle_usage()
             return
 
         if game_to_move.creator != message.user:

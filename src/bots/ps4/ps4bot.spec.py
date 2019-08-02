@@ -255,6 +255,15 @@ class TestPS4Bot(unittest.TestCase):
 		self.assertEqual(len(self.messages), 1)
 		self.assertEqual(self.messages[0], ":alarm_clock: test game moved from 13:00 to 16:00 by <@user>")
 
+	def test_ps4bot_scuttle_errors(self):
+		dummychannel = DummyChannel("games")
+
+		ps4bot = self.create_ps4bot()
+		ps4bot.handle_message(SlackMessage("ps4bot scuttle 3pm game to 4pm", "user", dummychannel, None, None, None, None))
+
+		self.assertEqual(len(self.messages), 1)
+                self.assertEqual(self.messages[0], ":warning: scrubadubdub, try something like \"scuttle 16:00 to 3:30pm\"")
+
 	def test_ps4bot_ps4on_hint(self):
 		dummychannel = DummyChannel("games")
 
