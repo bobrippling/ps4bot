@@ -1,4 +1,4 @@
-created-champ: game created by a big lad, prepare you selves to get rekt like last time
+created-champ: game created by a big lad, prepare yourselves to get rekt like last time
 created-champ: game created by %s, going to DEFCON 1
 created-champ: game created by %s, get the body bags ready
 created-champ: game created by %s, the look in their eye shows they aren't messing around this time
