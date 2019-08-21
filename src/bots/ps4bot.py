@@ -16,7 +16,8 @@ from ps4.ps4parsing import parse_time, deserialise_time, parse_game_initiation, 
         pretty_mode, parse_stats_request, date_with_year, empty_parameters
 from ps4.ps4history import PS4History, Keys
 from ps4.ps4gamecategory import vote_message, Stats, channel_statmap, suggest_teams, \
-        gametype_from_channel, channel_has_scrub_stats, channel_is_foosball
+        gametype_from_channel, channel_has_scrub_stats, channel_is_foosball, \
+        channel_is_private
 
 DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
@@ -275,11 +276,11 @@ class PS4Bot(Bot):
             self.history.save()
 
     def load_banter(self, type, replacements = {}, for_user = None, in_channel = None):
+        """
+        for_user is optional, all other arguments are required
+        """
         is_champ = False
         if for_user:
-            if not in_channel:
-                raise TypeError
-
             year = self.latest_stats_table[in_channel].year
             user_ranking = self.history.user_ranking(in_channel, year = year)
             try:
@@ -290,6 +291,8 @@ class PS4Bot(Bot):
         searching_type = type
         if is_champ:
             searching_type = type + "-champ"
+
+        allow_controversial = channel_is_private(in_channel)
 
         try:
             msgs = []
@@ -305,6 +308,12 @@ class PS4Bot(Bot):
                     if len(tokens) != 2:
                         print >>sys.stderr, "invalid banter line %s" % line
                         continue
+
+                    if tokens[0].startswith("(controversial) "):
+                        if not allow_controversial:
+                            continue
+                        tokens[0] = tokens[0][16:]
+
                     if tokens[0] != searching_type:
                         continue
                     msg = tokens[1].strip()
@@ -840,7 +849,8 @@ class PS4Bot(Bot):
                     "s": g.pretty_players(),
                     "t": when_str(g.when),
                     "d": g.description,
-                })
+                },
+                in_channel = g.channel)
 
             suggested_teams = suggest_teams(g)
             if suggested_teams:
@@ -852,7 +862,8 @@ class PS4Bot(Bot):
                     "s": format_user(nextgame.creator),
                     "d": nextgame.description,
                     "c": nextgame.channel,
-                })
+                },
+                in_channel = g.channel)
                 banter += "\n({})".format(nextgame_banter)
 
             self.send_message(banter, to_channel = g.channel)

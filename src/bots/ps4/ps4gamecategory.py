@@ -49,6 +49,12 @@ def channel_is_fifa(channel):
 def channel_is_foosball(channel):
     return "line-of-glory" in channel
 
+def channel_is_overcooked(channel):
+    return "overcooked" in channel
+
+def channel_is_private(channel):
+    return not channel_is_overcooked(channel)
+
 def should_suggest_teams(channel):
     return channel_is_fifa(channel) or channel_is_towerfall(channel)
 
