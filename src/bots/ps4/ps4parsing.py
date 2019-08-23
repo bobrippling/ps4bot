@@ -1,13 +1,24 @@
 from collections import defaultdict
 import datetime
 import re
+import sys
 
 from ps4config import default_max_players, PLAY_TIME
 
-punctuation = [".", "?", ","]
-time_prefixes = ["at"]
-competitive_keywords = ["compet", "competitive", "1v1", "1v1me"]
+DEBUG = False
+
+competitive_re = re.compile("compet|competitive|1v1")
 parameter_re = re.compile('^([a-z]+)=(.*)')
+
+game_time_re = re.compile(r"\b(at )?(half )?((?<!-)(\d+([:.]\d+)?)([a-z]*))\b")
+#                                                                 ^~~~~~~~ am/pm, matched as [a-z] so we can ignore "3an"
+#                                                  ^~~~~~~~~~~~~ the time, optional minutes
+#                                            ^~~~~~ negative lookbehind, don't accept "-3.40pm"
+GAME_TIME_GROUP_STRIPBEFORE = 1
+GAME_TIME_GROUP_MODIFIERS = 2
+GAME_TIME_GROUP_TIME = 3
+GAME_TIME_GROUP_TIME_NO_AM_PM = 4
+GAME_TIME_GROUP_AM_PM = 6
 
 def today_at(hour, min):
     return datetime.datetime.today().replace(
@@ -115,42 +126,74 @@ def pretty_mode(mode):
         return "1v1"
     return mode
 
-def parse_game_initiation(str, channel):
-    parts = str.split(" ")
+def most_specific_time(matches):
+    if len(matches) == 0:
+        return None
+    if len(matches) == 1:
+        return matches[0]
 
+    def add_specificity(m):
+        """
+        m is the match result game_time_re
+        """
+        if m.group(GAME_TIME_GROUP_AM_PM):
+            return (m, 2)
+        if m.group(GAME_TIME_GROUP_TIME) and ":" in m.group(GAME_TIME_GROUP_TIME):
+            return (m, 1)
+        return (m, 0)
+
+    def match_cmp(a, b):
+        return b[1] - a[1] # want smallest at the top
+
+    matches_specificity = map(add_specificity, matches)
+    matches_specificity.sort(match_cmp)
+
+    if DEBUG:
+        print >>sys.stderr, "matches:"
+        for m in matches_specificity:
+            match = m[0]
+            spec = m[1]
+            print >>sys.stderr, "spec: {}, match: {}".format(spec, match.group(0))
+
+    if matches_specificity[0][1] == matches_specificity[1][1]: # two or more of the top specificity
+        return None
+    return matches_specificity[0][0]
+
+def parse_game_initiation(str, channel):
     when = None
-    desc_parts = []
     player_count = default_max_players(channel)
     mode = None
     play_time = PLAY_TIME
-    for i, part in enumerate(parts):
-        while len(part) and part[-1] in punctuation:
-            part = part[:-1]
 
-        previous = parts[i - 1] if i > 0 else None
+    time_matches_iter = game_time_re.finditer(str)
+    if time_matches_iter is None:
+        return None
+    matches = [m for m in time_matches_iter]
 
-        maybe_when = maybe_parse_time(part, previous)
-        if maybe_when:
-            if when:
-                return None
-
-            when = maybe_when
-            if len(desc_parts) and desc_parts[-1] in time_prefixes:
-                desc_parts.pop()
-            continue
-
-        if part == "sextuple":
-            player_count = 6
-            continue
-        if part in competitive_keywords:
-            player_count = 2
-            mode = "compet"
-            play_time = 20
-            continue
-
-        desc_parts.append(part)
-
-    if not when:
+    match = most_specific_time(matches)
+    if match is None:
         return None
 
-    return when, " ".join(desc_parts), player_count, play_time, mode
+    timetext = match.group(GAME_TIME_GROUP_TIME)
+    previous = match.group(GAME_TIME_GROUP_MODIFIERS)
+    when = maybe_parse_time(timetext, previous)
+    if when is None:
+        # valid regex, invalid time, e.g. "24:62pm"
+        return None
+
+    # remove 'match' from str
+    game_desc = str[0:match.start()] + str[match.end():]
+
+    game_desc, subs_made = re.subn(r"\bsextuple\b", "", game_desc)
+    if subs_made > 0:
+        player_count = 6
+
+    game_desc, subs_made = re.subn(competitive_re, "", game_desc)
+    if subs_made > 0:
+        player_count = 2
+        mode = "compet"
+        play_time = 20
+
+    game_desc = game_desc.replace("  ", " ").strip()
+
+    return when, game_desc, player_count, play_time, mode

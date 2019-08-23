@@ -87,8 +87,15 @@ class TestParseGameInitiation(unittest.TestCase):
 		self.assertTrue(parse_desc_and_count("2 game", "game", 4))
 
 	def test_punctuation_handling(self):
-		self.assertTrue(parse_desc("game at 3?", "game"))
+		self.assertTrue(parse_desc("game at 3?", "game ?"))
 		self.assertTrue(parse("game at 3?", 15, 00))
+
+	def test_multiple_specific_numbers(self):
+		self.assertTrue(parse("3 5 game at 2:00", 14, 00)) # 2:00 is most specific
+		self.assertTrue(parse("3 5 game at 5pm", 17, 00)) # 5pm is most specific
+		self.assertTrue(parse("3 5 game 2:1 at 3am", 3, 00)) # 3am is most specific
+
+		self.assertFalse(parse("3 5 game at 5", 17, 00)) # no specific time
 
 class TestGame(unittest.TestCase):
 	def test_game_contains(self):
