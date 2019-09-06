@@ -83,7 +83,7 @@ class Game:
 
     def pretty(self):
         current_time = datetime.datetime.now()
-        return "{} {}{}{}, {}'s {}{} from {}, with {}".format(
+        return "{} {}{}{}, {}'s {}{}\n{} contenders: {}".format(
                 gametype_emoji(self.type),
                 when_str(self.when),
                 " ({} mins)".format(self.play_time) if self.play_time != PLAY_TIME else "",
