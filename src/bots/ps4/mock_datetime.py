@@ -74,6 +74,13 @@ class StubDate:
     def __ne__(self, other):
         return not (self == other)
 
+    def __repr__(self):
+        return "StubDate(h={}, m={}, s={}, ms={})".format(
+                self.hour,
+                self.minute,
+                self.second,
+                self.microsecond)
+
 
 class StubTimeDelta:
     def __init__(self, minutes):
