@@ -140,11 +140,12 @@ def most_specific_time(matches):
         """
         m is the match result game_time_re
         """
+        specificity = 0
         if m.group(GAME_TIME_GROUP_AM_PM):
-            return (m, 2)
+            specificity += 1 # "3pm" - very likely this is the time meant
         if m.group(GAME_TIME_GROUP_TIME) and ":" in m.group(GAME_TIME_GROUP_TIME):
-            return (m, 1)
-        return (m, 0)
+            specificity += 1
+        return (m, specificity)
 
     def match_cmp(a, b):
         return b[1] - a[1]
