@@ -106,6 +106,14 @@ class TestParseGameInitiation(unittest.TestCase):
 		with self.assertRaises(TooManyTimeSpecs):
 			parse_game_initiation("3pm or 2:30", "channel") # 3pm and 2:30 match specificity
 
+	def test_repeated_same_time(self):
+		self.assertTrue(parse("at 3pm hi at 3pm", 15, 00))
+		self.assertTrue(parse("at 3pm or at 3:00", 15, 00))
+		self.assertTrue(parse("at 3pm or at 3:00 at 4", 15, 00)) # "at 4" ignored because it's not specific
+
+		with self.assertRaises(TooManyTimeSpecs):
+			parse_game_initiation("at 3pm or at 3:00 at 4pm", "channel")
+
 class TestGame(unittest.TestCase):
 	def test_game_contains(self):
 		dummy_when = today_at(11, 43)
