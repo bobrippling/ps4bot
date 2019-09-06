@@ -9,7 +9,7 @@ fcwd = path.dirname(__file__)
 sys.path.insert(0, path.abspath("{}/../../".format(fcwd)))
 
 import datetime
-from bots.ps4.ps4parsing import parse_game_initiation, today_at
+from bots.ps4.ps4parsing import parse_game_initiation, today_at, TooManyTimeSpecs
 from bots.ps4bot import Game, PS4Bot, GameStates
 from bots.ps4.ps4history import PS4History
 from msg.slackmessage import SlackMessage
@@ -96,6 +96,14 @@ class TestParseGameInitiation(unittest.TestCase):
 		self.assertTrue(parse("3 5 game 2:1 at 3am", 3, 00)) # 3am is most specific
 
 		self.assertFalse(parse("3 5 game at 5", 17, 00)) # no specific time
+		with self.assertRaises(TooManyTimeSpecs):
+			parse_game_initiation("3 5 game 4", "channel")
+		with self.assertRaises(TooManyTimeSpecs):
+			parse_game_initiation("at 3pm at 2:30", "channel")
+		with self.assertRaises(TooManyTimeSpecs):
+			parse_game_initiation("at 3 or 2:30", "channel")
+		with self.assertRaises(TooManyTimeSpecs):
+			parse_game_initiation("3pm or 2:30", "channel") # 3pm and 2:30 match specificity
 
 class TestGame(unittest.TestCase):
 	def test_game_contains(self):

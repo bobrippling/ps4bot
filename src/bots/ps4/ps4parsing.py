@@ -20,6 +20,10 @@ GAME_TIME_GROUP_TIME = 3
 GAME_TIME_GROUP_TIME_NO_AM_PM = 4
 GAME_TIME_GROUP_AM_PM = 6
 
+class TooManyTimeSpecs(Exception):
+    def __init__(self, specs):
+        self.specs = specs
+
 def today_at(hour, min):
     return datetime.datetime.today().replace(
                     hour = hour,
@@ -156,7 +160,12 @@ def most_specific_time(matches):
             print >>sys.stderr, "spec: {}, match: {}".format(spec, match.group(0))
 
     if matches_specificity[0][1] == matches_specificity[1][1]: # two or more of the top specificity
-        return None
+        highest_spec = matches_specificity[0][1]
+        topspecs = filter(lambda s: s[1] == highest_spec, matches_specificity)
+        topspecs = map(lambda s: s[0].group(0), topspecs)
+
+        raise TooManyTimeSpecs(topspecs)
+
     return matches_specificity[0][0]
 
 def parse_game_initiation(str, channel):
