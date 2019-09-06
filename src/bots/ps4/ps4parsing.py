@@ -193,6 +193,8 @@ def most_specific_time(matches):
 def match_to_time(match):
     timetext = match.group(GAME_TIME_GROUP_TIME)
     previous = match.group(GAME_TIME_GROUP_MODIFIERS)
+    if previous:
+        previous = previous.strip()
     return maybe_parse_time(timetext, previous)
 
 def parse_game_initiation(str, channel):

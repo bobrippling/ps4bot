@@ -114,6 +114,11 @@ class TestParseGameInitiation(unittest.TestCase):
 		with self.assertRaises(TooManyTimeSpecs):
 			parse_game_initiation("at 3pm or at 3:00 at 4pm", "channel")
 
+	def test_fractional(self):
+		# these are mainly tests via unit tests in parsing.spec, but this tests the
+		# splitting of "half 3" into the right parts
+		self.assertTrue(parse("half 3", 15, 30))
+
 class TestGame(unittest.TestCase):
 	def test_game_contains(self):
 		dummy_when = today_at(11, 43)

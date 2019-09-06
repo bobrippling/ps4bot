@@ -78,5 +78,7 @@ class TestPS4Parsing(unittest.TestCase):
         self.assertParseTime2("half", "13", 13, 30)
         self.assertParseTime2("half", "6", 18, 30)
 
+        # for more functional-ly tests, see ps4/bot.spec
+
 if __name__ == '__main__':
     unittest.main()
