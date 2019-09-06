@@ -152,6 +152,25 @@ def most_specific_time(matches):
     def match_cmp(a, b):
         return b[1] - a[1]
 
+    def too_many_matches(matches):
+        top = matches[0]
+        top_time = match_to_time(top[0])
+        if top_time is None:
+            return False
+
+        for match in matches[1:]:
+            if top[1] != match[1]:
+                # different specificity, we're okay
+                return False
+
+            time = match_to_time(match[0])
+            if time is None:
+                return True
+            if time != top_time:
+                return True
+
+        return False
+
     matches_specificity = map(add_specificity, matches)
     matches_specificity.sort(match_cmp)
 
@@ -162,7 +181,7 @@ def most_specific_time(matches):
             spec = m[1]
             print >>sys.stderr, "spec: {}, match: {}".format(spec, match.group(0))
 
-    if matches_specificity[0][1] == matches_specificity[1][1]: # two or more of the top specificity
+    if too_many_matches(matches_specificity): # two or more of the top specificity
         highest_spec = matches_specificity[0][1]
         topspecs = filter(lambda s: s[1] == highest_spec, matches_specificity)
         topspecs = map(lambda s: s[0].group(0), topspecs)
@@ -170,6 +189,11 @@ def most_specific_time(matches):
         raise TooManyTimeSpecs(topspecs)
 
     return matches_specificity[0][0]
+
+def match_to_time(match):
+    timetext = match.group(GAME_TIME_GROUP_TIME)
+    previous = match.group(GAME_TIME_GROUP_MODIFIERS)
+    return maybe_parse_time(timetext, previous)
 
 def parse_game_initiation(str, channel):
     when = None
@@ -186,9 +210,7 @@ def parse_game_initiation(str, channel):
     if match is None:
         return None
 
-    timetext = match.group(GAME_TIME_GROUP_TIME)
-    previous = match.group(GAME_TIME_GROUP_MODIFIERS)
-    when = maybe_parse_time(timetext, previous)
+    when = match_to_time(match)
     if when is None:
         # valid regex, invalid time, e.g. "24:62pm"
         return None
