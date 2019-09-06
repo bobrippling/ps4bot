@@ -9,9 +9,9 @@ fcwd = path.dirname(__file__)
 sys.path.insert(0, path.abspath("{}/../../".format(fcwd)))
 
 import datetime
-from bots.ps4.ps4parsing import parse_game_initiation, today_at, TooManyTimeSpecs
+from bots.ps4.parsing import parse_game_initiation, today_at, TooManyTimeSpecs
 from bots.ps4bot import Game, PS4Bot, GameStates
-from bots.ps4.ps4history import PS4History
+from bots.ps4.history import PS4History
 from msg.slackmessage import SlackMessage
 from msg.slackpostedmessage import SlackPostedMessage
 from msg.slackreaction import SlackReaction

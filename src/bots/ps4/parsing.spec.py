@@ -5,7 +5,7 @@ import sys
 fcwd = path.dirname(__file__)
 sys.path.insert(0, path.abspath("{}/../../".format(fcwd)))
 
-from ps4parsing import parse_time
+from parsing import parse_time
 
 class TestPS4Parsing(unittest.TestCase):
     def assertParseTime(self, desc, expected_hour, expected_minute):

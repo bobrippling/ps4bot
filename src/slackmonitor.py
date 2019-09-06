@@ -9,7 +9,7 @@ from msg.slackedit import SlackEdit
 from msg.slackreaction import SlackReaction
 from msg.slackdeletion import SlackDeletion
 from bots.bot import USER_RE, lookup_user
-from bots.ps4.ps4formatting import format_user
+from bots.ps4.formatting import format_user
 
 MSG_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 PING_TIMEOUT = 10

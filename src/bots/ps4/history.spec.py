@@ -6,9 +6,9 @@ import sys
 fcwd = path.dirname(__file__)
 sys.path.insert(0, path.abspath("{}/../../".format(fcwd)))
 
-from bots.ps4.ps4history import PS4History, Keys
-from bots.ps4.ps4game import Game
-from bots.ps4.ps4parsing import empty_parameters
+from bots.ps4.history import PS4History, Keys
+from bots.ps4.game import Game
+from bots.ps4.parsing import empty_parameters
 from msg.slackpostedmessage import SlackPostedMessage
 
 def noop(*args):

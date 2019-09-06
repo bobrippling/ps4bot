@@ -9,13 +9,13 @@ from functional import find
 
 from bot import Bot
 from msg.slackpostedmessage import SlackPostedMessage
-from ps4.ps4game import Game, GameStates, GameFull, PlayerAlreadyPresent
-from ps4.ps4formatting import format_user, format_user_padding, when_str, number_emojis, generate_table
-from ps4.ps4config import PLAY_TIME, GAME_FOLLOWON_TIME
-from ps4.ps4parsing import parse_time, deserialise_time, parse_game_initiation, \
+from ps4.game import Game, GameStates, GameFull, PlayerAlreadyPresent
+from ps4.formatting import format_user, format_user_padding, when_str, number_emojis, generate_table
+from ps4.cfg import PLAY_TIME, GAME_FOLLOWON_TIME
+from ps4.parsing import parse_time, deserialise_time, parse_game_initiation, \
         pretty_mode, parse_stats_request, date_with_year, empty_parameters, TooManyTimeSpecs
-from ps4.ps4history import PS4History, Keys
-from ps4.ps4gamecategory import vote_message, Stats, channel_statmap, suggest_teams, \
+from ps4.history import PS4History, Keys
+from ps4.gamecategory import vote_message, Stats, channel_statmap, suggest_teams, \
         gametype_from_channel, channel_has_scrub_stats, channel_is_foosball, \
         channel_is_private
 

@@ -3,7 +3,7 @@ import datetime
 import re
 import sys
 
-from ps4config import default_max_players, PLAY_TIME
+from cfg import default_max_players, PLAY_TIME
 
 DEBUG = False
 

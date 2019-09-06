@@ -1,9 +1,9 @@
 import datetime
-from ps4formatting import format_user, when_str, pretty_players
-from ps4config import default_max_players, PLAY_TIME
-from ps4historicgame import PS4HistoricGame
-from ps4parsing import pretty_mode
-from ps4gamecategory import gametype_from_channel, gametype_emoji
+from formatting import format_user, when_str, pretty_players
+from cfg import default_max_players, PLAY_TIME
+from historicgame import PS4HistoricGame
+from parsing import pretty_mode
+from gamecategory import gametype_from_channel, gametype_emoji
 
 class GameStates:
     scheduled = 0
