@@ -143,7 +143,7 @@ def most_specific_time(matches):
         return (m, 0)
 
     def match_cmp(a, b):
-        return b[1] - a[1] # want smallest at the top
+        return b[1] - a[1]
 
     matches_specificity = map(add_specificity, matches)
     matches_specificity.sort(match_cmp)
