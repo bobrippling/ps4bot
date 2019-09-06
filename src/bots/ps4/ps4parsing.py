@@ -171,6 +171,11 @@ def most_specific_time(matches):
 
     return matches_specificity[0][0]
 
+def match_to_time(match):
+    timetext = match.group(GAME_TIME_GROUP_TIME)
+    previous = match.group(GAME_TIME_GROUP_MODIFIERS)
+    return maybe_parse_time(timetext, previous)
+
 def parse_game_initiation(str, channel):
     when = None
     player_count = default_max_players(channel)
@@ -186,9 +191,7 @@ def parse_game_initiation(str, channel):
     if match is None:
         return None
 
-    timetext = match.group(GAME_TIME_GROUP_TIME)
-    previous = match.group(GAME_TIME_GROUP_MODIFIERS)
-    when = maybe_parse_time(timetext, previous)
+    when = match_to_time(match)
     if when is None:
         # valid regex, invalid time, e.g. "24:62pm"
         return None
