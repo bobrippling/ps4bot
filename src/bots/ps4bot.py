@@ -13,7 +13,7 @@ from ps4.ps4game import Game, GameStates, GameFull, PlayerAlreadyPresent
 from ps4.ps4formatting import format_user, format_user_padding, when_str, number_emojis, generate_table
 from ps4.ps4config import PLAY_TIME, GAME_FOLLOWON_TIME
 from ps4.ps4parsing import parse_time, deserialise_time, parse_game_initiation, \
-        pretty_mode, parse_stats_request, date_with_year, empty_parameters
+        pretty_mode, parse_stats_request, date_with_year, empty_parameters, TooManyTimeSpecs
 from ps4.ps4history import PS4History, Keys
 from ps4.ps4gamecategory import vote_message, Stats, channel_statmap, suggest_teams, \
         gametype_from_channel, channel_has_scrub_stats, channel_is_foosball, \
@@ -345,9 +345,18 @@ class PS4Bot(Bot):
         Attempts to create a new game from freeform text
         Returns True on parse success (even if game creation failed)
         """
-        parsed = parse_game_initiation(rest, channel)
-        if not parsed:
-            return False
+        try:
+            parsed = parse_game_initiation(rest, channel)
+            if not parsed:
+                return False
+        except TooManyTimeSpecs as e:
+            self.send_message((
+                ":warning: Hew {} - which time do you mean?\n{}"
+            ).format(
+                format_user(user),
+                "\n".join(map(lambda s: "- \"{}\"?".format(s), e.specs))
+            ))
+            return True
 
         when, desc, max_player_count, play_time, mode = parsed
         if len(desc) == 0:
