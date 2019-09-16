@@ -470,7 +470,7 @@ class PS4Bot(Bot):
             self.send_message(":warning: scrubadubdub, you don't have a game at {}".format(when_str(when)))
 
     def send_scuttle_usage(self):
-        self.send_message(":warning: scrubadubdub, try something like \"scuttle 16:00 to 3:30pm\"")
+        self.send_message(":warning: scrubadubdub, try something like \"scuttle 16:00 to 3:30pm\" or \"scuttle 2pm\"")
 
     def send_duplicate_game_message(self, game):
         self.send_message(":warning: there's already a {} game at {}: {}. rip :candle:".format(
