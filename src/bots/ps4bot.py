@@ -549,9 +549,15 @@ class PS4Bot(Bot):
         gametype = gametype_from_channel(message.channel.name)
 
         if len(tokens) >= 3 and tokens[-2] == "to":
+            # scuttle <t1> to <t2>
             str_to = tokens[-1]
             str_from = " ".join(tokens[:-2])
+        elif len(tokens) == 2 and tokens[0] == "to":
+            # scuttle to <t2>
+            str_from = None
+            str_to = tokens[1]
         elif len(tokens) == 1:
+            # scuttle <t2>
             str_from = None
             str_to = tokens[0]
         else:
