@@ -10,7 +10,7 @@ DEBUG = False
 competitive_re = re.compile("compet|competitive|1v1")
 parameter_re = re.compile('^([a-z]+)=(.*)')
 
-game_time_re = re.compile(r"\b(at )?(half )?((?<!-)(\d+([:.]\d+)?)([a-z]*))\b")
+game_time_re = re.compile(r"\b(at )?(half )?((?<!-)(\d+([:.]?\d+)?)([a-z]*))\b")
 #                                                                 ^~~~~~~~ am/pm, matched as [a-z] so we can ignore "3an"
 #                                                  ^~~~~~~~~~~~~ the time, optional minutes
 #                                            ^~~~~~ negative lookbehind, don't accept "-3.40pm"
@@ -42,6 +42,7 @@ def deserialise_time(s):
 
 def parse_time(s, previous = None):
     allow_fractional_prefix = False
+    is_24_hour = False
     am_pm = ""
     if len(s) >= 3 and s[-1] == "m" and (s[-2] == "a" or s[-2] == "p"):
         am_pm = s[-2]
@@ -55,10 +56,17 @@ def parse_time(s, previous = None):
         time_parts = s.split(".")
 
     if len(time_parts) == 1:
-        time_parts.append("00")
+        if len(s) == 4 and len(am_pm) == 0:
+            is_24_hour = True
+            time_parts = [
+                s[0:2],
+                s[2:4],
+            ]
+        else:
+            time_parts.append("00")
 
-        # just a number by itself
-        allow_fractional_prefix = True
+            # just a number by itself
+            allow_fractional_prefix = True
     elif len(time_parts[1]) != 2:
         raise ValueError
 
@@ -76,7 +84,7 @@ def parse_time(s, previous = None):
         # ignore allow_fractional_prefix, can't really say "half 2pm"
     else:
         # no am/pm specified, if it's before 8:00, assume they mean afternoon
-        if hour < 8:
+        if not is_24_hour and hour < 8:
             hour += 12
 
         if allow_fractional_prefix:

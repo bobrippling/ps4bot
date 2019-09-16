@@ -52,6 +52,41 @@ class TestPS4Parsing(unittest.TestCase):
         with self.assertRaises(ValueError):
             parse_time("24")
 
+    def test_four_digit_time(self):
+        with self.assertRaises(ValueError):
+            parse_time("-1000")
+
+        with self.assertRaises(ValueError):
+            parse_time("100")
+
+        self.assertParseTime("0000",  0, 00)
+        self.assertParseTime("0100",  1, 00)
+        self.assertParseTime("0200",  2, 00)
+        self.assertParseTime("0300",  3, 00)
+        self.assertParseTime("0400",  4, 00)
+        self.assertParseTime("0500",  5, 00)
+        self.assertParseTime("0600",  6, 00)
+        self.assertParseTime("0700",  7, 00)
+        self.assertParseTime("0800",  8, 00)
+        self.assertParseTime("0900",  9, 00)
+        self.assertParseTime("1030", 10, 30)
+        self.assertParseTime("1100", 11, 00)
+        self.assertParseTime("1212", 12, 12)
+        self.assertParseTime("1300", 13, 00)
+        self.assertParseTime("1400", 14, 00)
+        self.assertParseTime("1500", 15, 00)
+        self.assertParseTime("1600", 16, 00)
+        self.assertParseTime("1700", 17, 00)
+        self.assertParseTime("1800", 18, 00)
+        self.assertParseTime("1900", 19, 00)
+        self.assertParseTime("2000", 20, 00)
+        self.assertParseTime("2100", 21, 00)
+        self.assertParseTime("2200", 22, 00)
+        self.assertParseTime("2300", 23, 00)
+
+        with self.assertRaises(ValueError):
+            parse_time("2400")
+
     def test_am_pm(self):
         self.assertParseTime("8pm", 20, 00)
         self.assertParseTime("12am", 12, 00)

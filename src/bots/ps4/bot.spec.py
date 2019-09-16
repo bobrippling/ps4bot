@@ -77,6 +77,14 @@ class TestParseGameInitiation(unittest.TestCase):
 		self.assertFalse(parse("1:62"))
 		self.assertFalse(parse("24:25"))
 
+	def test_istime_24hour_spec(self):
+		self.assertTrue(parse("0300", 3, 00))
+		self.assertTrue(parse("1200", 12, 00))
+		self.assertTrue(parse("2300", 23, 00))
+
+                with self.assertRaises(TooManyTimeSpecs):
+                    parse("1234 1259")
+
 	def test_prefix_removal(self):
 		self.assertTrue(parse_desc("big game at 2pm", "big game"))
 		self.assertTrue(parse_desc("match at game time 2pm", "match at game time"))
