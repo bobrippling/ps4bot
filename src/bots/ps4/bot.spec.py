@@ -104,6 +104,7 @@ class TestParseGameInitiation(unittest.TestCase):
 		self.assertTrue(parse("3 5 game 2:1 at 3am", 3, 00)) # 3am is most specific
 		self.assertTrue(parse("3 5 game at 5", 17, 00)) # "at 5" is most specific
 		self.assertTrue(parse("at 3pm or 2:30", 15, 00)) # "at 3pm" is most specific
+                self.assertTrue(parse("game 20 or 10.30", 10, 30)) # "10.30" is most specific (and has a dot, not colon)
 
 		with self.assertRaises(TooManyTimeSpecs):
 			parse_game_initiation("3 5 game 4", "channel")
