@@ -473,9 +473,10 @@ class PS4Bot(Bot):
         self.send_message(":warning: scrubadubdub, try something like \"scuttle 16:00 to 3:30pm\" or \"scuttle 2pm\"")
 
     def send_duplicate_game_message(self, game):
-        self.send_message(":warning: there's already a {} game at {}: {}. rip :candle:".format(
+        self.send_message(":warning: there's already a {} game at {} (for {} minutes):\n> {}\nrip :candle:".format(
             game.channel,
             when_str(game.when),
+            game.play_time,
             game.description))
 
     def send_not1_games_message(self, channel_games):

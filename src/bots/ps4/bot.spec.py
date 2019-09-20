@@ -212,7 +212,7 @@ class TestPS4Bot(unittest.TestCase):
 		ps4bot.handle_message(SlackMessage("ps4bot new game at 3:15", "user", dummychannel, None, None, None, None))
 
 		self.assertEqual(len(self.messages), 1)
-		self.assertEqual(self.messages[0], ":warning: there's already a games game at 15:00: new game. rip :candle:")
+		self.assertEqual(self.messages[0], ":warning: there's already a games game at 15:00 (for 25 minutes):\n> new game\nrip :candle:")
 
 	def test_ps4bot_game_overlap_before(self):
 		dummychannel = DummyChannel("games")
@@ -226,7 +226,7 @@ class TestPS4Bot(unittest.TestCase):
 		ps4bot.handle_message(SlackMessage("ps4bot test game2 at 2:20", "user", dummychannel, None, None, None, None))
 
 		self.assertEqual(len(self.messages), 1)
-		self.assertEqual(self.messages[0], ":warning: there's already a games game at 14:30: test game. rip :candle:")
+		self.assertEqual(self.messages[0], ":warning: there's already a games game at 14:30 (for 25 minutes):\n> test game\nrip :candle:")
 
 	def test_ps4bot_game_overlap_after_edge(self):
 		dummychannel = DummyChannel("games")
