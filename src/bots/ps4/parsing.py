@@ -9,6 +9,7 @@ DEBUG = False
 
 competitive_re = re.compile("compet|competitive|1v1")
 parameter_re = re.compile('^([a-z]+)=(.*)')
+banned_ats_re = re.compile("<!(here|channel)>")
 
 game_time_re = re.compile(r"\b(at )?(half )?((?<!-)(\d+([:.]?\d+)?)([a-z]*))\b")
 #                                                                 ^~~~~~~~ am/pm, matched as [a-z] so we can ignore "3an"
@@ -19,6 +20,8 @@ GAME_TIME_GROUP_MODIFIERS = 2
 GAME_TIME_GROUP_TIME = 3
 GAME_TIME_GROUP_TIME_NO_AM_PM = 4
 GAME_TIME_GROUP_AM_PM = 6
+
+BANNED_ATS_GROUP_STR = 1
 
 class TooManyTimeSpecs(Exception):
     def __init__(self, specs):
@@ -244,5 +247,9 @@ def parse_game_initiation(str, channel):
         play_time = 20
 
     game_desc = game_desc.replace("  ", " ").strip()
+
+    game_desc = banned_ats_re.sub(
+            lambda match: "@" + match.group(BANNED_ATS_GROUP_STR),
+            game_desc)
 
     return when, game_desc, player_count, play_time, mode

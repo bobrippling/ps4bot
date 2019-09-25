@@ -115,6 +115,18 @@ class TestParseGameInitiation(unittest.TestCase):
 		with self.assertRaises(TooManyTimeSpecs):
 			parse_game_initiation("3pm or 2:30", "channel") # 3pm and 2:30 match specificity
 
+	def test_at_here_and_at_channel(self):
+		# <!here> and <!channel> are stripped to a raw/non-notifying "@here"
+		got = parse_game_initiation("<!here> game at 2pm", "channel")
+		self.assertTrue(got)
+		desc = got[1]
+		self.assertEqual(desc, "@here game")
+
+		got = parse_game_initiation("<!channel> game at 2pm", "channel")
+		self.assertTrue(got)
+		desc = got[1]
+		self.assertEqual(desc, "@channel game")
+
 	def test_repeated_same_time(self):
 		self.assertTrue(parse("at 3pm hi at 3pm", 15, 00))
 		self.assertTrue(parse("at 3pm or at 3:00", 15, 00))
