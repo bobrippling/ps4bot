@@ -820,11 +820,13 @@ class PS4Bot(Bot):
             botname = self.botname_for_channel(message.channel.name)
 
             self.send_message((
-                ":warning: Hew {}:\n{}"
+                ":warning: Hew {}:\n{}\n{}"
             ).format(
                 format_user(message.user),
                 "\n".join("`{} {}`: {}".format(botname, command, usage)
-                    for command, (usage, _) in PS4Bot_commands.iteritems() if usage)
+                    for command, (usage, _) in PS4Bot_commands.iteritems() if usage),
+                ("... or just tell me a game time (e.g. `{} HUAGE GAME at 2pm`) " + \
+                        "and get folk to :+1: the invite").format(botname)
             ))
 
     def update_game_states(self):
