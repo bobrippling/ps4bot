@@ -15,6 +15,10 @@ user_renames = {
 # channel name => max player count
 channel_max_players = {
 }
+
+# channel names that are considered public by the bot
+public_channels = [
+]
 ```
 
 User renames is for users whose internal slack name isn't as it appears when rendered in slack.

@@ -1,6 +1,7 @@
 import random
 from collections import defaultdict
 from formatting import format_user, ColourEmojis, number_emojis, pretty_players
+from config import public_channels
 
 class Stats:
     scrub = "scrub"
@@ -53,7 +54,7 @@ def channel_is_overcooked(channel):
     return "overcooked" in channel
 
 def channel_is_private(channel):
-    return not channel_is_overcooked(channel)
+    return channel not in public_channels
 
 def should_suggest_teams(channel):
     return channel_is_fifa(channel) or channel_is_towerfall(channel)
