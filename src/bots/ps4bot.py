@@ -17,7 +17,7 @@ from ps4.parsing import parse_time, deserialise_time, parse_game_initiation, \
 from ps4.history import PS4History, Keys
 from ps4.gamecategory import vote_message, Stats, channel_statmap, suggest_teams, \
         gametype_from_channel, channel_has_scrub_stats, channel_is_foosball, \
-        channel_is_private
+        channel_is_private, gametype_emoji
 
 DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
@@ -396,11 +396,18 @@ class PS4Bot(Bot):
             self.send_message(":warning: no games, are people actually doing work??")
             return
 
-        self.send_message("{0} game{1}:\n{2}".format(
-            len(self.games),
-            plural(len(self.games)),
-            "\n".join([g.pretty() for g in chronological_games(self.games)])
-        ))
+        type_to_games = defaultdict(list)
+        for game in self.games:
+            type_to_games[game.type].append(game)
+
+        message = ""
+        for type, games in sorted(type_to_games.iteritems()):
+            message += "{} games:\n{}\n\n".format(
+                gametype_emoji(type),
+                "\n".join([g.pretty() for g in chronological_games(games)])
+            )
+
+        self.send_message(message)
 
     def update_game_message(self, game, subtle_addition = None):
         if not game.message:
