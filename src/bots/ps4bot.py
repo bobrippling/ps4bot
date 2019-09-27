@@ -76,6 +76,15 @@ def parse_parameters(s):
         parameters[k] = v
     return parameters
 
+def chronological_games(games):
+    def cmp_games(a, b):
+        if a.when > b.when:
+            return 1
+        if a.when < b.when:
+            return -1
+        return 0
+    return sorted(games, cmp_games)
+
 class LatestStats:
     def __init__(self, timestamp = None, year = None, parameters = None):
         self.timestamp = timestamp
@@ -382,16 +391,6 @@ class PS4Bot(Bot):
         self.add_user_to_game(user, game, subtle_message = True)
         return True
 
-    def chronological_games(self):
-        def cmp_games(a, b):
-            if a.when > b.when:
-                return 1
-            if a.when < b.when:
-                return -1
-            return 0
-
-        return sorted(self.games, cmp_games)
-
     def show_games(self):
         if len(self.games) == 0:
             self.send_message(":warning: no games, are people actually doing work??")
@@ -400,7 +399,7 @@ class PS4Bot(Bot):
         self.send_message("{0} game{1}:\n{2}".format(
             len(self.games),
             plural(len(self.games)),
-            "\n".join([g.pretty() for g in self.chronological_games()])
+            "\n".join([g.pretty() for g in chronological_games(self.games)])
         ))
 
     def update_game_message(self, game, subtle_addition = None):
