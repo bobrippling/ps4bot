@@ -37,6 +37,10 @@ PS4Bot_commands = {
     # args given are self, message, rest
     "nar": (Usage.nar, lambda self, *args: self.maybe_cancel_game(*args)),
     "nah": (None, lambda self, *args: self.maybe_cancel_game(*args)),
+    "delete": (None, lambda self, *args: self.maybe_cancel_game(*args)),
+    "flyout": (None, lambda self, *args: self.maybe_cancel_game(*args)),
+    "cancel": (None, lambda self, *args: self.maybe_cancel_game(*args)),
+    "abort": (None, lambda self, *args: self.maybe_cancel_game(*args)),
     "games": (Usage.games, lambda self, *args: self.show_games()),
     "scuttle": (Usage.scuttle, lambda self, *args: self.maybe_scuttle_game(*args)),
     "scoot": (None, lambda self, *args: self.maybe_scuttle_game(*args)),
