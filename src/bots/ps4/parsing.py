@@ -4,6 +4,7 @@ import re
 import sys
 
 from cfg import default_max_players, PLAY_TIME
+from gamecategory import channel_is_football_tournament
 
 DEBUG = False
 
@@ -245,6 +246,9 @@ def parse_game_initiation(str, channel):
         player_count = 2
         mode = "compet"
         play_time = 20
+    elif channel_is_football_tournament(channel):
+        player_count = 2
+        play_time = 10
 
     game_desc = game_desc.replace("  ", " ").strip()
 

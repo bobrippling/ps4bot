@@ -17,7 +17,7 @@ from ps4.parsing import parse_time, deserialise_time, parse_game_initiation, \
 from ps4.history import PS4History, Keys
 from ps4.gamecategory import vote_message, Stats, channel_statmap, suggest_teams, \
         gametype_from_channel, channel_has_scrub_stats, channel_is_foosball, \
-        channel_is_private, gametype_emoji
+        channel_is_football_tournament, channel_is_private, gametype_emoji
 
 DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
@@ -107,7 +107,7 @@ class PS4Bot(Bot):
         self.load()
 
     def botname_for_channel(self, channel):
-        if channel_is_foosball(channel):
+        if channel_is_foosball(channel) or channel_is_football_tournament(channel):
             return "logbot"
         return self.botname
 

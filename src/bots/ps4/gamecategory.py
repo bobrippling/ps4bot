@@ -53,6 +53,9 @@ def channel_is_foosball(channel):
 def channel_is_overcooked(channel):
     return "overcooked" in channel
 
+def channel_is_football_tournament(channel):
+    return "football-tournament" in channel
+
 def channel_is_private(channel):
     return channel not in public_channels
 
