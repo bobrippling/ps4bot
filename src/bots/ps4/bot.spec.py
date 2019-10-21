@@ -263,7 +263,7 @@ class TestPS4Bot(unittest.TestCase):
                 ps4bot.handle_message(SlackMessage("ps4bot game at 15:30", "user", dummychannel, None, None, None, None))
 		self.assertEqual(len(ps4bot.games), 2)
 
-	def test_ps4bot_scuttle_via_two_times(self):
+	def test_ps4bot_scuttle_via_two_times_with_to_keyword(self):
 		dummychannel = DummyChannel("games")
 
 		ps4bot = self.create_ps4bot()
@@ -273,6 +273,20 @@ class TestPS4Bot(unittest.TestCase):
 		self.messages = []
 
 		ps4bot.handle_message(SlackMessage("ps4bot scuttle 1pm to 3", "user", dummychannel, None, None, None, None))
+
+		self.assertEqual(len(self.messages), 1)
+		self.assertEqual(self.messages[0], ":alarm_clock: test game moved from 13:00 to 15:00 by <@user>")
+
+	def test_ps4bot_scuttle_via_two_times_without_to_keyword(self):
+		dummychannel = DummyChannel("games")
+
+		ps4bot = self.create_ps4bot()
+		ps4bot.handle_message(SlackMessage("ps4bot test game at 1", "user", dummychannel, None, None, None, None))
+
+		self.assertEqual(len(self.messages), 1)
+		self.messages = []
+
+		ps4bot.handle_message(SlackMessage("ps4bot scuttle 1 1500", "user", dummychannel, None, None, None, None))
 
 		self.assertEqual(len(self.messages), 1)
 		self.assertEqual(self.messages[0], ":alarm_clock: test game moved from 13:00 to 15:00 by <@user>")

@@ -571,6 +571,9 @@ class PS4Bot(Bot):
             # scuttle <t2>
             str_from = None
             str_to = tokens[0]
+        elif len(tokens) == 2:
+            # scuttle <t1> <t2>
+            str_from, str_to = tokens
         else:
             self.send_scuttle_usage()
             return
