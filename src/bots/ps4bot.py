@@ -479,8 +479,11 @@ class PS4Bot(Bot):
         else:
             self.send_message(":warning: scrubadubdub, you don't have a game at {}".format(when_str(when)))
 
-    def send_scuttle_usage(self):
-        self.send_message(":warning: scrubadubdub, try something like \"scuttle 16:00 to 3:30pm\" or \"scuttle 2pm\"")
+    def send_scuttle_usage(self, invalid_time = None):
+        if invalid_time:
+            self.send_message(":warning: couldn't parse `{}` as a time (or find a game with that description)".format(invalid_time))
+        else:
+            self.send_message(":warning: scrubadubdub, try something like \"scuttle 16:00 to 3:30pm\" or \"scuttle 2pm\"")
 
     def send_duplicate_game_message(self, game):
         self.send_message(":warning: there's already a {} game at {} (for {} minutes):\n> {}\nrip :candle:".format(
@@ -582,7 +585,7 @@ class PS4Bot(Bot):
             when_desc = None
             when_to = parse_time(str_to)
         except ValueError:
-            self.send_scuttle_usage()
+            self.send_scuttle_usage(invalid_time = str_to)
             return
 
         when_from = None
@@ -617,7 +620,7 @@ class PS4Bot(Bot):
             if when_from:
                 self.send_game_not_found(when_from, message.user)
             else:
-                self.send_scuttle_usage()
+                self.send_scuttle_usage(invalid_time = str_from)
             return
 
         if game_to_move.creator != message.user:
