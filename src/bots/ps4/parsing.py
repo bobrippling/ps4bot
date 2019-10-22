@@ -7,6 +7,7 @@ from cfg import default_max_players, PLAY_TIME
 from gamecategory import channel_is_football_tournament
 
 DEBUG = False
+ENABLE_3_DIGIT_TIME = False # allow 230, etc as time
 
 competitive_re = re.compile("compet|competitive|1v1")
 parameter_re = re.compile('^([a-z]+)=(.*)')
@@ -65,6 +66,13 @@ def parse_time(s, previous = None):
             time_parts = [
                 s[0:2],
                 s[2:4],
+            ]
+        elif ENABLE_3_DIGIT_TIME and len(am_pm) == 0 and len(s) == 3:
+            # not explicitly 24 hour / 24 hour would be surprising
+            # i.e. "530" should be interpreted as 17:30
+            time_parts = [
+                s[0],
+                s[1:3],
             ]
         else:
             time_parts.append("00")
