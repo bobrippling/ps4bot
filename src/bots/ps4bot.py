@@ -18,6 +18,7 @@ from ps4.history import PS4History, Keys
 from ps4.gamecategory import vote_message, Stats, channel_statmap, suggest_teams, \
         gametype_from_channel, channel_has_scrub_stats, channel_is_foosball, \
         channel_is_football_tournament, channel_is_private, gametype_emoji
+from ps4 import elo
 
 DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
@@ -752,7 +753,12 @@ class PS4Bot(Bot):
                 try:
                     return float(elorank)
                 except:
-                    # not ranked yet, sort at bottom
+                    pass
+                # not ranked yet, sort at bottom
+                try:
+                    # (FIXME: this is tightly coupled to elo formatting)
+                    return float(elorank.replace("?", "")) - elo.initial_ranking
+                except:
                     return -1
 
             header = ["Player"] + map(Stats.pretty, allstats)
