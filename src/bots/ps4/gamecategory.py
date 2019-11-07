@@ -59,8 +59,13 @@ def channel_is_football_tournament(channel):
 def channel_is_private(channel):
     return channel not in public_channels
 
-def should_suggest_teams(channel):
-    return channel_is_fifa(channel) or channel_is_towerfall(channel)
+def suggest_team_names(game):
+    channel = game.channel
+    if channel_is_fifa(channel):
+        return ["Home", "Away"]
+    if channel_is_towerfall(channel):
+        return ["Team 1", "Team 2"]
+    return None
 
 def limit_game_to_single_win(channel):
     return channel_is_fifa(channel)
@@ -96,10 +101,11 @@ def foosball_fixtures(players):
     ]
 
 def suggest_teams(game):
-    if not should_suggest_teams(game.channel):
+    team_names = suggest_team_names(game)
+    if not team_names:
         return None
 
-    if len(game.players) <= 2:
+    if len(game.players) <= 2 or len(team_names) != 2:
         return None
 
     split = game.players[:]
@@ -108,7 +114,12 @@ def suggest_teams(game):
     team1 = split[:len(split)/2]
     team2 = split[len(split)/2:]
 
-    return "Team 1: {}\nTeam 2: {}".format(pretty_players(team1), pretty_players(team2))
+    return "{}: {}\n{}: {}".format(
+        team_names[0],
+        pretty_players(team1),
+        team_names[1],
+        pretty_players(team2)
+    )
 
 def emoji_numberify(s, i):
     return ":{}: {}".format(number_emojis[i], s)
