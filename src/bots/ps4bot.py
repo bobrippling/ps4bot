@@ -783,6 +783,8 @@ class PS4Bot(Bot):
             # no need for mode string
             tables_message_str = tables[0][1]
 
+        tables_message_str += "\nAdd a :mute: to avoid having your name @-mentioned"
+
         if not force_new and channel in self.latest_stats_table:
             # update the table instead
             table_msg = None
