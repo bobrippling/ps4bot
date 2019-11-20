@@ -112,6 +112,11 @@ class PS4Bot(Bot):
             return "logbot"
         return Bot.botname_for_channel(self, channel)
 
+    def botemoji_for_channel(self, channel):
+        if channel_is_foosball(channel) or channel_is_football_tournament(channel):
+            return ":soccer:"
+        return Bot.botemoji_for_channel(self, channel)
+
     def load(self):
         try:
             with open(SAVE_FILE, "r") as f:
