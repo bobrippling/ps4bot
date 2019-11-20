@@ -22,6 +22,9 @@ class Bot():
     def botname_for_channel(self, channel):
         return self.botname
 
+    def botemoji_for_channel(self, channel):
+        return self.icon_emoji
+
     def lookup_user(self, id, alt = None):
         match = USER_RE_ANCHORED.search(id)
         if match is not None:
@@ -52,7 +55,7 @@ class Bot():
                 channel = channel.id,
                 text = text,
                 username = self.botname_for_channel(channel.name),
-                icon_emoji = self.icon_emoji,
+                icon_emoji = self.botemoji_for_channel(channel.name),
                 as_user = False)
 
         return SlackPostedMessage(response["channel"], response["ts"], text)
@@ -68,6 +71,7 @@ class Bot():
                 channel = channel.id,
                 ts = timestamp,
                 username = self.botname_for_channel(channel.name),
+                icon_emoji = self.botemoji_for_channel(channel.name),
                 as_user = False,
                 text = text)
 
