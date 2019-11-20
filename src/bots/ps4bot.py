@@ -110,7 +110,7 @@ class PS4Bot(Bot):
     def botname_for_channel(self, channel):
         if channel_is_foosball(channel) or channel_is_football_tournament(channel):
             return "logbot"
-        return self.botname
+        return Bot.botname_for_channel(self, channel)
 
     def load(self):
         try:
