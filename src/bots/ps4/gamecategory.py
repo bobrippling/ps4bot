@@ -48,7 +48,7 @@ def channel_is_fifa(channel):
     return "fifa" in channel
 
 def channel_is_foosball(channel):
-    return "line-of-glory" in channel
+    return "line-of-glory" in channel or "table-football" in channel
 
 def channel_is_overcooked(channel):
     return "overcooked" in channel
