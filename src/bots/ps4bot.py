@@ -33,6 +33,19 @@ class Usage:
     scuttle = "Reschedule a game, optionally disambiguating with a time, e.g. `scuttle 3pm`, `scuttle 2pm to 3pm`"
     stats = "Show stats, optionally for a given channel, and year, e.g. `stats 2019`, `stats towerfall 2018`"
 
+class MultipleDescribedGamesFound(Exception):
+    def __init__(self, search):
+        self.search = search
+class MultipleGamesOwned(Exception):
+    def __init__(self, games):
+        self.games = games
+class GameNotFound(Exception):
+    def __init__(self, search):
+        self.search = search
+class InvalidTime(Exception):
+    def __init__(self, time):
+        self.time = time
+
 # command => (usage-or-none, handler)
 PS4Bot_commands = {
     # args given are self, message, rest
@@ -564,10 +577,41 @@ class PS4Bot(Bot):
 
         self.save()
 
+    def game_from_userdesc(self, userdesc, user, gametype):
+        when_desc = None
+        when_from = None
+        try:
+            when_from = parse_time(userdesc) if userdesc else None
+        except ValueError:
+            when_desc = userdesc
+
+        if when_desc:
+            game = None
+            for g in self.games:
+                if g.description == when_desc:
+                    if game:
+                        raise MultipleDescribedGamesFound(when_desc)
+                    game = g
+
+        elif when_from:
+            # we've been given an explicit game to move
+            game = self.game_occuring_at(when_from, gametype)
+        else:
+            # no explicit game to move, if the user has just one, pick it
+            created_games = self.games_created_by(user)
+            if len(created_games) != 1:
+                raise MultipleGamesOwned(created_games)
+            game = created_games[0]
+
+        if not game:
+            if when_from:
+                raise GameNotFound(when_from)
+            else:
+                raise InvalidTime(userdesc)
+        return game
+
     def maybe_scuttle_game(self, message, rest):
         tokens = rest.split(" ")
-        gametype = gametype_from_channel(message.channel.name)
-
         if len(tokens) >= 3 and tokens[-2] == "to":
             # scuttle <t1> to <t2>
             str_to = tokens[-1]
@@ -588,45 +632,27 @@ class PS4Bot(Bot):
             return
 
         try:
-            when_desc = None
             when_to = parse_time(str_to)
         except ValueError:
             self.send_scuttle_usage(invalid_time = str_to)
             return
 
-        when_from = None
+        gametype = gametype_from_channel(message.channel.name)
         try:
-            when_from = parse_time(str_from) if str_from else None
-        except ValueError:
-            when_desc = str_from
-
-        if when_desc:
-            game_to_move = None
-            for g in self.games:
-                if g.description == when_desc:
-                    if game_to_move:
-                        self.send_message(
-                                ":warning: scrubadubdub - there's multiple games called \"{}\"".format(
-                                when_desc))
-                        return
-                    game_to_move = g
-
-        elif when_from:
-            # we've been given an explicit game to move
-            game_to_move = self.game_occuring_at(when_from, gametype)
-        else:
-            # no explicit game to move, if the user has just one, move it
-            created_games = self.games_created_by(message.user)
-            if len(created_games) != 1:
-                self.send_too_many_owned_games_message(created_games, "scuttle")
-                return
-            game_to_move = created_games[0]
-
-        if not game_to_move:
-            if when_from:
-                self.send_game_not_found(when_from, message.user)
-            else:
-                self.send_scuttle_usage(invalid_time = str_from)
+            game_to_move = self.game_from_userdesc(str_from, message.user, gametype)
+        except MultipleDescribedGamesFound as e:
+            self.send_message(
+                    ":warning: scrubadubdub - there's multiple games called \"{}\"".format(
+                    e.search))
+            return
+        except MultipleGamesOwned as e:
+            self.send_too_many_owned_games_message(e.games, "scuttle")
+            return
+        except GameNotFound as e:
+            self.send_game_not_found(e.search, message.user)
+            return
+        except InvalidTime as e:
+            self.send_scuttle_usage(invalid_time = e.time)
             return
 
         if game_to_move.creator != message.user:
