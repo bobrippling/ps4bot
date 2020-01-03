@@ -23,6 +23,17 @@ from ps4 import elo
 DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
 SAVE_FILE = "ps4-games.txt"
+BANTER_FILE = "ps4-banter.txt"
+
+BANTER_DEFAULTS = {
+    "joined": "welcome to the game",
+    "created": "game registered, gg",
+    "kickoff": "match kickoff is now",
+    "dialect": "areet",
+    "thanked": "nee bother",
+    "follow-on": "",
+    "tip": "good luck",
+}
 
 class UserOption:
     mute = "mute"
@@ -311,24 +322,21 @@ class PS4Bot(Bot):
         """
         for_user is optional, all other arguments are required
         """
-        is_champ = False
+        for_champ = False
         if for_user:
             year = self.latest_stats_table[in_channel].year
             user_ranking = self.history.user_ranking(in_channel, year = year)
             try:
-                is_champ = user_ranking.index(for_user) < 3
+                for_champ = user_ranking.index(for_user) < 3
             except ValueError:
                 pass
 
-        searching_type = type
-        if is_champ:
-            searching_type = type + "-champ"
-
         allow_controversial = channel_is_private(in_channel)
+        type_warned = []
 
         try:
             msgs = []
-            with open("ps4-banter.txt", "r") as f:
+            with open(BANTER_FILE, "r") as f:
                 while True:
                     line = f.readline()
                     if line == "":
@@ -341,12 +349,25 @@ class PS4Bot(Bot):
                         print >>sys.stderr, "invalid banter line %s" % line
                         continue
 
-                    if tokens[0].startswith("(controversial) "):
+                    bant_type = tokens[0]
+
+                    is_controversial = bant_type.startswith("(controversial) ")
+                    if is_controversial:
+                        bant_type = bant_type[16:]
                         if not allow_controversial:
                             continue
-                        tokens[0] = tokens[0][16:]
 
-                    if tokens[0] != searching_type:
+                    is_champ = bant_type.endswith("-champ")
+                    if is_champ:
+                        bant_type = bant_type[:6]
+                        if not for_champ:
+                            continue
+
+                    if bant_type != type:
+                        if bant_type not in BANTER_DEFAULTS:
+                            if bant_type not in type_warned:
+                                print >>sys.stderr, "unknown banter type \"%s\"" % bant_type
+                                type_warned.append(bant_type)
                         continue
                     msg = tokens[1].strip()
                     msgs.append(msg)
@@ -358,18 +379,8 @@ class PS4Bot(Bot):
         except IOError as e:
             print >>sys.stderr, "exception loading banter: {}".format(e)
 
-        if type == "joined":
-            return "welcome to the game"
-        if type == "created":
-            return "game registered, gg"
-        if type == "kickoff":
-            return "match kickoff is now"
-        if type == "dialect":
-            return "areet"
-        if type == "thanked":
-            return "nee bother"
-        if type == "follow-on":
-            return ""
+        if type in BANTER_DEFAULTS:
+            return BANTER_DEFAULTS[type]
         return "?"
 
     def maybe_new_game(self, user, channel, rest):
