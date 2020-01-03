@@ -6,6 +6,7 @@ created-champ: game created by %s, calling their own shots, making their own rul
 created-champ: game created by %s, making big moves as usual
 created-champ: it's over losers, %s has the high ground
 created-champ: game made by %s - expert arrow catcher, catches arrows like Trump catches lawsuits
+created-champ: With %s here, it looks like we are about to see what peak performance looks like
 created: :warning: LARGE GAME :warning:
 created: game created by %s - hasn't won a game since they brought their PS4 to the intensive care ward
 created: game made by %s - good luck starting at that time
@@ -13,8 +14,6 @@ created: BIGGEST GAME SINCE SLICED BREAD
 created: how many nerds does it take to organise a match? just one this time, game made by %s
 created: game made by %s, it's almost like nobody does any work around here
 created: game made by %s, if they game anything like they code then nothing to worry about
-created: game made by %s, another naive, dough eyed, employee looking to meet the harsh realities of real competition.
-created: game made by %s, who the heck's that?
 created: game made by %s, if at first you don't succeed, try until you have embarrassed yourself so much your family disowns you.
 created: and %s did say let there be a game... and there was one
 created: towerfall tip of the day, "anyone can catch an arrow with their face, once" :standardarrow:
@@ -38,16 +37,17 @@ created: game created by %s, they say history repeats itself
 created: games++; // %s
 created: game created by %s, BAH HUMBUG
 created: game created by %s, loser has to buy cake
+created: IT have me locked in the server room, send help %s
+created: Look at %s, just barging in here like they own the place
+created: Nothing is guaranteed except death
 
 joined-champ: born in meeting room 1, %s joined the '%d' game
 joined-champ: %s has entered the '%d' game, my idol since version 7.0
 joined-champ: %s has entered the '%d' game after having invented 7 types of custard
 joined-champ: %s has joined the '%d' game - they don't sleep, they just wait for the next big game
-joined-champ: born of a virgin under a blood moon, %s has entered the '%d' game
 joined-champ: they invented the colour purple, their biceps have their own gravitational pull... IT'S %s! :tada:
 joined-champ: %s has arrived, may as well just quit now
 joined-champ: buckle up bois, shit just got real
-joined-champ: BIG LAD IN DA HOUSE
 joined-champ: %s has entered the '%d' game, rek the shop
 joined: scrubadubdub, %s is up for a drubbin
 joined: MUM GET THE CAMERA
@@ -55,9 +55,7 @@ joined: %s, once a scrublord, always a scrublord
 joined: %s joined the '%d' game, biggest upset since blambert puked at the Christmas party
 joined: %s has arrived, %d failures++
 joined: %s has arrived, TODO: fix the %d blacklist
-joined: %s has arrived, could be worse, at least it isn't James
 joined: %s joined the '%d' game, everyone look busy
-joined: %s reckons they can take you all
 joined: welcome to %d %s, what a [ERROR: INSULT FAILED TO LOAD]
 joined: %s joined the '%d' game. yeah, I heard the rumours too. still stuck in vim
 joined: scrublords++ // add %s to %d
@@ -67,13 +65,54 @@ joined: recently escaped from an asylum and live with us today, %s has entered t
 joined: the hunchback of Salisbury Cathedral - %s - has entered the '%d' game
 joined: %s has entered the '%d' game, keeps a photo of their iPhone in their wallet
 joined: once wrestled a badger and lost, it's %s
-joined: %s has entered the '%d' game, famous for throwing a laptop at a tramp
 joined: %s has entered the '%d' game with the IQ of a turnip
 joined: %s has entered the '%d' game, get ready for as swift an exit
 joined: %s has joined the '%d' game, escaped from the mothership to be with us all today
 joined: %s has entered the '%d' game, recently escaped from a zoo
 joined: welcome to the %d, %s. I didn't want to be the one to tell you but you should probably think about retirement.
 joined: %s has entered the '%d' game, once went for a swim and it looked like 22 kids having a water fight
+joined-champ: %s has the power of god AND ANIME on their side
+joined-champ: Finally %s is here. WHAT A PIONEER!
+joined-champ: Finally a pro, %s has been know to attack from angles that no-one has ever seen before, even flanking from different dimensions
+joined: %s has gotten themselves involved, this is probably a trap
+joined: %s here, for another scrub of the game nomination
+joined: Doing a good job acting like nothing went disastrously wrong last time, big up %s
+joined: Extensive testing has proven %s to be a human being, and not a monkey
+joined: Hey it's ya boi %s back again with another masterclass in scrubbery - please like, comment and subscribe
+joined: I had a dog named %s once, it sued me for negligence and now I sleep in a cat-carrier in the building it bought with the lawsuit winnings
+joined: I hate to tell everyone, but I added %s to the game... what have I done?!
+joined: I thought I got rid of them, but here's %s... again
+joined: If a god of losing existed, %s would serve as their most pious follower
+joined: Our first sighting of %s since they were dragged into the server room, 16 days, 12 hours, 22 mins and 37 seconds ago
+joined: tip: Fire burns
+joined: tip: Butter does not churn itself
+joined: No one wants to hear about the cool new javascript framework
+joined: tip: Size matters, so does damage and speed
+joined: tip: Two wrongs don't make a left
+joined: tip: Pay no attention to the man behind the curtain
+joined: tip: Practice makes perfect, buy do you want to risk being branded a tryhard?
+joined: tip: Loading humorous tip of the day... please wait :hourglass:
+joined: You don't have enough gym badges to control me
+joined: tip: Press Alt+F4 for a quick IQ test
+joined: FATHEEEEEEEEEEEEEEEEEEEEEEEEEEER!!!
+joined: tip: If you are happy and you know it clap your hands
+joined: tip: Give yourself enough room to play far from objects and people
+joined: %s, did you lock you front door this morning?
+joined: Humpty Dumpty was pushed
+joined: tip: Watch out for the grenade danger indicator
+joined: tip: Use keys to open doors
+joined: tip: Do not die
+joined: tip: Falling off high buildings can kill you
+joined: tip: Cultivate a stoic calmness
+joined: tip: If at first you don't succeed, uninstall and play SIMS
+joined: tip: Don't eat yellow snow
+joined: tip: Yelling fixes most problems
+joined: tip: Got no friends? Enable bots!
+joined: tip: Alt+F4 to unlock God Mode
+joined: tip: Doorways are the perfect place to stand and have a chat.
+joined: tip: There is no tip
+joined: tip: Perhaps you should check out http://towerfall.wikidot.com/how-to-play
+joined: tip: Do a google search for "fifa 19 tutorial for absolute beginners"
 
 # kickoff banter doesn't have "champ" entries
 kickoff: fly you fools! %t %d - %s
@@ -98,45 +137,6 @@ kickoff: Punch it chewie, RAAAAAAAAAAARRRRRR %d %s
 kickoff: Can ya'll (%s) please report to Dr Console's office. It's about %d at %t.
 kickoff: it's time for the main event of the day - %d, featuring %s. Be there, %t.
 
-tip: Fire burns
-tip: Butter does not churn itself
-tip: Nobody like a tryhard
-tip: No one wants to hear about the cool new javascript framework
-tip: Size matters, so does damage and speed
-tip: Company values nominations aren't redeemable for bitcoins
-tip: Two wrongs don't make a left
-tip: Pay no attention to the man behind the curtain
-tip: Practise makes perfect, buy do you want to risk being branded a tryhard?
-tip: Two World Wars and One World Cup
-tip: Loading humorous tip of the day... please wait
-tip: You don't have enough gym badges to control me
-tip: Press Alt+F4 for a quick IQ test
-tip: FATHEEEEEEEEEEEEEEEEEEEEEEEEEEER!!!
-tip: If you are happy and you know it clap your hands
-tip: Give yourself enough room to play far from objects and people
-tip: Did you lock you front door this morning?
-tip: Humpty Dumpty was pushed
-tip: Behind you!
-tip: Watch out for the grenade danger indicator
-tip: Are we there yet?
-tip: Wipe from front to back
-tip: Use keys to open doors
-tip: Mushroom
-tip: Do not die
-tip: Keep on trying till you run out of cake
-tip: Falling off high buildings can kill you
-tip: Cultivate a stoic calmness
-tip: If at first you don't succeed uninstall and play sims
-tip: Don't eat yellow snow
-tip: Yelling fixes most problems
-tip: Got no friends? Enable bots!
-tip: Alt+F4 to unlock God Mode
-tip: Doorways are the perfect place to stand and have a chat.
-tip: There is no tip
-tip: perhaps you should check out http://towerfall.wikidot.com/how-to-play
-tip: do a google search for "fifa 19 tutorial for absolute beginners"
-tip: violence, speed and aggression
-
 dialect-champ: areet big lad
 dialect: areet
 dialect: calm doon m8
@@ -151,8 +151,6 @@ thanked: Nee botha %s, ya flippin' big lad
 follow-on: %s's %d (%c) is straight after - feel free to leave the PS4 on
 follow-on: %s's %d (%c) is straight afterwards, so make sure to turn the PS4 off after you are done to show maximum disrespect
 follow-on: %s's %d (%c) is straight after yours but don't let that stop you playing. If they want to play that bad, make them fight you for it
-follow-on: %s has a game (%d / %c) scheduled straight after yours. A moment's silence please, for the scrublords that play %c
 follow-on: Another game's scheduled straight after yours - %c's %d. It would be a shame if something were to happen to the PS4 before then
-follow-on: Lots of games scheduled today. %s has one booked for straight after yours (%d / %c). Be sure to press the kettle's "water filter changed" button to let them know you've finished your session
 follow-on: %s is threatening to use the PS4 straight after you for %c's %d. Maybe try stacking some of those chairs in front of the kitchen door to prevent their entrance
 follow-on: Be sure to hide the PS4 controllers, %s has %c's %d after yours but rumour has it they really wanted to play hide and seek
