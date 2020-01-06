@@ -85,6 +85,10 @@ class TestParseGameInitiation(unittest.TestCase):
 		with self.assertRaises(TooManyTimeSpecs):
 			parse("1234 1259")
 
+	def test_istime_with_ordinal(self):
+		# "3rd" shouldn't be parsed as a possible "3pm"
+		self.assertTrue(parse("FA Cup 3rd Round 15:00", 15, 00))
+
 	def test_prefix_removal(self):
 		self.assertTrue(parse_desc("big game at 2pm", "big game"))
 		self.assertTrue(parse_desc("match at game time 2pm", "match at game time"))

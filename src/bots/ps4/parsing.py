@@ -14,7 +14,7 @@ parameter_re = re.compile('^([a-z]+)=(.*)')
 banned_ats_re = re.compile("<!(here|channel)>")
 
 game_time_re = re.compile(r"\b(at )?(half )?((?<!-)(\d+([:.]?\d+)?)([a-z]*))\b")
-#                                                                 ^~~~~~~~ am/pm, matched as [a-z] so we can ignore "3an"
+#                                                                  ^~~~~~~~ am/pm, matched as [a-z] so we can ignore "3an"
 #                                                  ^~~~~~~~~~~~~ the time, optional minutes
 #                                            ^~~~~~ negative lookbehind, don't accept "-3.40pm"
 GAME_TIME_GROUP_STRIPBEFORE = 1
@@ -28,6 +28,15 @@ BANNED_ATS_GROUP_STR = 1
 class TooManyTimeSpecs(Exception):
     def __init__(self, specs):
         self.specs = specs
+
+class Match:
+    def __init__(self, match, when, specificity = -1):
+        self.match = match
+        self.when = when
+        self.specificity = specificity
+
+    def with_specificity(self, specificity):
+        return Match(self.match, self.when, specificity)
 
 def today_at(hour, min):
     return datetime.datetime.today().replace(
@@ -161,34 +170,35 @@ def most_specific_time(matches):
         m is the match result game_time_re
         """
         specificity = 0
+        match = m.match
 
-        if m.group(GAME_TIME_GROUP_AM_PM):
+        if match.group(GAME_TIME_GROUP_AM_PM):
             specificity += 1 # "3pm" - very likely this is the time meant
 
-        t = m.group(GAME_TIME_GROUP_TIME)
+        t = match.group(GAME_TIME_GROUP_TIME)
         if t and (":" in t or "." in t):
             specificity += 1
 
-        if m.group(GAME_TIME_GROUP_STRIPBEFORE) and "at" in m.group(GAME_TIME_GROUP_STRIPBEFORE):
+        if match.group(GAME_TIME_GROUP_STRIPBEFORE) and "at" in match.group(GAME_TIME_GROUP_STRIPBEFORE):
             specificity += 1 # "at 3" - likely the time they want
 
-        return (m, specificity)
+        return m.with_specificity(specificity)
 
     def match_cmp(a, b):
-        return b[1] - a[1]
+        return b.specificity - a.specificity
 
     def too_many_matches(matches):
         top = matches[0]
-        top_time = match_to_time(top[0])
+        top_time = top.when
         if top_time is None:
             return False
 
         for match in matches[1:]:
-            if top[1] != match[1]:
+            if top.specificity != match.specificity:
                 # different specificity, we're okay
                 return False
 
-            time = match_to_time(match[0])
+            time = match.when
             if time is None:
                 return True
             if time != top_time:
@@ -202,18 +212,17 @@ def most_specific_time(matches):
     if DEBUG:
         print >>sys.stderr, "matches:"
         for m in matches_specificity:
-            match = m[0]
-            spec = m[1]
+            match, spec = m.match, m.specificity
             print >>sys.stderr, "spec: {}, match: {}".format(spec, match.group(0))
 
     if too_many_matches(matches_specificity): # two or more of the top specificity
-        highest_spec = matches_specificity[0][1]
-        topspecs = filter(lambda s: s[1] == highest_spec, matches_specificity)
-        topspecs = map(lambda s: s[0].group(0), topspecs)
+        highest_spec = matches_specificity[0].specificity
+        topspecs = filter(lambda s: s.specificity == highest_spec, matches_specificity)
+        topspecs = map(lambda s: s.match.group(0), topspecs)
 
         raise TooManyTimeSpecs(topspecs)
 
-    return matches_specificity[0][0]
+    return matches_specificity[0]
 
 def match_to_time(match):
     timetext = match.group(GAME_TIME_GROUP_TIME)
@@ -231,16 +240,20 @@ def parse_game_initiation(str, channel):
     time_matches_iter = game_time_re.finditer(str)
     if time_matches_iter is None:
         return None
-    matches = [m for m in time_matches_iter]
+
+    matches = []
+    for match in time_matches_iter:
+        when = match_to_time(match) # filter out invalid times, like 1.9an, etc
+        if when:
+            matches.append(Match(match, when))
 
     match = most_specific_time(matches)
     if match is None:
         return None
 
-    when = match_to_time(match)
-    if when is None:
-        # valid regex, invalid time, e.g. "24:62pm"
-        return None
+    when = match.when
+    assert when is not None
+    match = match.match
 
     # remove 'match' from str
     game_desc = str[0:match.start()] + str[match.end():]
