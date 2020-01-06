@@ -82,8 +82,8 @@ class TestParseGameInitiation(unittest.TestCase):
 		self.assertTrue(parse("1200", 12, 00))
 		self.assertTrue(parse("2300", 23, 00))
 
-                with self.assertRaises(TooManyTimeSpecs):
-                    parse("1234 1259")
+		with self.assertRaises(TooManyTimeSpecs):
+			parse("1234 1259")
 
 	def test_prefix_removal(self):
 		self.assertTrue(parse_desc("big game at 2pm", "big game"))
@@ -104,7 +104,7 @@ class TestParseGameInitiation(unittest.TestCase):
 		self.assertTrue(parse("3 5 game 2:1 at 3am", 3, 00)) # 3am is most specific
 		self.assertTrue(parse("3 5 game at 5", 17, 00)) # "at 5" is most specific
 		self.assertTrue(parse("at 3pm or 2:30", 15, 00)) # "at 3pm" is most specific
-                self.assertTrue(parse("game 20 or 10.30", 10, 30)) # "10.30" is most specific (and has a dot, not colon)
+		self.assertTrue(parse("game 20 or 10.30", 10, 30)) # "10.30" is most specific (and has a dot, not colon)
 
 		with self.assertRaises(TooManyTimeSpecs):
 			parse_game_initiation("3 5 game 4", "channel")
@@ -168,19 +168,19 @@ class DummyChannel:
 		self.name = name
 
 def dummy_load_banter(self, type, *rest, **restkw):
-    if type == "joined":
-        return "welcome to the game"
-    if type == "created":
-        return "game registered, gg"
-    if type == "kickoff":
-        return "match kickoff is now"
-    if type == "dialect":
-        return "areet"
-    if type == "thanked":
-        return "nee bother"
-    if type == "follow-on":
-        return "is straight after"
-    raise ValueError("unknown type {}".format(type))
+	if type == "joined":
+		return "welcome to the game"
+	if type == "created":
+		return "game registered, gg"
+	if type == "kickoff":
+		return "match kickoff is now"
+	if type == "dialect":
+		return "areet"
+	if type == "thanked":
+		return "nee bother"
+	if type == "follow-on":
+		return "is straight after"
+	raise ValueError("unknown type {}".format(type))
 
 class TestPS4Bot(unittest.TestCase):
 	def __init__(self, *args):
@@ -198,8 +198,8 @@ class TestPS4Bot(unittest.TestCase):
 		PS4Bot.update_message = lambda self, text, **rest: None
 		PS4Bot.load_banter = dummy_load_banter
 
-                PS4History.save = noop
-                PS4History.load = noop
+		PS4History.save = noop
+		PS4History.load = noop
 
 	def create_ps4bot(self):
 		self.messages = []
@@ -246,10 +246,10 @@ class TestPS4Bot(unittest.TestCase):
 
 		ps4bot = self.create_ps4bot()
 
-                ps4bot.handle_message(SlackMessage("ps4bot game 15:30", "user", dummychannel, None, None, None, None))
+		ps4bot.handle_message(SlackMessage("ps4bot game 15:30", "user", dummychannel, None, None, None, None))
 		self.assertEqual(len(ps4bot.games), 1)
 
-                ps4bot.handle_message(SlackMessage("ps4bot game at 15:00", "user", dummychannel, None, None, None, None))
+		ps4bot.handle_message(SlackMessage("ps4bot game at 15:00", "user", dummychannel, None, None, None, None))
 		self.assertEqual(len(ps4bot.games), 2)
 
 	def test_ps4bot_game_overlap_before_edge(self):
@@ -257,10 +257,10 @@ class TestPS4Bot(unittest.TestCase):
 
 		ps4bot = self.create_ps4bot()
 
-                ps4bot.handle_message(SlackMessage("ps4bot game 15:00", "user", dummychannel, None, None, None, None))
+		ps4bot.handle_message(SlackMessage("ps4bot game 15:00", "user", dummychannel, None, None, None, None))
 		self.assertEqual(len(ps4bot.games), 1)
 
-                ps4bot.handle_message(SlackMessage("ps4bot game at 15:30", "user", dummychannel, None, None, None, None))
+		ps4bot.handle_message(SlackMessage("ps4bot game at 15:30", "user", dummychannel, None, None, None, None))
 		self.assertEqual(len(ps4bot.games), 2)
 
 	def test_ps4bot_scuttle_via_two_times_with_to_keyword(self):
@@ -340,24 +340,24 @@ class TestPS4Bot(unittest.TestCase):
 		ps4bot.handle_message(SlackMessage("ps4bot scuttle 3pm game to 4pm", "user", dummychannel, None, None, None, None))
 
 		self.assertEqual(len(self.messages), 1)
-                self.assertEqual(self.messages[0], ":warning: couldn't parse `3pm game` as a time (or find a game with that description)")
+		self.assertEqual(self.messages[0], ":warning: couldn't parse `3pm game` as a time (or find a game with that description)")
 
 	def test_ps4bot_ps4on_hint(self):
 		dummychannel = DummyChannel("games")
 
 		ps4bot = self.create_ps4bot()
-                ps4bot.handle_message(SlackMessage("ps4bot test game at 9:00", "user", dummychannel, None, None, None, None))
+		ps4bot.handle_message(SlackMessage("ps4bot test game at 9:00", "user", dummychannel, None, None, None, None))
 
 		self.assertEqual(len(self.messages), 1)
 		self.messages = []
 
-                # 9:29 is 4 minutes after the end of the previous match (9:25)
-                ps4bot.handle_message(SlackMessage("ps4bot test game at 9:29", "user", dummychannel, None, None, None, None))
+		# 9:29 is 4 minutes after the end of the previous match (9:25)
+		ps4bot.handle_message(SlackMessage("ps4bot test game at 9:29", "user", dummychannel, None, None, None, None))
 
 		self.assertEqual(len(self.messages), 1)
-                self.messages = []
+		self.messages = []
 
-                ps4bot.timeout()
+		ps4bot.timeout()
 
 		self.assertEqual(len(self.messages), 1)
 		self.assertTrue("is straight after" in self.messages[0])
@@ -390,4 +390,4 @@ class TestPS4Bot(unittest.TestCase):
 		self.assertEqual(len(self.messages), 0)
 
 if __name__ == '__main__':
-    unittest.main()
+	unittest.main()
