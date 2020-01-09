@@ -359,7 +359,7 @@ class PS4Bot(Bot):
 
                     is_champ = bant_type.endswith("-champ")
                     if is_champ:
-                        bant_type = bant_type[:6]
+                        bant_type = bant_type[:-6]
                         if not for_champ:
                             continue
 
