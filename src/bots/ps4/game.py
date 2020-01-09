@@ -82,12 +82,11 @@ class Game:
         return pretty_players(players)
 
     def pretty(self):
-        current_time = datetime.datetime.now()
         return "{}{}{}, {}'s {}{} in `{}`, {}/{} players".format(
                 when_str(self.when),
                 " ({} mins)".format(self.play_time) if self.play_time != PLAY_TIME else "",
                 " (in progress :hourglass_flowing_sand:)" \
-                        if self.when <= current_time and self.endtime() >= current_time else "",
+                        if self.state == GameStates.active else "",
                 format_user(self.creator),
                 self.description,
                 " ({})".format(pretty_mode(self.mode)) \
