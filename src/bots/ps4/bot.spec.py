@@ -310,18 +310,19 @@ class TestPS4Bot(unittest.TestCase):
 		self.assertEqual(self.messages[0], ":alarm_clock: test game moved from 13:00 to 15:00 by <@user>")
 
 	def test_ps4bot_scuttle_via_tosingletime(self):
-		dummychannel = DummyChannel("games")
+		for cmd in ["scuttle", "move"]:
+			dummychannel = DummyChannel("games")
 
-		ps4bot = self.create_ps4bot()
-		ps4bot.handle_message(SlackMessage("ps4bot test game at 1", "user", dummychannel, None, None, None, None))
+			ps4bot = self.create_ps4bot()
+			ps4bot.handle_message(SlackMessage("ps4bot test game at 1", "user", dummychannel, None, None, None, None))
 
-		self.assertEqual(len(self.messages), 1)
-		self.messages = []
+			self.assertEqual(len(self.messages), 1)
+			self.messages = []
 
-		ps4bot.handle_message(SlackMessage("ps4bot scuttle to 1900", "user", dummychannel, None, None, None, None))
+			ps4bot.handle_message(SlackMessage("ps4bot {} to 1900".format(cmd), "user", dummychannel, None, None, None, None))
 
-		self.assertEqual(len(self.messages), 1)
-		self.assertEqual(self.messages[0], ":alarm_clock: test game moved from 13:00 to 19:00 by <@user>")
+			self.assertEqual(len(self.messages), 1)
+			self.assertEqual(self.messages[0], ":alarm_clock: test game moved from 13:00 to 19:00 by <@user>")
 
 	def test_ps4bot_scuttle_via_description(self):
 		dummychannel = DummyChannel("games")
