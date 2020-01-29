@@ -15,7 +15,7 @@ then
 slack_token = "invalid"
 user_renames = {}
 channel_max_players = {}
-public_channels = []
+private_channels = []
 !
 fi
 

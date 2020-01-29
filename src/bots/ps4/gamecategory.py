@@ -1,7 +1,7 @@
 import random
 from collections import defaultdict
 from formatting import format_user, ColourEmojis, number_emojis, pretty_players
-from config import public_channels
+from config import private_channels
 
 class Stats:
     scrub = "scrub"
@@ -57,7 +57,7 @@ def channel_is_football_tournament(channel):
     return "football-tournament" in channel
 
 def channel_is_private(channel):
-    return channel not in public_channels
+    return channel in private_channels
 
 def suggest_team_names(game):
     channel = game.channel
