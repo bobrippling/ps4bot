@@ -21,7 +21,7 @@ from ps4.gamecategory import vote_message, Stats, channel_statmap, suggest_teams
 from ps4 import elo
 
 DIALECT = ["here", "hew", "areet"]
-BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*")
+BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest) game.*", re.IGNORECASE)
 SAVE_FILE = "ps4-games.txt"
 BANTER_FILE = "ps4-banter.txt"
 

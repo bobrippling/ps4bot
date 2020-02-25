@@ -61,8 +61,8 @@ class TestParseGameInitiation(unittest.TestCase):
 		self.assertTrue(parse("23", 23, 00))
 		self.assertTrue(parse("match at 3", 15, 00))
 		self.assertTrue(parse("match at 7", 19, 00))
-		self.assertTrue(parse("match at 7:59", 19, 59))
-		self.assertTrue(parse("match at 8", 8, 00))
+		self.assertTrue(parse("match At 7:59", 19, 59))
+		self.assertTrue(parse("match aT 8", 8, 00))
 
 		self.assertFalse(parse("24"))
 		self.assertFalse(parse("-1"))
@@ -107,7 +107,7 @@ class TestParseGameInitiation(unittest.TestCase):
 		self.assertTrue(parse("3 5 game at 5pm", 17, 00)) # 5pm is most specific
 		self.assertTrue(parse("3 5 game 2:1 at 3am", 3, 00)) # 3am is most specific
 		self.assertTrue(parse("3 5 game at 5", 17, 00)) # "at 5" is most specific
-		self.assertTrue(parse("at 3pm or 2:30", 15, 00)) # "at 3pm" is most specific
+		self.assertTrue(parse("AT 3pM or 2:30", 15, 00)) # "at 3pm" is most specific
 		self.assertTrue(parse("game 20 or 10.30", 10, 30)) # "10.30" is most specific (and has a dot, not colon)
 
 		with self.assertRaises(TooManyTimeSpecs):

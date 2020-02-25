@@ -9,11 +9,11 @@ from gamecategory import channel_is_football_tournament
 DEBUG = False
 ENABLE_3_DIGIT_TIME = False # allow 230, etc as time
 
-competitive_re = re.compile("compet|competitive|1v1")
-parameter_re = re.compile('^([a-z]+)=(.*)')
-banned_ats_re = re.compile("<!(here|channel)>")
+competitive_re = re.compile("compet|competitive|1v1", re.IGNORECASE)
+parameter_re = re.compile('^([a-z]+)=(.*)', re.IGNORECASE)
+banned_ats_re = re.compile("<!(here|channel)>", re.IGNORECASE)
 
-game_time_re = re.compile(r"\b(at )?(half )?((?<!-)(\d+([:.]?\d+)?)([a-z]*))\b")
+game_time_re = re.compile(r"\b(at )?(half )?((?<!-)(\d+([:.]?\d+)?)([a-z]*))\b", re.IGNORECASE)
 #                                                                  ^~~~~~~~ am/pm, matched as [a-z] so we can ignore "3an"
 #                                                  ^~~~~~~~~~~~~ the time, optional minutes
 #                                            ^~~~~~ negative lookbehind, don't accept "-3.40pm"
@@ -58,7 +58,7 @@ def parse_time(s, previous = None):
     allow_fractional_prefix = False
     is_24_hour = False
     am_pm = ""
-    if len(s) >= 3 and s[-1] == "m" and (s[-2] == "a" or s[-2] == "p"):
+    if len(s) >= 3 and s[-1].lower() == "m" and (s[-2].lower() == "a" or s[-2].lower() == "p"):
         am_pm = s[-2]
         s = s[:-2]
 
@@ -100,7 +100,7 @@ def parse_time(s, previous = None):
     if len(am_pm):
         if hour > 12:
             raise ValueError
-        if am_pm == "p":
+        if am_pm.lower() == "p":
             hour += 12
         # ignore allow_fractional_prefix, can't really say "half 2pm"
     else:
@@ -109,7 +109,7 @@ def parse_time(s, previous = None):
             hour += 12
 
         if allow_fractional_prefix:
-            if previous == "half":
+            if previous and previous.lower() == "half":
                 min = 30
 
     return today_at(hour, min)
@@ -140,7 +140,7 @@ def parse_stats_request(request):
         parameter_match = parameter_re.search(part)
         if parameter_match:
             try:
-                parameters[parameter_match.group(1)] = int(parameter_match.group(2))
+                parameters[parameter_match.group(1).lower()] = int(parameter_match.group(2))
                 continue
             except ValueError:
                 return None
@@ -179,7 +179,7 @@ def most_specific_time(matches):
         if t and (":" in t or "." in t):
             specificity += 1
 
-        if match.group(GAME_TIME_GROUP_STRIPBEFORE) and "at" in match.group(GAME_TIME_GROUP_STRIPBEFORE):
+        if match.group(GAME_TIME_GROUP_STRIPBEFORE) and "at" in match.group(GAME_TIME_GROUP_STRIPBEFORE).lower():
             specificity += 1 # "at 3" - likely the time they want
 
         return m.with_specificity(specificity)
