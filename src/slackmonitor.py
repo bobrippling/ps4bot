@@ -221,7 +221,8 @@ class SlackMonitor():
                     log("reconnected")
                 except SlackMonitorConnectError:
                     log("reconnect failed, sleeping...")
-                    time.sleep(1)
+                    time.sleep(60)
+                    log("retrying...")
 
 
     def run(self):
