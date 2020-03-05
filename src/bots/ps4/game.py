@@ -87,7 +87,7 @@ class Game:
                 " ({} mins)".format(self.play_time) if self.play_time != PLAY_TIME else "",
                 " (in progress :hourglass_flowing_sand:)" \
                         if self.state == GameStates.active else "",
-                format_user(self.creator),
+                "`{}`".format(self.creator),
                 self.description,
                 " ({})".format(pretty_mode(self.mode)) \
                         if self.mode else "",
