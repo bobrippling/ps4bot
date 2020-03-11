@@ -17,7 +17,8 @@ from ps4.parsing import parse_time, deserialise_time, parse_game_initiation, \
 from ps4.history import PS4History, Keys
 from ps4.gamecategory import vote_message, Stats, channel_statmap, suggest_teams, \
         gametype_from_channel, channel_has_scrub_stats, channel_is_foosball, \
-        channel_is_football_tournament, channel_is_private, gametype_emoji
+        channel_is_football_tournament, channel_is_boardgame, \
+        channel_is_private, gametype_emoji
 from ps4 import elo
 
 DIALECT = ["here", "hew", "areet"]
@@ -135,6 +136,8 @@ class PS4Bot(Bot):
     def botname_for_channel(self, channel):
         if channel_is_foosball(channel) or channel_is_football_tournament(channel):
             return "logbot"
+        if channel_is_boardgame(channel):
+            return "crokbot"
         return Bot.botname_for_channel(self, channel)
 
     def botemoji_for_channel(self, channel):
