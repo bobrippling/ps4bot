@@ -50,6 +50,9 @@ def channel_is_fifa(channel):
 def channel_is_foosball(channel):
     return "line-of-glory" in channel or "table-football" in channel
 
+def channel_is_boardgame(channel):
+    return "boardgame" in channel
+
 def channel_is_overcooked(channel):
     return "overcooked" in channel
 
@@ -167,6 +170,8 @@ def vote_message(game):
 def gametype_from_channel(channel):
     if channel_is_foosball(channel):
         return "foosball"
+    if channel_is_boardgame(channel):
+        return "boardgame"
     return "ps4"
 
 def gametype_emoji(gametype):
@@ -174,6 +179,8 @@ def gametype_emoji(gametype):
         return ":soccer:"
     if gametype == "ps4":
         return ":video_game:"
+    if gametype == "boardgame":
+        return ":game_die:"
     return ""
 
 def channel_statmap(channel):
