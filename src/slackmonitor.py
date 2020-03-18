@@ -184,7 +184,10 @@ class SlackMonitor():
                 old_message = slack_message.get("previous_message")
                 if old_message is None:
                     continue
-                old_message_text = old_message.get("text")
+                try:
+                    old_message_text = old_message.get("text")
+                except AttributeError:
+                    continue
 
                 new_message_text = ENCODE(new_message_text)
                 old_message_text = ENCODE(old_message_text)
