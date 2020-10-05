@@ -16,8 +16,8 @@ user_renames = {
 channel_max_players = {
 }
 
-# channel names that are considered public by the bot
-public_channels = [
+# channel names that are considered private by the bot
+private_channels = [
 ]
 ```
 
