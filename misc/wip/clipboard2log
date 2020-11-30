@@ -1,49 +1,66 @@
 #!/usr/bin/perl
-my $name = '';
-my ($sec, $min, $hr, $mday, $month, $year, $wday, $yday, $isdst) = localtime(time());
-my $time = '00:00';
+use strict;
+use warnings;
 
-$year += 1900;
-$month += 1;
-
-my @lines_raw;
-while(<>){
-	chomp;
-	push @lines_raw, $_;
-}
 my @lines;
-for(my $i = 0; $i < @lines_raw; $i++){
-	if($lines_raw[$i] eq ''
-	and length($lines_raw[$i+1])
-	and $lines_raw[$i+2] =~ /^\[[0-9]+:[0-9]+\]\s*$/)
-	{
-		push @lines, $lines_raw[$i + 1] . " " . $lines_raw[$i + 2];
-		$i += 2;
-	}
-	else
-	{
-		push @lines, $lines_raw[$i];
-	}
+while (<>){
+	s/\s+(\d)/\n$1/g;
+	my @parts = split /\n/;
+	push @lines, @parts;
 }
+
+# --------
+
+sub parsewhen {
+	# 09:42
+	my $w = $_[0];
+	die "parse when $w" unless /^(\d+):(\d+)\s*$/;
+	return $1 * 60 + $2;
+}
+
+my($name, $emoji, $when);
+my $lastwhen = 0;
+my $offset = 0;
+my @formatted;
 
 for(@lines){
-	if(/^$/){
-		next;
-	}
+	chomp;
+	if(/^([A-Z].*)\s*(:.*:)/){
+		$name = $1;
+		$emoji = $2;
+	}elsif(/^\d+:\d+$/){
+		$when = $_;
 
-	if(/(([a-zA-Z0-9_].*) )?\[([0-9]+:[0-9]+)\]\s*$/){
-		if (length($2)) {
-			$name = $2;
+		my $parsed = parsewhen($when);
+
+		if($parsed < $lastwhen){
+			# assume next day
+			$offset++;
 		}
-		$time = $3;
-		next;
-	}
 
-	if($name eq ''){
-		die "empty name, text: $_";
-	}
+		$lastwhen = $parsed;
 
-	my $text = $_;
-	printf("%04d-%02d-%02d %s:00: %s: %s\n",
-		$year, $month, $mday, $time, $name, $text);
+	}elsif(length){
+		s/^\s*//;
+
+		my $msg = sprintf "%s:00: %s: %s", $when, $name, $_;
+		push @formatted, { "msg" => $msg, offset => $offset };
+	}
+}
+
+# --------
+
+sub getdate {
+	my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime();
+	return ($year + 1900, $mon + 1, $mday);
+}
+
+my ($y, $m, $d) = getdate(); # (2020, 10, 8);
+for(@formatted){
+	my $msg = $_->{msg};
+	my $localoffset = $_->{offset};
+
+	# FIXME: wrong way round
+	my $d_adj = $d + $offset - $localoffset;
+	print "$y-$m-$d_adj $msg\n";
 }
