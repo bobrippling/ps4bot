@@ -1,0 +1,49 @@
+#!/usr/bin/perl
+my $name = '';
+my ($sec, $min, $hr, $mday, $month, $year, $wday, $yday, $isdst) = localtime(time());
+my $time = '00:00';
+
+$year += 1900;
+$month += 1;
+
+my @lines_raw;
+while(<>){
+	chomp;
+	push @lines_raw, $_;
+}
+my @lines;
+for(my $i = 0; $i < @lines_raw; $i++){
+	if($lines_raw[$i] eq ''
+	and length($lines_raw[$i+1])
+	and $lines_raw[$i+2] =~ /^\[[0-9]+:[0-9]+\]\s*$/)
+	{
+		push @lines, $lines_raw[$i + 1] . " " . $lines_raw[$i + 2];
+		$i += 2;
+	}
+	else
+	{
+		push @lines, $lines_raw[$i];
+	}
+}
+
+for(@lines){
+	if(/^$/){
+		next;
+	}
+
+	if(/(([a-zA-Z0-9_].*) )?\[([0-9]+:[0-9]+)\]\s*$/){
+		if (length($2)) {
+			$name = $2;
+		}
+		$time = $3;
+		next;
+	}
+
+	if($name eq ''){
+		die "empty name, text: $_";
+	}
+
+	my $text = $_;
+	printf("%04d-%02d-%02d %s:00: %s: %s\n",
+		$year, $month, $mday, $time, $name, $text);
+}
