@@ -2,7 +2,7 @@
 
 # Setup
 
-`pip install slackclient`
+`pip install -r requirements.txt`
 
 Create a config file, `./src/config.py` with the following contents:
 ```python
