@@ -4,6 +4,9 @@ import websocket
 import socket
 import traceback
 import requests
+
+import slackclient
+
 from msg.slackmessage import SlackMessage
 from msg.slackedit import SlackEdit
 from msg.slackreaction import SlackReaction
@@ -216,6 +219,9 @@ class SlackMonitor():
             except requests.exceptions.ConnectionError as e:
                 reconnect = True
                 log("requests error: {}".format(e))
+            except slackclient.server.SlackConnectionError as e:
+                reconnect = True
+                log("SlackConnectionError error: {}".format(e))
 
             while reconnect:
                 try:
