@@ -11,7 +11,10 @@ def dump_channels():
         #print conn.api_call("groups.info", channel = i.id)
 
 def dump_users():
-    for u in conn.server.users:
+    users = conn.server.users
+    for u in users:
+        if type(u) == unicode or type(u) == str:
+            u = users[u]
         print "id={} name={} real_name={}".format(u.id, u.name, u.real_name)
 
 def chat():
@@ -58,10 +61,17 @@ def chat():
         if conn.server.websocket in ready_in:
             handle_slack()
 
+def interactive():
+	import code
+	print "globals available: `conn`"
+	code.interact(local = globals())
+	#code.InteractiveConsole(locals=globals()).interact()
+
 def usage():
     print >>sys.stderr, "Usage: {} chat channel botname botemoji".format(sys.argv[0])
     print >>sys.stderr, "       {} dump-channels".format(sys.argv[0])
     print >>sys.stderr, "       {} dump-users".format(sys.argv[0])
+    print >>sys.stderr, "       {} interactive".format(sys.argv[0])
     sys.exit(2)
 
 if len(sys.argv) < 2:
@@ -81,6 +91,10 @@ elif sys.argv[1] == "dump-users":
     if len(sys.argv) != 2:
         usage()
     main = dump_users
+elif sys.argv[1] == "interactive":
+    if len(sys.argv) != 2:
+        usage()
+    main = interactive
 else:
     usage()
 
