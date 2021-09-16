@@ -1,5 +1,6 @@
 import re
 import time
+import sys
 
 from msg.slackpostedmessage import SlackPostedMessage
 
@@ -7,7 +8,16 @@ USER_RE_ANCHORED = re.compile('^<@(U[^>|]+)(\|[^>]+)?>')
 USER_RE = re.compile('<@(U[^>|]+)(\|[^>]+)?>')
 
 def lookup_user(connection, id):
-    for u in connection.server.users:
+    users = connection.server.users
+
+    if type(id) == str:
+        id = id.decode('utf-8')
+
+    for u in users:
+        # users may be either iterable<User> or dictionary<unicode, User>
+        if type(u) == unicode:
+            u = users[u]
+
         if hasattr(u, 'id') and u.id == id:
             return u.name.encode('utf-8')
     return None
