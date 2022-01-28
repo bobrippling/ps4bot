@@ -30,18 +30,18 @@ class LogBot(Bot):
         while True:
             try:
                 with open(fname, 'a') as f:
-                    print >>f, "{}: {}".format(now_str, text)
+                    print("{}: {}".format(now_str, text), file=f)
                 if tries != MAX_RETRIES:
-                    print >>sys.stderr, "retry success"
+                    print("retry success", file=sys.stderr)
                 break
             except IOError as e:
                 if tries > 0:
                     delay = 5
-                    print >>sys.stderr, "couldn't save message: %s, retrying in %d..." % (e, delay)
+                    print("couldn't save message: %s, retrying in %d..." % (e, delay), file=sys.stderr)
                     time.sleep(delay)
                     tries -= 1
                 else:
-                    print >>sys.stderr, "\7couldn't save message: %s, giving up" % e
+                    print("\7couldn't save message: %s, giving up" % e, file=sys.stderr)
 
     def replace_text(self, text):
         def user_replace(match):
@@ -116,7 +116,7 @@ class LogBot(Bot):
             self.append(chan, "{} --- {}".format(user, oldtext), edit.when)
             self.append(chan, "{} +++ {}".format(user, newtext), edit.when)
         except TypeError as e:
-            print >>sys.stderr, "couldn't save edit: ", e
-            print >>sys.stderr, "edit.oldtext:", edit.oldtext
-            print >>sys.stderr, "edit.newtext:", edit.newtext
+            print("couldn't save edit: ", e, file=sys.stderr)
+            print("edit.oldtext:", edit.oldtext, file=sys.stderr)
+            print("edit.newtext:", edit.newtext, file=sys.stderr)
             raise e

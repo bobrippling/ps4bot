@@ -23,7 +23,7 @@ def ENCODE(s):
     return s.encode('utf-8')
 
 def log(s):
-    print time.strftime(MSG_TIME_FORMAT, time.localtime(time.time())), s
+    print(time.strftime(MSG_TIME_FORMAT, time.localtime(time.time())), s)
 
 def filter_emoji(emoji):
     return emoji.split(":")[0]
@@ -57,7 +57,7 @@ class SlackMonitor():
         try:
             cb(handler)
         except Exception as e:
-            print >>sys.stderr, '\7error running handler "{}": {}'.format(handler.botname, e)
+            print('\7error running handler "{}": {}'.format(handler.botname, e), file=sys.stderr)
             traceback.print_exc()
 
     def run_handlers(self, channel, cb):

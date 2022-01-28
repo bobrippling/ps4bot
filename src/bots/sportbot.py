@@ -50,7 +50,7 @@ class SportBot(Bot):
                     f.write("{}\n".format(player))
 
         except IOError as e:
-            print >>sys.stderr, "exception saving state: {}".format(e)
+            print("exception saving state: {}".format(e), file=sys.stderr)
 
     def teardown(self):
         self.save()

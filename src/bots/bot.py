@@ -15,7 +15,7 @@ def lookup_user(connection, id):
 
     for u in users:
         # users may be either iterable<User> or dictionary<unicode, User>
-        if type(u) == unicode:
+        if type(u) == str:
             u = users[u]
 
         if hasattr(u, 'id') and u.id == id:

@@ -28,7 +28,7 @@ def doodle_reset(self, who, args):
     return 'doodling reset'
 
 def doodle_ok(self, who, args):
-    given_days = map(parseday, args)
+    given_days = [parseday(a) for a in args]
 
     try:
         given_days.index(None)
@@ -62,9 +62,7 @@ def doodle_summary(self, who, args):
         reply += '\n>{}: {}'.format(
                 day[0],
                 ', '.join(
-                    map(
-                        lambda u: '<@{}>'.format(u),
-                        users_on_today)))
+                    ['<@{}>'.format(u) for u in users_on_today]))
 
     return reply
 
@@ -117,7 +115,7 @@ class DoodleBot(Bot):
                     line = line.rstrip('\n')
                     tokens = line.split(' ')
                     if len(tokens) < 2:
-                        print "doodlebot.txt: invalid line \"{}\"".format(line)
+                        print("doodlebot.txt: invalid line \"{}\"".format(line))
                         continue
                     user = tokens[0]
                     doodle_ok(self, user, tokens[1:])
@@ -138,10 +136,10 @@ class DoodleBot(Bot):
 
                 for u in output_users:
                     days = output_users[u]
-                    print >>f, "{} {}".format(u, ' '.join(days))
+                    print("{} {}".format(u, ' '.join(days)), file=f)
 
         except IOError as e:
-            print >>sys.stderr, "exception saving state: {}".format(e)
+            print("exception saving state: {}".format(e), file=sys.stderr)
 
     def reset(self):
         self.doodles = defaultdict(set) # day => [user]

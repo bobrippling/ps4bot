@@ -206,19 +206,19 @@ def most_specific_time(matches):
 
         return False
 
-    matches_specificity = map(add_specificity, matches)
+    matches_specificity = [add_specificity(m) for m in matches]
     matches_specificity.sort(match_cmp)
 
     if DEBUG:
-        print >>sys.stderr, "matches:"
+        print("matches:", file=sys.stderr)
         for m in matches_specificity:
             match, spec = m.match, m.specificity
-            print >>sys.stderr, "spec: {}, match: {}".format(spec, match.group(0))
+            print("spec: {}, match: {}".format(spec, match.group(0)), file=sys.stderr)
 
     if too_many_matches(matches_specificity): # two or more of the top specificity
         highest_spec = matches_specificity[0].specificity
-        topspecs = filter(lambda s: s.specificity == highest_spec, matches_specificity)
-        topspecs = map(lambda s: s.match.group(0), topspecs)
+        topspecs = [s for s in matches_specificity if s.specificity == highest_spec]
+        topspecs = [s.match.group(0) for s in topspecs]
 
         raise TooManyTimeSpecs(topspecs)
 
