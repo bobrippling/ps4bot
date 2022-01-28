@@ -77,7 +77,7 @@ class Game:
         if with_creator:
             players = self.players
         else:
-            players = filter(lambda p: p != self.creator, self.players)
+            players = [p for p in self.players if p != self.creator]
 
         return pretty_players(players)
 

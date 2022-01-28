@@ -39,16 +39,16 @@ class PS4History:
         try:
             with open(SAVE_FILE, "w") as f: # open as "w" since we rewrite the whole thing
                 for g in self.games:
-                    print >>f, "game {} {} {} {}".format(
+                    print("game {} {} {} {}".format(
                         g.message_timestamp,
                         g.channel,
                         ",".join(g.players),
-                        g.mode or "normal")
+                        g.mode or "normal"), file=f)
 
                     for stat in g.stats:
-                        print >>f, "  stat {} {} {}".format(stat.stat, stat.user, stat.voter)
+                        print("  stat {} {} {}".format(stat.stat, stat.user, stat.voter), file=f)
         except IOError:
-            print >>sys.stderr, "exception saving state: {}".format(e)
+            print("exception saving state: {}".format(e), file=sys.stderr)
 
     def load(self):
         games = []
@@ -62,18 +62,18 @@ class PS4History:
                     if tokens[0] == "game":
                         message_timestamp = tokens[1]
                         channel = tokens[2]
-                        players = filter(len, tokens[3].split(","))
+                        players = [t for t in tokens[3].split(",") if len(t)]
                         mode = None if tokens[4] == "normal" else tokens[4]
                         current_game = PS4HistoricGame(message_timestamp, players, channel, mode)
                         games.append(current_game)
                     elif tokens[0] == "stat":
                         if not current_game:
-                            print >>sys.stderr, "found stat \"{}\" without game".format(tokens[1])
+                            print("found stat \"{}\" without game".format(tokens[1]), file=sys.stderr)
                             continue
                         stat, user, voter = tokens[1:]
                         current_game.stats.add(stat, user, voter)
                     else:
-                        print >>sys.stderr, "unknown {} line \"{}\"".format(SAVE_FILE, line)
+                        print("unknown {} line \"{}\"".format(SAVE_FILE, line), file=sys.stderr)
         except IOError:
             pass
         self.games = games
@@ -204,7 +204,7 @@ class PS4History:
         rawelo = self.raw_elo(channel, year, k_factor = parameters["k"])
 
         mode_to_merge = None
-        for user, statmap in rawstats[mode_to_merge].iteritems():
+        for user, statmap in rawstats[mode_to_merge].items():
             if user in rawelo:
                 user_elo = rawelo[user]
 

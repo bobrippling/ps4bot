@@ -5,4 +5,4 @@ class DumpBot(Bot):
         Bot.__init__(self, slackconnection, botname)
 
     def handle_message(self, message):
-        print "got message from '{}': '{}'".format(message.user, message.text)
+        print("got message from '{}': '{}'".format(message.user, message.text))

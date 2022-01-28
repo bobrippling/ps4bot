@@ -89,7 +89,7 @@ def plural(int):
     return "" if int == 1 else "s"
 
 def format_parameters(parameters):
-    return ",".join(["{}={}".format(k, v) for k, v in parameters.iteritems() if v])
+    return ",".join(["{}={}".format(k, v) for k, v in parameters.items() if v])
 
 def parse_parameters(s):
     parameters = empty_parameters()
@@ -167,7 +167,7 @@ class PS4Bot(Bot):
 
                     tokens = line.split(" ", 8)
                     if len(tokens) != 9:
-                        print "invalid line \"{}\"".format(line)
+                        print("invalid line \"{}\"".format(line))
                         continue
 
                     str_when, channel, creator, str_state, \
@@ -175,13 +175,13 @@ class PS4Bot(Bot):
                             mode, description = tokens
                     timestamp_str = f.readline()
                     if timestamp_str == "":
-                        print "early EOF"
+                        print("early EOF")
                         break
                     timestamp_str = timestamp_str.rstrip("\n")
 
                     msg_channel = f.readline()
                     if msg_channel == "":
-                        print "early EOF"
+                        print("early EOF")
                         break
                     msg_channel = msg_channel.rstrip("\n")
 
@@ -198,18 +198,18 @@ class PS4Bot(Bot):
                     try:
                         max_player_count = int(str_max_player_count)
                     except ValueError:
-                        print "invalid max player count \"{}\"".format(str_max_player_count)
+                        print("invalid max player count \"{}\"".format(str_max_player_count))
                         continue
                     try:
                         play_time = int(str_play_time)
                     except ValueError:
-                        print "invalid play_time \"{}\"".format(str_play_time)
+                        print("invalid play_time \"{}\"".format(str_play_time))
                         continue
 
                     try:
                         state = int(str_state)
                     except ValueError:
-                        print "invalid state \"{}\"".format(str_state)
+                        print("invalid state \"{}\"".format(str_state))
                         continue
 
                     players = str_players.split(",")
@@ -229,7 +229,7 @@ class PS4Bot(Bot):
         try:
             with open(SAVE_FILE, "w") as f:
                 for g in self.games:
-                    print >>f, "{} {} {} {} {} {} {} {} {}".format(
+                    print("{} {} {} {} {} {} {} {} {}".format(
                             when_str(g.when),
                             g.channel,
                             g.creator,
@@ -238,25 +238,25 @@ class PS4Bot(Bot):
                             g.max_player_count,
                             g.play_time,
                             g.mode or "None",
-                            g.description)
+                            g.description), file=f)
 
                     msg = g.message
-                    print >>f, "{}\n{}\n{}".format(msg.timestamp, msg.channel, msg.text)
-                    print >>f, ""
+                    print("{}\n{}\n{}".format(msg.timestamp, msg.channel, msg.text), file=f)
+                    print("", file=f)
 
-                for channel, latest in self.latest_stats_table.iteritems():
-                    print >>f, "stats {} {} {} {}".format(
+                for channel, latest in self.latest_stats_table.items():
+                    print("stats {} {} {} {}".format(
                             channel,
                             latest.timestamp,
                             latest.year.year if latest.year else "-",
-                            format_parameters(latest.parameters))
+                            format_parameters(latest.parameters)), file=f)
 
-                for user, options in self.user_options.iteritems():
+                for user, options in self.user_options.items():
                     if len(options):
-                        print >>f, "user {} {}".format(user, " ".join(options))
+                        print("user {} {}".format(user, " ".join(options)), file=f)
 
         except IOError as e:
-            print >>sys.stderr, "exception saving state: {}".format(e)
+            print("exception saving state: {}".format(e), file=sys.stderr)
 
         self.history.save()
 
@@ -291,10 +291,10 @@ class PS4Bot(Bot):
         return None
 
     def games_created_by(self, user):
-        return filter(lambda g: g.creator == user, self.games)
+        return [g for g in self.games if g.creator == user]
 
     def games_in_channel(self, channel):
-        return filter(lambda g: g.channel == channel, self.games)
+        return [g for g in self.games if g.channel == channel]
 
     def new_game(
             self,
@@ -350,7 +350,7 @@ class PS4Bot(Bot):
                         continue
                     tokens = line.split(":", 1)
                     if len(tokens) != 2:
-                        print >>sys.stderr, "invalid banter line %s" % line
+                        print("invalid banter line %s" % line, file=sys.stderr)
                         continue
 
                     bant_type = tokens[0]
@@ -370,7 +370,7 @@ class PS4Bot(Bot):
                     if bant_type != type:
                         if bant_type not in BANTER_DEFAULTS:
                             if bant_type not in type_warned:
-                                print >>sys.stderr, "unknown banter type \"%s\"" % bant_type
+                                print("unknown banter type \"%s\"" % bant_type, file=sys.stderr)
                                 type_warned.append(bant_type)
                         continue
                     msg = tokens[1].strip()
@@ -381,7 +381,7 @@ class PS4Bot(Bot):
                 return replace_dict(msgs[r], replacements)
 
         except IOError as e:
-            print >>sys.stderr, "exception loading banter: {}".format(e)
+            print("exception loading banter: {}".format(e), file=sys.stderr)
 
         if type in BANTER_DEFAULTS:
             return BANTER_DEFAULTS[type]
@@ -401,7 +401,7 @@ class PS4Bot(Bot):
                 ":warning: Hew {} - which time do you mean?\n{}"
             ).format(
                 format_user(user),
-                "\n".join(map(lambda s: "- \"{}\"?".format(s), e.specs))
+                "\n".join(["- \"{}\"?".format(s) for s in e.specs])
             ))
             return True
 
@@ -439,7 +439,7 @@ class PS4Bot(Bot):
             type_to_games[game.type].append(game)
 
         message = ""
-        for type, games in sorted(type_to_games.iteritems()):
+        for type, games in sorted(type_to_games.items()):
             message += "{} games:\n{}\n\n".format(
                 gametype_emoji(type),
                 "\n".join([g.pretty() for g in chronological_games(games)])
@@ -572,7 +572,7 @@ class PS4Bot(Bot):
                 format_user(game.creator), when_str(game.when), game.description))
             return
 
-        self.games = filter(lambda g: g != game, self.games)
+        self.games = [g for g in self.games if g != game]
 
         rip_players = game.pretty_players(with_creator = False)
         rip_players_message = " (just burn some time on kimble instead {})".format(rip_players) \
@@ -753,7 +753,7 @@ class PS4Bot(Bot):
             if Keys.game_wins in allstats:
                 # ensure relative ordering
                 special_keys = [Keys.game_wins, Keys.played, Keys.winratio, Keys.elorank, Keys.history]
-                allstats = filter(lambda s: s not in special_keys, allstats)
+                allstats = [s for s in allstats if s not in special_keys]
                 allstats.append(Keys.game_wins)
                 allstats.append(Keys.played)
                 allstats.append(Keys.winratio)
@@ -762,7 +762,7 @@ class PS4Bot(Bot):
 
                 stats_to_ignore = list(self.history.negative_stats)
                 stats_to_ignore.extend(special_keys)
-                relevant_stats = filter(lambda s: s not in stats_to_ignore, allstats)
+                relevant_stats = [s for s in allstats if s not in stats_to_ignore]
                 if len(relevant_stats) == 1:
                     # no need to show the game_wins field
                     allstats.remove(Keys.game_wins)
@@ -791,7 +791,7 @@ class PS4Bot(Bot):
                     user_padding = format_user_padding(user) + padding_for_slackat
 
                 return [(user_padding, user_name)] \
-                        + map(get_stat_value, allstats)
+                        + [get_stat_value(s) for s in allstats]
 
             def stats_sort_key(stats):
                 # sort on the penultimate statistic (elorank)
@@ -807,8 +807,8 @@ class PS4Bot(Bot):
                 except:
                     return -1
 
-            header = ["Player"] + map(Stats.pretty, allstats)
-            stats_per_user = map(stat_for_user, modestats.iteritems())
+            header = ["Player"] + [Stats.pretty(s) for s in allstats]
+            stats_per_user = [stat_for_user(u) for u in modestats.items()]
             stats_per_user.sort(key = stats_sort_key, reverse = True)
 
             table = generate_table(header, stats_per_user)
@@ -894,7 +894,7 @@ class PS4Bot(Bot):
             ).format(
                 format_user(message.user),
                 "\n".join("`{} {}`: {}".format(botname, command, usage)
-                    for command, (usage, _) in PS4Bot_commands.iteritems() if usage),
+                    for command, (usage, _) in PS4Bot_commands.items() if usage),
                 ("... or just tell me a game time (e.g. `{} HUAGE GAME at 2pm`) " + \
                         "and get folk to :+1: the invite").format(botname)
             ))
@@ -917,16 +917,16 @@ class PS4Bot(Bot):
                     g.state = GameStates.dead
 
     def handle_imminent_games(self):
-        scheduled_games = filter(lambda g: g.state == GameStates.scheduled, self.games)
-        active_games = filter(lambda g: g.state == GameStates.active, self.games)
+        scheduled_games = [g for g in self.games if g.state == GameStates.scheduled]
+        active_games = [g for g in self.games if g.state == GameStates.active]
 
         self.update_game_states()
 
         # keep games until end-of-day (to allow late entrants, etc)
-        self.games = filter(lambda g: g.state != GameStates.dead, self.games)
+        self.games = [g for g in self.games if g.state != GameStates.dead]
 
-        imminent_games = filter(lambda g: g.state == GameStates.active, scheduled_games)
-        just_finished_games = filter(lambda g: g.state == GameStates.finished, active_games)
+        imminent_games = [g for g in scheduled_games if g.state == GameStates.active]
+        just_finished_games = [g for g in active_games if g.state == GameStates.finished]
 
         for g in imminent_games:
             if len(g.players) == 0:

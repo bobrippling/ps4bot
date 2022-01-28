@@ -1,3 +1,4 @@
+from functools import reduce
 initial_ranking = 1500
 default_k_factor = 20
 scrub_modifier = 1.1
@@ -85,7 +86,7 @@ def ranking_delta(ranking, other_ranking, result, k_factor):
 def combined_ranking_for_team(team, players):
     if len(team) == 0:
         return 0
-    return sum(map(lambda player_id: player_from_id(players, player_id).ranking, team)) / len(team)
+    return sum([player_from_id(players, player_id).ranking for player_id in team]) / len(team)
 
 def other_team_ranking(teams, players):
     merged_teams = reduce(list.__add__, teams)
@@ -95,7 +96,7 @@ def ranking_delta_for_game(game, players, k_factor):
     teams = game.teams
     winning_team_index = game.winning_team_index
 
-    team_rankings = map(lambda team: combined_ranking_for_team(team, players), teams)
+    team_rankings = [combined_ranking_for_team(team, players) for team in teams]
 
     players_delta = {}
     for index, team in enumerate(teams):
@@ -147,7 +148,7 @@ def calculate_rankings(games, k_factor):
         individual_ranking_delta = ranking_delta_for_game(game, players, k_factor)
 
         for team in game.teams:
-            for player in map(lambda player_id: player_from_id(players, player_id), team):
+            for player in [player_from_id(players, player_id) for player_id in team]:
                 player.games_played += 1
 
                 scrub_modifier = 1

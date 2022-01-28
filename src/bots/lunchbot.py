@@ -91,7 +91,7 @@ def lunchbot_save(destinations, index):
             f.write('{}\n'.format(index))
 
     except IOError as e:
-        print >>sys.stderr, "exception saving state: {}".format(e)
+        print("exception saving state: {}".format(e), file=sys.stderr)
 
 def formattime(time):
     return datetime.date.fromtimestamp(time).strftime('%a, %b %d %Y')
@@ -146,14 +146,12 @@ class LunchBot(Bot):
             visit = self.destinations[dest].latest_visit()
             return (dest, visit[0], visit[1])
 
-        return map(
-                dest_to_triple,
-                filter(
-                    lambda d: self.destinations[d].latest_visit() is not None,
-                    sorted(
-                        self.destinations,
-                        key=lambda d: self.destinations[d].latest_visit(),
-                        reverse=True)))
+        in_order = sorted(
+                self.destinations,
+                key=lambda d: self.destinations[d].latest_visit(),
+                reverse=True)
+
+        return [dest_to_triple(d) for d in in_order if self.destinations[d].latest_visit() is not None]
 
     def send_recent(self):
         message = 'Recent visitations:\n'
@@ -177,8 +175,7 @@ class LunchBot(Bot):
                 message += ' ('
                 dest_ratings = rating.getall()
                 message += ', '.join(
-                        map(lambda user: '{} from <@{}>'.format(dest_ratings[user], user),
-                            dest_ratings))
+                        ['{} from <@{}>'.format(dest_ratings[user], user) for user in dest_ratings])
                 message += ')'
             message += '\n'
 
@@ -191,13 +188,13 @@ class LunchBot(Bot):
                 reverse=True)
 
     def member_names(self, channel):
-        return map(lambda id: self.lookup_user(id), channel.members)
+        return [self.lookup_user(id) for id in channel.members]
 
     def suggest(self, channel, optional_lunchers):
         # must convert to names so we can do comparisons with existing lunchers
         luncher_tokens = optional_lunchers.strip().split(' ')
         if len(optional_lunchers) and len(luncher_tokens):
-            member_names = map(lambda l: self.lookup_user(l, ''), luncher_tokens)
+            member_names = [self.lookup_user(l, '') for l in luncher_tokens]
 
             # if member_names contains '', we failed to parse a user
             try:
@@ -216,11 +213,7 @@ class LunchBot(Bot):
                 return
 
         recent_choosers = uniq(
-                filter(
-                    lambda name: name in member_names,
-                    map(
-                        lambda name_time_who: name_time_who[2],
-                        self.get_recents())))
+                [name for name in [name_time_who[2] for name_time_who in self.get_recents()] if name in member_names])
 
         if len(recent_choosers) >= len(member_names):
             # we can just choose the last person who picked
