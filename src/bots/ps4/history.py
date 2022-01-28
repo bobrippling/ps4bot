@@ -232,11 +232,16 @@ class PS4History:
                 rankmap[user][1] += 1
 
                 if self.user_has_winstat_in_game(user, game):
+                    print(f"user {user} has winstat in game")
                     rankmap[user][0] += 1
+
+        print(f"rankmap: {rankmap}")
 
         def userratio(user):
             wins, played = rankmap[user]
-            return float(wins) / played if played else 0
+            r = float(wins) / played if played else 0
+            print(f"userratio({user}) = {r}   # {wins} wins, {played} played")
+            return r
 
         # [ user1, user2, ... ]
         return sorted(rankmap, key = userratio, reverse = True)

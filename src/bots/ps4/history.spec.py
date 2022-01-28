@@ -64,7 +64,9 @@ class TestPS4History(unittest.TestCase):
         history.register_stat(when, "p2", "p2", False, "stat.survival2")
         history.register_stat(when, "p2", "p2", False, "stat.survival3")
 
+        print("--- start ---")
         ranking = history.user_ranking("channel")
+        print("--- end ---")
 
         self.assertEqual(ranking, ["p2", "p1"])
 
