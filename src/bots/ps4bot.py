@@ -7,19 +7,19 @@ import traceback
 
 from functional import find
 
-from bot import Bot
+from .bot import Bot
 from msg.slackpostedmessage import SlackPostedMessage
-from ps4.game import Game, GameStates, GameFull, PlayerAlreadyPresent
-from ps4.formatting import format_user, format_user_padding, when_str, number_emojis, generate_table
-from ps4.cfg import PLAY_TIME, GAME_FOLLOWON_TIME
-from ps4.parsing import parse_time, deserialise_time, parse_game_initiation, \
+from .ps4.game import Game, GameStates, GameFull, PlayerAlreadyPresent
+from .ps4.formatting import format_user, format_user_padding, when_str, number_emojis, generate_table
+from .ps4.cfg import PLAY_TIME, GAME_FOLLOWON_TIME
+from .ps4.parsing import parse_time, deserialise_time, parse_game_initiation, \
         pretty_mode, parse_stats_request, date_with_year, empty_parameters, TooManyTimeSpecs
-from ps4.history import PS4History, Keys
-from ps4.gamecategory import vote_message, Stats, channel_statmap, suggest_teams, \
+from .ps4.history import PS4History, Keys
+from .ps4.gamecategory import vote_message, Stats, channel_statmap, suggest_teams, \
         gametype_from_channel, channel_has_scrub_stats, channel_is_foosball, \
         channel_is_football_tournament, channel_is_boardgame, \
         channel_is_private, gametype_emoji
-from ps4 import elo
+from .ps4 import elo
 
 DIALECT = ["here", "hew", "areet"]
 BIG_GAME_REGEX = re.compile(".*(big|large|medium|huge|hueg|massive|medium|micro|mini|biggest|small) game.*", re.IGNORECASE)

@@ -1,11 +1,11 @@
 import sys
 import time
-import websocket
 import socket
 import traceback
-import requests
 
-import slackclient
+#import websocket
+#import slackclient
+#import requests
 
 from msg.slackmessage import SlackMessage
 from msg.slackedit import SlackEdit
@@ -209,19 +209,20 @@ class SlackMonitor():
             reconnect = False
             try:
                 return fn()
-            except websocket._exceptions.WebSocketConnectionClosedException as e:
-                # slack timeout, reconnect
-                reconnect = True
-                log("websocket error: {}".format(e))
+            # FIXME
+            #except websocket._exceptions.WebSocketConnectionClosedException as e:
+            #    # slack timeout, reconnect
+            #    reconnect = True
+            #    log("websocket error: {}".format(e))
             except socket.error as e:
                 reconnect = True
                 log("socket error: {}".format(e))
-            except requests.exceptions.ConnectionError as e:
-                reconnect = True
-                log("requests error: {}".format(e))
-            except slackclient.server.SlackConnectionError as e:
-                reconnect = True
-                log("SlackConnectionError error: {}".format(e))
+            #except requests.exceptions.ConnectionError as e:
+            #    reconnect = True
+            #    log("requests error: {}".format(e))
+            #except slackclient.server.SlackConnectionError as e:
+            #    reconnect = True
+            #    log("SlackConnectionError error: {}".format(e))
 
             while reconnect:
                 try:

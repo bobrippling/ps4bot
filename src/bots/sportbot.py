@@ -1,4 +1,4 @@
-from bot import Bot
+from .bot import Bot
 
 SPORTBOT_FNAME_STATE = "sportbot-state.txt"
 

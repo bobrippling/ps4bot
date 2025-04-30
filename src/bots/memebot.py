@@ -1,4 +1,4 @@
-from bot import Bot
+from .bot import Bot
 
 # FIXME: hardcoded
 memes_channels = ["meme-bot", "dank-memes"]

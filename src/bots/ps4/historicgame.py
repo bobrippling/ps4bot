@@ -1,4 +1,4 @@
-from historystats import Stats
+from .historystats import Stats
 
 class PS4HistoricGame:
     def __init__(self, message_timestamp, players, channel, mode):

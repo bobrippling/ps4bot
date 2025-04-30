@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from slackclient import SlackClient
+from slack import RTMClient as SlackClient
 import signal
 import sys
 import config
@@ -17,7 +17,7 @@ from bots.ps4bot import PS4Bot
 from slackmonitor import SlackMonitor
 
 def usage():
-    print >>sys.stderr, "Usage: {} channel(s...) -- bot(s...)".format(sys.argv[0])
+    print("Usage: {} channel(s...) -- bot(s...)".format(sys.argv[0]), file=sys.stderr)
     sys.exit(1)
 
 if len(sys.argv) < 4:
@@ -57,7 +57,7 @@ for bot_name in sys.argv[sep + 1:]:
     try:
         bot_ctor = bot_names_to_classes[bot_name]
     except KeyError:
-        print >>sys.stderr, "bot \"{}\" doesn't exist".format(bot_name)
+        print("bot \"{}\" doesn't exist".format(bot_name), file=sys.stderr)
         sys.exit(1)
 
     bot_obj = bot_ctor(slackconnection, alias)
@@ -72,5 +72,5 @@ def interrupt_handler(signal, frame):
 signal.signal(signal.SIGINT, interrupt_handler)
 
 # and begin
-print "connected, watching..."
+print("connected, watching...")
 slackmonitor.run()

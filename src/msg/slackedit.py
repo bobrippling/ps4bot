@@ -1,4 +1,4 @@
-from slackmessage import SlackMessage
+from .slackmessage import SlackMessage
 
 class SlackEdit():
     def __init__(self, user, channel, oldtext, newtext, when, thread_ts):

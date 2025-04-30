@@ -4,9 +4,9 @@ import datetime
 
 from functional import find
 
-from historicgame import PS4HistoricGame
-import elo
-from gamecategory import limit_game_to_single_win, Stats
+from .historicgame import PS4HistoricGame
+from .elo import *
+from .gamecategory import limit_game_to_single_win, Stats
 
 SAVE_FILE = "ps4-stats.txt"
 DEFAULT_GAME_HISTORY = 5
