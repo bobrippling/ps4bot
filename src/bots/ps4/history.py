@@ -10,6 +10,7 @@ from gamecategory import limit_game_to_single_win, Stats
 
 SAVE_FILE = "ps4-stats.txt"
 DEFAULT_GAME_HISTORY = 5
+DATE_FMT = "%Y-%m-%d %H:%M:%S"
 
 class Keys:
     game_wins = "Game Wins"
@@ -41,7 +42,7 @@ class PS4History:
             with open(SAVE_FILE, "w") as f: # open as "w" since we rewrite the whole thing
                 for g in self.games:
                     print("game {} {} {} {}".format(
-                        g.message_timestamp,
+                        g.message_timestamp.strftime(DATE_FMT),
                         g.channel,
                         ",".join(g.players),
                         g.mode or "normal"), file=f)
@@ -61,7 +62,7 @@ class PS4History:
                     tokens = line.split(" ")
 
                     if tokens[0] == "game":
-                        message_timestamp = tokens[1]
+                        message_timestamp = datetime.datetime.strptime(tokens[1], DATE_FMT)
                         channel = tokens[2]
                         players = [t for t in tokens[3].split(",") if len(t)]
                         mode = None if tokens[4] == "normal" else tokens[4]
