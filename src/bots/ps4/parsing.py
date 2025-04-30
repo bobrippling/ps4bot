@@ -2,6 +2,7 @@ from collections import defaultdict
 import datetime
 import re
 import sys
+from functools import cmp_to_key
 
 from cfg import default_max_players, PLAY_TIME
 from gamecategory import channel_is_football_tournament
@@ -206,8 +207,10 @@ def most_specific_time(matches):
 
         return False
 
-    matches_specificity = [add_specificity(m) for m in matches]
-    matches_specificity.sort(match_cmp)
+    matches_specificity = sorted(
+        [add_specificity(m) for m in matches],
+        key=cmp_to_key(match_cmp),
+    )
 
     if DEBUG:
         print("matches:", file=sys.stderr)

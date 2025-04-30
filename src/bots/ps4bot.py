@@ -123,15 +123,16 @@ class LatestStats:
         self.parameters = parameters if parameters is not None else empty_parameters()
 
 class PS4Bot(Bot):
-    def __init__(self, slackconnection, botname):
+    def __init__(self, slackconnection, botname, load=True):
         Bot.__init__(self, slackconnection, botname)
 
         self.icon_emoji = ":video_game:"
         self.games = []
         self.user_options = defaultdict(set) # name => set([flag1, flag2...])
-        self.history = PS4History(negative_stats = set([Stats.scrub]))
+        self.history = PS4History(negative_stats = set([Stats.scrub]), load=load)
         self.latest_stats_table = defaultdict(LatestStats) # channel => LatestStats
-        self.load()
+        if load:
+            self.load()
 
     def botname_for_channel(self, channel):
         if channel_is_foosball(channel) or channel_is_football_tournament(channel):

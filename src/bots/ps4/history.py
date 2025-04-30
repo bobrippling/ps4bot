@@ -30,10 +30,11 @@ def calc_nextyear(year):
     return year.replace(year = year.year + 1) if year else None
 
 class PS4History:
-    def __init__(self, negative_stats = set()):
+    def __init__(self, negative_stats=set(), load=True):
         self.games = []
         self.negative_stats = negative_stats
-        self.load()
+        if load:
+            self.load()
 
     def save(self):
         try:
@@ -239,4 +240,4 @@ class PS4History:
             return float(wins) / played if played else 0
 
         # [ user1, user2, ... ]
-        return sorted(rankmap, key = userratio, reverse = True)
+        return sorted(rankmap, key=userratio, reverse=True)
