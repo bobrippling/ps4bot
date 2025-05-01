@@ -4,8 +4,8 @@ import re
 import sys
 from functools import cmp_to_key
 
-from .cfg import default_max_players, PLAY_TIME
-from .gamecategory import channel_is_football_tournament
+from bots.ps4.cfg import default_max_players, PLAY_TIME
+from bots.ps4.gamecategory import channel_is_football_tournament
 
 DEBUG = False
 ENABLE_3_DIGIT_TIME = False # allow 230, etc as time
