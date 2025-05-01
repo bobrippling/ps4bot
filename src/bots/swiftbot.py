@@ -1,4 +1,4 @@
-from bot import Bot
+from .bot import Bot
 import subprocess
 
 class SwiftBot(Bot):
@@ -16,12 +16,12 @@ class SwiftBot(Bot):
 
         first = message.text.find('```')
         if first == -1:
-            self.send_message("couldn't find opening \```")
+            self.send_message("couldn't find opening ```")
             return
 
         last = message.text.find('```', first+3)
         if last == -1:
-            self.send_message("couldn't find terminating \```")
+            self.send_message("couldn't find terminating ```")
             return
 
         code = message.text[first+3:last]

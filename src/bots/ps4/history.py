@@ -4,12 +4,13 @@ import datetime
 
 from functional import find
 
-from historicgame import PS4HistoricGame
-import elo
-from gamecategory import limit_game_to_single_win, Stats
+from .historicgame import PS4HistoricGame
+from .elo import Game, calculate_rankings
+from .gamecategory import limit_game_to_single_win, Stats
 
 SAVE_FILE = "ps4-stats.txt"
 DEFAULT_GAME_HISTORY = 5
+DATE_FMT = "%H:%M"
 
 class Keys:
     game_wins = "Game Wins"
@@ -30,25 +31,26 @@ def calc_nextyear(year):
     return year.replace(year = year.year + 1) if year else None
 
 class PS4History:
-    def __init__(self, negative_stats = set()):
+    def __init__(self, negative_stats=set(), load=True):
         self.games = []
         self.negative_stats = negative_stats
-        self.load()
+        if load:
+            self.load()
 
     def save(self):
         try:
             with open(SAVE_FILE, "w") as f: # open as "w" since we rewrite the whole thing
                 for g in self.games:
-                    print >>f, "game {} {} {} {}".format(
-                        g.message_timestamp,
+                    print("game {} {} {} {}".format(
+                        g.message_timestamp.strftime(DATE_FMT),
                         g.channel,
                         ",".join(g.players),
-                        g.mode or "normal")
+                        g.mode or "normal"), file=f)
 
                     for stat in g.stats:
-                        print >>f, "  stat {} {} {}".format(stat.stat, stat.user, stat.voter)
+                        print("  stat {} {} {}".format(stat.stat, stat.user, stat.voter), file=f)
         except IOError:
-            print >>sys.stderr, "exception saving state: {}".format(e)
+            print("exception saving state: {}".format(e), file=sys.stderr)
 
     def load(self):
         games = []
@@ -60,20 +62,20 @@ class PS4History:
                     tokens = line.split(" ")
 
                     if tokens[0] == "game":
-                        message_timestamp = tokens[1]
+                        message_timestamp = datetime.datetime.strptime(tokens[1], DATE_FMT)
                         channel = tokens[2]
-                        players = filter(len, tokens[3].split(","))
+                        players = [t for t in tokens[3].split(",") if len(t)]
                         mode = None if tokens[4] == "normal" else tokens[4]
                         current_game = PS4HistoricGame(message_timestamp, players, channel, mode)
                         games.append(current_game)
                     elif tokens[0] == "stat":
                         if not current_game:
-                            print >>sys.stderr, "found stat \"{}\" without game".format(tokens[1])
+                            print("found stat \"{}\" without game".format(tokens[1]), file=sys.stderr)
                             continue
                         stat, user, voter = tokens[1:]
                         current_game.stats.add(stat, user, voter)
                     else:
-                        print >>sys.stderr, "unknown {} line \"{}\"".format(SAVE_FILE, line)
+                        print("unknown {} line \"{}\"".format(SAVE_FILE, line), file=sys.stderr)
         except IOError:
             pass
         self.games = games
@@ -181,7 +183,7 @@ class PS4History:
             teams = [winners, losers]
             winning_team_index = 0
 
-            return elo.Game(teams, winning_team_index, scrub)
+            return Game(teams, winning_team_index, scrub)
 
         def game_can_elo(game):
             for team in game.teams:
@@ -195,7 +197,7 @@ class PS4History:
         elo_games = map(convert_to_elo_game, elo_games)
         elo_games = filter(game_can_elo, elo_games)
 
-        rankings = elo.calculate_rankings(elo_games, k_factor)
+        rankings = calculate_rankings(elo_games, k_factor)
 
         return rankings
 
@@ -204,7 +206,7 @@ class PS4History:
         rawelo = self.raw_elo(channel, year, k_factor = parameters["k"])
 
         mode_to_merge = None
-        for user, statmap in rawstats[mode_to_merge].iteritems():
+        for user, statmap in rawstats[mode_to_merge].items():
             if user in rawelo:
                 user_elo = rawelo[user]
 
@@ -239,4 +241,4 @@ class PS4History:
             return float(wins) / played if played else 0
 
         # [ user1, user2, ... ]
-        return sorted(rankmap, key = userratio, reverse = True)
+        return sorted(rankmap, key=userratio, reverse=True)

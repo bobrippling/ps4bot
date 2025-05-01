@@ -1,6 +1,6 @@
 import random
 from collections import defaultdict
-from formatting import format_user, ColourEmojis, number_emojis, pretty_players
+from .formatting import format_user, ColourEmojis, number_emojis, pretty_players
 from config import private_channels
 
 class Stats:

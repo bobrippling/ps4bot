@@ -2,9 +2,10 @@ from collections import defaultdict
 import datetime
 import re
 import sys
+from functools import cmp_to_key
 
-from cfg import default_max_players, PLAY_TIME
-from gamecategory import channel_is_football_tournament
+from bots.ps4.cfg import default_max_players, PLAY_TIME
+from bots.ps4.gamecategory import channel_is_football_tournament
 
 DEBUG = False
 ENABLE_3_DIGIT_TIME = False # allow 230, etc as time
@@ -206,19 +207,21 @@ def most_specific_time(matches):
 
         return False
 
-    matches_specificity = map(add_specificity, matches)
-    matches_specificity.sort(match_cmp)
+    matches_specificity = sorted(
+        [add_specificity(m) for m in matches],
+        key=cmp_to_key(match_cmp),
+    )
 
     if DEBUG:
-        print >>sys.stderr, "matches:"
+        print("matches:", file=sys.stderr)
         for m in matches_specificity:
             match, spec = m.match, m.specificity
-            print >>sys.stderr, "spec: {}, match: {}".format(spec, match.group(0))
+            print("spec: {}, match: {}".format(spec, match.group(0)), file=sys.stderr)
 
     if too_many_matches(matches_specificity): # two or more of the top specificity
         highest_spec = matches_specificity[0].specificity
-        topspecs = filter(lambda s: s.specificity == highest_spec, matches_specificity)
-        topspecs = map(lambda s: s.match.group(0), topspecs)
+        topspecs = [s for s in matches_specificity if s.specificity == highest_spec]
+        topspecs = [s.match.group(0) for s in topspecs]
 
         raise TooManyTimeSpecs(topspecs)
 

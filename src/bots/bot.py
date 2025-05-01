@@ -4,10 +4,12 @@ import sys
 
 from msg.slackpostedmessage import SlackPostedMessage
 
-USER_RE_ANCHORED = re.compile('^<@(U[^>|]+)(\|[^>]+)?>')
-USER_RE = re.compile('<@(U[^>|]+)(\|[^>]+)?>')
+USER_RE_ANCHORED = re.compile(r'^<@(U[^>|]+)(\|[^>]+)?>')
+USER_RE = re.compile(r'<@(U[^>|]+)(\|[^>]+)?>')
 
 def lookup_user(connection, id):
+    # TODO
+    return id #None
     users = connection.server.users
 
     if type(id) == str:
@@ -15,7 +17,7 @@ def lookup_user(connection, id):
 
     for u in users:
         # users may be either iterable<User> or dictionary<unicode, User>
-        if type(u) == unicode:
+        if type(u) == str:
             u = users[u]
 
         if hasattr(u, 'id') and u.id == id:
@@ -23,9 +25,9 @@ def lookup_user(connection, id):
     return None
 
 class Bot():
-    def __init__(self, slackconnection, botname):
+    def __init__(self, slackmonitor, botname):
         self.botname = botname
-        self.slackconnection = slackconnection
+        self.slackmonitor = slackmonitor
         self.channel = None
         self.icon_emoji = None
 
@@ -40,18 +42,19 @@ class Bot():
         if match is not None:
             id = match.group(1)
 
-        name = lookup_user(self.slackconnection, id)
+        name = lookup_user(self.slackmonitor, id)
         if name:
             return name
         return alt if alt is not None else id
 
-    def resolve_channel(self, channel):
-        if channel is not None:
-            return self.slackconnection.server.channels.find(channel)
-        return self.channel
+    #def resolve_channel(self, channel):
+    #    if channel is not None:
+    #        return self.slackmonitor.server.channels.find(channel)
+    #    return self.channel
 
     def send_message(self, text, to_channel = None):
-        channel = self.resolve_channel(to_channel)
+        #channel = self.resolve_channel(to_channel)
+        channel = to_channel if to_channel is not None else self.channel
 
         if channel is None:
             return
@@ -60,13 +63,13 @@ class Bot():
             return
 
         # post as BOT_NAME instead of the current user
-        response = self.slackconnection.api_call(
-                "chat.postMessage",
-                channel = channel.id,
-                text = text,
-                username = self.botname_for_channel(channel.name),
-                icon_emoji = self.botemoji_for_channel(channel.name),
-                as_user = False)
+        response = self.slackmonitor.webclient.chat_postMessage(
+            channel = channel["id"],
+            text = text,
+            username = self.botname_for_channel(channel["name"]),
+            icon_emoji = self.botemoji_for_channel(channel["name"]),
+            as_user = False
+        )
 
         return SlackPostedMessage(response["channel"], response["ts"], text)
 
@@ -74,14 +77,15 @@ class Bot():
         channel = original_channel or original_message.channel
         timestamp = original_timestamp or original_message.timestamp
 
-        channel = self.resolve_channel(channel)
+        #channel = self.resolve_channel(channel)
 
-        self.slackconnection.api_call(
+        raise ValueError("todo")
+        self.slackmonitor.api_call(
                 "chat.update",
-                channel = channel.id,
+                channel = channel["id"],
                 ts = timestamp,
-                username = self.botname_for_channel(channel.name),
-                icon_emoji = self.botemoji_for_channel(channel.name),
+                username = self.botname_for_channel(channel["name"]),
+                icon_emoji = self.botemoji_for_channel(channel["name"]),
                 as_user = False,
                 text = text)
 

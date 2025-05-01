@@ -4,8 +4,8 @@ import sys
 sys.modules['datetime'] = __import__('mock_datetime')
 
 from os import path
-import sys
 fcwd = path.dirname(__file__)
+sys.path.insert(0, path.abspath("{}/../".format(fcwd)))
 sys.path.insert(0, path.abspath("{}/../../".format(fcwd)))
 
 import datetime
@@ -171,7 +171,7 @@ class DummyChannel:
 	def __init__(self, name):
 		self.name = name
 
-def dummy_load_banter(self, type, *rest, **restkw):
+def dummy_load_banter(type, *rest, **restkw):
 	if type == "joined":
 		return "welcome to the game"
 	if type == "created":
@@ -184,36 +184,37 @@ def dummy_load_banter(self, type, *rest, **restkw):
 		return "nee bother"
 	if type == "follow-on":
 		return "is straight after"
-	raise ValueError("unknown type {}".format(type))
+	raise ValueError("unknown banter type {}".format(type))
 
 class TestPS4Bot(unittest.TestCase):
 	def __init__(self, *args):
 		unittest.TestCase.__init__(self, *args)
 
-		def record_message(*args):
-			self.messages.append(args)
-			return SlackPostedMessage(None, "1540000000.000000", "")
 		self.messages = []
 
-		PS4Bot.save = noop
-		PS4Bot.load = noop
-		PS4Bot.lookup_user = lambda self, a: a
-		PS4Bot.send_message = record_message
-		PS4Bot.update_message = lambda self, text, **rest: None
-		PS4Bot.load_banter = dummy_load_banter
+		self.initialised = True
 
 		PS4History.save = noop
 		PS4History.load = noop
 
 	def create_ps4bot(self):
+		assert self.initialised
+
 		self.messages = []
 
 		def send_message_stub(msg, to_channel = None):
 			self.messages.append(msg)
 			return SlackPostedMessage(to_channel or "?", posted_message_when, msg)
 
-		ps4bot = PS4Bot(None, "ps4bot")
+		ps4bot = PS4Bot(None, "ps4bot", load=False)
 		ps4bot.send_message = send_message_stub
+
+		ps4bot.save = noop
+		ps4bot.load = staticmethod(noop)
+		ps4bot.lookup_user = lambda u: u
+		ps4bot.update_message = lambda text, **rest: None
+		ps4bot.load_banter = dummy_load_banter
+
 		return ps4bot
 
 	def test_ps4bot_game_overlap_inside(self):

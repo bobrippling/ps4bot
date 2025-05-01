@@ -1,4 +1,4 @@
-from bot import Bot
+from .bot import Bot
 
 # FIXME: hardcoded
 memes_channels = ["meme-bot", "dank-memes"]
@@ -19,7 +19,7 @@ class MemeBot(Bot):
                         break
                     line = line.rstrip('\n')
                     self.memes.append(line)
-                    print "loaded meme {}".format(line)
+                    print("loaded meme {}".format(line))
         except IOError:
             pass
 
@@ -27,9 +27,9 @@ class MemeBot(Bot):
         try:
             with open('memebot.txt', 'w') as f:
                 for meme in self.memes:
-                    print >>f, "{}".format(meme)
+                    print("{}".format(meme), file=f)
         except IOError as e:
-            print >>sys.stderr, "exception saving state: {}".format(e)
+            print("exception saving state: {}".format(e), file=sys.stderr)
 
     def handle_command(self, message, command, resttokens):
         reply = self.generate_doodle_reply(message, command, resttokens)

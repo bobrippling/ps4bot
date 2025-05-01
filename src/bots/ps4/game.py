@@ -1,9 +1,9 @@
 import datetime
-from formatting import format_user, when_str, pretty_players
-from cfg import default_max_players, PLAY_TIME
-from historicgame import PS4HistoricGame
-from parsing import pretty_mode
-from gamecategory import gametype_from_channel
+from bots.ps4.formatting import format_user, when_str, pretty_players
+from bots.ps4.cfg import default_max_players, PLAY_TIME
+from bots.ps4.historicgame import PS4HistoricGame
+from bots.ps4.parsing import pretty_mode
+from bots.ps4.gamecategory import gametype_from_channel
 
 class GameStates:
     scheduled = 0
@@ -77,7 +77,7 @@ class Game:
         if with_creator:
             players = self.players
         else:
-            players = filter(lambda p: p != self.creator, self.players)
+            players = [p for p in self.players if p != self.creator]
 
         return pretty_players(players)
 

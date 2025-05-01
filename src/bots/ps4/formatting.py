@@ -66,7 +66,7 @@ def generate_table(header, rows):
     if not rows or len(rows) == 0:
         return "<empty table>"
 
-    row_lengths = map(len, header)
+    row_lengths = [len(h) for h in header]
     for row in rows:
         for i, entry in enumerate(row):
             length = row_length(entry)
