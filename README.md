@@ -32,6 +32,11 @@ This runs those bots, listening on the specified channels.
 `botspec` may be a bot name, such as `ps4bot`, or a name and alias, such as `gamebot:ps4bot`, which will expose ps4bot logic under the name `gamebot` (in the specified channels).
 `channelspec` may be a channel name or `*`, for all channels (this should be quoted to avoid shell expansion).
 
+## Warning
+
+This code hasn't been touched since pre-2020, except for SportBot.
+All the other bots will likely crash with either problems from migrating from python2 -> python3 or changes in the Slack API. Good luck.
+
 # Testing
 
 To run locally: `./check`
