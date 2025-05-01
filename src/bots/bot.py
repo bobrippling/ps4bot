@@ -4,8 +4,8 @@ import sys
 
 from msg.slackpostedmessage import SlackPostedMessage
 
-USER_RE_ANCHORED = re.compile('^<@(U[^>|]+)(\|[^>]+)?>')
-USER_RE = re.compile('<@(U[^>|]+)(\|[^>]+)?>')
+USER_RE_ANCHORED = re.compile(r'^<@(U[^>|]+)(\|[^>]+)?>')
+USER_RE = re.compile(r'<@(U[^>|]+)(\|[^>]+)?>')
 
 def lookup_user(connection, id):
     users = connection.server.users

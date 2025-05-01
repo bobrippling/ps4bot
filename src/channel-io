@@ -1,21 +1,21 @@
 #!/usr/bin/env python
 
-from slackclient import SlackClient
+from slack import RTMClient
 import sys
 import select
 import config
 
 def dump_channels():
     for i in conn.server.channels:
-        print "name={} id={}".format(i.name, i.id)
-        #print conn.api_call("groups.info", channel = i.id)
+        print("name={} id={}".format(i.name, i.id))
+        #print(conn.api_call("groups.info", channel = i.id))
 
 def dump_users():
     users = conn.server.users
     for u in users:
         if type(u) == unicode or type(u) == str:
             u = users[u]
-        print "id={} name={} real_name={}".format(u.id, u.name, u.real_name)
+        print("id={} name={} real_name={}".format(u.id, u.name, u.real_name))
 
 def chat():
     def ENCODE(s):
@@ -49,9 +49,9 @@ def chat():
 
     def handle_slack():
         for slack_message in conn.rtm_read():
-            print slack_message
+            print(slack_message)
 
-    print "connected"
+    print("connected")
     while True:
         ready = select.select([sys.stdin, conn.server.websocket], [], [])
         ready_in = ready[0]
@@ -63,15 +63,15 @@ def chat():
 
 def interactive():
 	import code
-	print "globals available: `conn`"
+	print("globals available: `conn`")
 	code.interact(local = globals())
 	#code.InteractiveConsole(locals=globals()).interact()
 
 def usage():
-    print >>sys.stderr, "Usage: {} chat channel botname botemoji".format(sys.argv[0])
-    print >>sys.stderr, "       {} dump-channels".format(sys.argv[0])
-    print >>sys.stderr, "       {} dump-users".format(sys.argv[0])
-    print >>sys.stderr, "       {} interactive".format(sys.argv[0])
+    print("Usage: {} chat channel botname botemoji".format(sys.argv[0]), file=sys.stderr)
+    print("       {} dump-channels".format(sys.argv[0]), file=sys.stderr)
+    print("       {} dump-users".format(sys.argv[0]), file=sys.stderr)
+    print("       {} interactive".format(sys.argv[0]), file=sys.stderr)
     sys.exit(2)
 
 if len(sys.argv) < 2:
@@ -98,9 +98,9 @@ elif sys.argv[1] == "interactive":
 else:
     usage()
 
-conn = SlackClient(config.slack_token)
-if not conn.rtm_connect():
-    print >>sys.stderr, "couldn't connect"
-    sys.exit(1)
+conn = RTMClient(token=config.slack_token)
+#if not conn.rtm_connect():
+#    print("couldn't connect", file=sys.stderr)
+#    sys.exit(1)
 
 main()
