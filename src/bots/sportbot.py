@@ -2,6 +2,7 @@ import sys
 import json
 import re
 from datetime import datetime, timedelta
+from collections import defaultdict
 
 from .bot import Bot
 from msg.slackreaction import SlackReaction
@@ -9,9 +10,21 @@ from msg.slackreaction import SlackReaction
 SPORTBOT_FNAME_STATE = "sportbot-state.txt"
 DATE_FMT = "%Y-%m-%d %H:%M"
 
-admin_users = [
-    'rpilling'
-]
+REACTION_DAYS = {
+    # this is a bit silly
+    "one": 0,
+    "two": 1,
+    "three": 2,
+    "four": 3,
+    "five": 4,
+    "six": 5,
+    "seven": 6,
+}
+
+def n_to_day(n):
+    monday = datetime(2023, 1, 2)
+    day = monday + timedelta(days=n % 7)
+    return day.strftime("%A")
 
 class SportBot(Bot):
     def __init__(self, slackconnection, botname):
@@ -27,13 +40,13 @@ class SportBot(Bot):
         except FileNotFoundError:
             return
 
-        self.games = [GameInitiation.from_json(j) for j in state["games"]]
+        self.games = [Game.from_json(j) for j in state["games"]]
 
     def save(self):
         try:
             with open(SPORTBOT_FNAME_STATE, 'w') as f:
                 json.dump({
-                    "games": self.games,
+                    "games": [g.to_json() for g in self.games],
                 }, f)
         except IOError as e:
             print("exception saving state: {}".format(e), file=sys.stderr)
@@ -57,102 +70,103 @@ class SportBot(Bot):
         text = text.replace(start, "")
 
         if text == "status":
-            self.send_message(f"games: {', '.join(str(g) for g in self.games)}")
-            #self.send_message("currently playing: {}".format(
-            #    ", ".join(self.players) if len(self.players) else '<no one>'
-            #))
+            if len(self.games):
+                self.send_message(f"games: {', '.join(str(g) for g in self.games)}")
+            else:
+                self.send_message(f"no games :(")
             return
 
-        if text == "reset":
-            self.send_message("reset sporting state")
-            return
+        if text == "new":
+            monday = next_monday()
+            g = Game(monday, None)
+            msg_str = message_for_game(g)
+            posted_msg = self.send_message(msg_str)
 
-        try:
-            parsed = parse_game_initiation(text)
-            if parsed:
-                self.games.append(parsed)
-                self.send_message(f"new game created for {parsed}")
-                return
-        except ParseError as e:
-            self.send_message(e.desc)
+            g.message_timestamp = posted_msg.timestamp
+            self.games.append(g)
+            self.save()
             return
 
         self.send_short_usage(to_user=user)
 
     def handle_reaction(self, reaction: SlackReaction, removed=False):
-        print(f"got f{'un' if removed else ''}reaction: {repr(reaction)}")
+        candidates = [g for g in self.games if g.message_timestamp == reaction.original_msg_time]
+
+        if len(candidates) == 0:
+            #print(f"no candidates found for {reaction}")
+            return
+
+        if len(candidates) > 1:
+            print(f"internal error: multiple games on same msg timestamp {reaction.original_msg_time}", file=sys.stderr)
+            return
+
+        game = candidates[0]
+        day = REACTION_DAYS.get(reaction.emoji)
+        if day is None:
+            return
+
+        if not removed:
+            game.day_to_players[day].append(reaction.reacting_user)
+        else:
+            try:
+                game.day_to_players[day].remove(reaction.reacting_user)
+            except ValueError:
+                pass
+
+        self.save()
+
+        self.update_message(
+            message_for_game(game),
+            original_channel=reaction.channel,
+            original_timestamp=reaction.original_msg_time,
+        )
 
     def handle_unreaction(self, reaction):
         self.handle_reaction(reaction, removed=True)
 
-class GameInitiation:
-    def __init__(self, when):
+class Game:
+    def __init__(self, when, message_timestamp, day_to_players=None):
         self.when = when
+        self.message_timestamp = message_timestamp
+        self.day_to_players = day_to_players if day_to_players is not None else defaultdict(list)
 
-    def __str__(self):
-        return self.when.strftime(DATE_FMT)
+    def __repr__(self):
+        w = self.when.strftime(DATE_FMT)
+        return f"Game(when={w}, day_to_players={self.day_to_players})"
 
     def to_json(self):
-        return json.dumps({"when": self.when.strftime(DATE_FMT)})
+        return {
+            "when": self.when.strftime(DATE_FMT),
+            "day_to_players": {
+                str(k): v for k, v in self.day_to_players.items() if len(v)
+            },
+            "message_timestamp": self.message_timestamp,
+        }
 
     @staticmethod
-    def from_json(json_str):
-        j = json.loads(json_str)
-        return GameInitiation(datetime.strptime(j["when"], DATE_FMT))
+    def from_json(j):
+        return Game(
+            datetime.strptime(j["when"], DATE_FMT),
+            j["message_timestamp"],
+            defaultdict(list, { int(k): v for k, v in j["day_to_players"].items() }),
+        )
 
-class ParseError(Exception):
-    def __init__(self, desc):
-        super().__init__(self)
-        self.desc = desc
+def next_monday():
+    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    days_ahead = (0 - today.weekday()) % 7  # Monday is 0
+    return today + timedelta(days=days_ahead)
 
-RE_DAY = re.compile(r"mon(?:day)?|tues(?:day)?|wed(?:nesday)?|thur(?:s(?:day)?)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?", re.IGNORECASE)
-RE_PERIOD = re.compile(r"morning|lunch|eve(?:ning)|(?:after|post) work", re.IGNORECASE)
+def message_for_game(g):
+    start_of_week = g.when.strftime("%Y-%m-%d")
+    react_hint = ", ".join([
+        f"{n_to_day(i)}: :{k}:"
+        for k, i in list(REACTION_DAYS.items())[:2]
+    ])
 
-def parse_game_initiation(text):
-    days = RE_DAY.findall(text)
-    periods = RE_PERIOD.findall(text)
+    players_str = ""
+    for day in REACTION_DAYS.values():
+        players = g.day_to_players[day]
+        if len(players):
+            players_str += f"\n{n_to_day(day)}:\n" + "\n".join(f"- <@{p}>" for p in players)
 
-    if len(days) == 1 and len(periods) == 1:
-        when = day_period_to_date(days[0], periods[0])
-        return GameInitiation(when)
-
-    if len(days) == 0 and len(periods) == 0:
-        return None
-
-    descs = []
-    if len(days) > 1:
-        descs.append(f"days ({', '.join(days)})")
-    if len(periods) > 1:
-        descs.append(f"periods ({', '.join(periods)})")
-
-    raise ParseError(f"multiple matches for {' and '.join(descs)}")
-
-def day_period_to_date(day, period):
-    day_map = {
-        "mon": "monday",
-        "tue": "tuesday",
-        "wed": "wednesday",
-        "thu": "thursday",
-        "thur": "thursday",
-        "fri": "friday",
-        "sat": "saturday",
-        "sun": "sunday"
-    }
-
-    period_map = {
-        "morning": "09:00",
-        "lunchtime": "12:00",
-        "afternoon": "15:00",
-        "evening": "18:00",
-        "after work": "19:00"
-    }
-
-    today = datetime.now()
-    current_weekday = today.weekday() # mon .. sun
-
-    target_weekday = list(day_map.keys()).index(day[:3].lower())
-    days_ahead = (target_weekday - current_weekday) % 7
-    target_date = today + timedelta(days=days_ahead)
-
-    time_str = period_map.get(period.lower(), "12:00")
-    return datetime.strptime(f"{target_date.date()} {time_str}", "%Y-%m-%d %H:%M")
+    return f"Who's up for a game, week starting {start_of_week}? ({react_hint}, ...){players_str}"
