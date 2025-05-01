@@ -11,7 +11,7 @@ class SlackReaction():
         parts = [f"{k}={repr(getattr(self, k))}" for k in [
             "emoji",
             "reacting_user",
-            "original_user",
+            #"original_user",
             "channel",
             "original_msg_time",
             "when",
