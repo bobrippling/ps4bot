@@ -8,7 +8,7 @@ from .bot import Bot
 from msg.slackreaction import SlackReaction
 
 SPORTBOT_FNAME_STATE = "sportbot-state.txt"
-DATE_FMT = "%Y-%m-%d %H:%M"
+DATE_FMT_INTERNAL = "%Y-%m-%d %H:%M"
 
 REACTION_DAYS = {
     # this is a bit silly
@@ -131,12 +131,12 @@ class Game:
         self.day_to_players = day_to_players if day_to_players is not None else defaultdict(list)
 
     def __repr__(self):
-        w = self.when.strftime(DATE_FMT)
+        w = self.when.strftime(DATE_FMT_INTERNAL)
         return f"Game(when={w}, day_to_players={self.day_to_players})"
 
     def to_json(self):
         return {
-            "when": self.when.strftime(DATE_FMT),
+            "when": self.when.strftime(DATE_FMT_INTERNAL),
             "day_to_players": {
                 str(k): v for k, v in self.day_to_players.items() if len(v)
             },
@@ -146,7 +146,7 @@ class Game:
     @staticmethod
     def from_json(j):
         return Game(
-            datetime.strptime(j["when"], DATE_FMT),
+            datetime.strptime(j["when"], DATE_FMT_INTERNAL),
             j["message_timestamp"],
             defaultdict(list, { int(k): v for k, v in j["day_to_players"].items() }),
         )
