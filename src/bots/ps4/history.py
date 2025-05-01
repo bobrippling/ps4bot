@@ -10,7 +10,7 @@ from .gamecategory import limit_game_to_single_win, Stats
 
 SAVE_FILE = "ps4-stats.txt"
 DEFAULT_GAME_HISTORY = 5
-DATE_FMT = "%Y-%m-%d %H:%M:%S"
+DATE_FMT = "%H:%M"
 
 class Keys:
     game_wins = "Game Wins"
