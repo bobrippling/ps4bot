@@ -1,4 +1,7 @@
+import sys
+
 from .bot import Bot
+from msg.slackreaction import SlackReaction
 
 SPORTBOT_FNAME_STATE = "sportbot-state.txt"
 
@@ -81,10 +84,18 @@ class SportBot(Bot):
             return
 
         if text_is_status_request(message.text):
-            self.send_message("currently playing: {}".format(", ".join(self.players) if len(self.players) else '<no one>'))
+            self.send_message("currently playing: {}".format(
+                ", ".join(self.players) if len(self.players) else '<no one>'
+            ))
             return
 
         if message.user not in admin_users:
             self.send_short_usage(message.user)
             return
         self.handle_admin_message(message)
+
+    def handle_reaction(self, reaction: SlackReaction, removed=False):
+        print(f"got (un?)reaction: {repr(reaction)}")
+
+    def handle_unreaction(self, reaction):
+        self.handle_reaction(reaction, removed=True)

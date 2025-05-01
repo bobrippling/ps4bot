@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from slack import RTMClient as SlackClient
+from slack import RTMClient, WebClient
 import signal
 import sys
 import config
@@ -42,10 +42,11 @@ bot_names_to_classes = {
 }
 
 # global slack connection
-slackconnection = SlackClient(BOT_TOKEN)
+socketclient = RTMClient(token=BOT_TOKEN)
+webclient = WebClient(token=BOT_TOKEN)
 
 # setup channel monitoring
-slackmonitor = SlackMonitor(slackconnection)
+slackmonitor = SlackMonitor(socketclient, webclient)
 
 for bot_name in sys.argv[sep + 1:]:
     alias = bot_name
@@ -60,7 +61,7 @@ for bot_name in sys.argv[sep + 1:]:
         print("bot \"{}\" doesn't exist".format(bot_name), file=sys.stderr)
         sys.exit(1)
 
-    bot_obj = bot_ctor(slackconnection, alias)
+    bot_obj = bot_ctor(slackmonitor, alias)
     for channel in sys.argv[1:sep]:
         slackmonitor.add_handler_for_channel(bot_obj, channel)
 

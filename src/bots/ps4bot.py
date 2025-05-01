@@ -1089,6 +1089,7 @@ class PS4Bot(Bot):
 
     def handle_message(self, message):
         tokens = message.text.split()
+        # FIXME: message.channel["name"] applied everywhere
         if len(tokens) < 1 or not self.is_message_for_me(tokens[0], message.channel.name):
             biggame = BIG_GAME_REGEX.match(message.text, re.IGNORECASE)
             if biggame:
