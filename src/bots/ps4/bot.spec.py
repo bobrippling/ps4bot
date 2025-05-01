@@ -384,14 +384,14 @@ class TestPS4Bot(unittest.TestCase):
 		self.assertEqual(ps4bot.games[0].players, ["user"])
 		self.assertEqual(ps4bot.history.games[0].players, ["user"])
 
-		reaction = SlackReaction("+1", "tim", None, dummychannel, posted_message_when, None)
+		reaction = SlackReaction("+1", "tim", dummychannel, posted_message_when, None)
 		ps4bot.handle_reaction(reaction)
 		self.assertEqual(len(self.messages), 0)
 
 		self.assertEqual(ps4bot.games[0].players, ["user", "tim"])
 		self.assertEqual(ps4bot.history.games[0].players, ["user", "tim"])
 
-		reaction = SlackReaction("one", "tim", None, dummychannel, posted_message_when, None)
+		reaction = SlackReaction("one", "tim", dummychannel, posted_message_when, None)
 		ps4bot.handle_reaction(reaction)
 		self.assertEqual(len(self.messages), 0)
 

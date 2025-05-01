@@ -1,0 +1,15 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: deps
+      run: pip install -r requirements.txt
+    - name: test
+      run: ./check
