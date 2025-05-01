@@ -81,12 +81,10 @@ class SlackMonitor():
 
         return handled
 
-    def handle_reaction(self, slack_message, user, when, removed = False):
+    def handle_reaction(self, slack_message, user, when, removed=False):
         item = slack_message.get('item')
 
-        emoji = filter_emoji(ENCODE(slack_message.get('reaction')))
-        reacting_user = ENCODE(user)
-        original_user = ENCODE(slack_message.get('item_user'))
+        emoji = filter_emoji(slack_message.get('reaction'))
 
         original_msg_time = item.get('ts')
         channel_id = item.get('channel')
@@ -94,7 +92,7 @@ class SlackMonitor():
         if channel is None:
             return
 
-        reaction = SlackReaction(emoji, reacting_user, original_user, channel, original_msg_time, when)
+        reaction = SlackReaction(emoji, user, channel, original_msg_time, when)
 
         def dispatch(handler):
             if removed:
@@ -102,8 +100,7 @@ class SlackMonitor():
             else:
                 handler.handle_reaction(reaction)
 
-        handled = self.run_handlers(channel, dispatch)
-        return handled
+        return self.run_handlers(channel, dispatch)
 
     def handle_deletion(self, deleted_ts, when, user, channel, deleted_text):
         deletion = SlackDeletion(deleted_ts, when, user, channel, deleted_text)
@@ -178,7 +175,7 @@ class SlackMonitor():
 
         return handled
 
-    def handle_slack_event(self, event):
+    def handle_slack_event(self, event, subevent=""):
         text = event.get("text")
         user = event.get("user")
         channel_id = event.get("channel")
@@ -191,11 +188,10 @@ class SlackMonitor():
         except (TypeError, ValueError):
             when = 0
 
-        if event.get("type") == "reaction_added":
+        if subevent == "reaction_added":
             return self.handle_reaction(event, user, when)
-
-        if event.get("type") == "reaction_removed":
-            return self.handle_reaction(event, user, when, removed = True)
+        if subevent == "reaction_removed":
+            return self.handle_reaction(event, user, when, removed=True)
 
         channel = self.lookup_channel(channel_id)
         if not channel:
@@ -296,11 +292,11 @@ class SlackMonitor():
 
         @RTMClient.run_on(event="reaction_added")
         def on_react(**payload):
-            self.handle_slack_event(payload["data"])
+            self.handle_slack_event(payload["data"], "reaction_added")
 
         @RTMClient.run_on(event="reaction_removed")
         def on_unreact(**payload):
-            self.handle_slack_event(payload["data"])
+            self.handle_slack_event(payload["data"], "reaction_removed")
 
         self.socketclient.start()
 
