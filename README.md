@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/bobrippling/lunchbot.svg?branch=master)](https://travis-ci.org/bobrippling/lunchbot)
+[![Build Status](https://github.com/bobrippling/ps4bot/actions/workflows/ci.yml/badge.svg)](https://github.com/bobrippling/ps4bot/actions/workflows/ci.yml)
 
 # Setup
 
@@ -34,7 +34,7 @@ This runs those bots, listening on the specified channels.
 
 # Testing
 
-Tests are ran on travis, but to run locally: `./check`
+To run locally: `./check`
 
 # Banter
 
