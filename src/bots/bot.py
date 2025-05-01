@@ -1,6 +1,5 @@
 import re
 import time
-import sys
 
 from msg.slackpostedmessage import SlackPostedMessage
 
@@ -52,15 +51,12 @@ class Bot():
     #        return self.slackmonitor.server.channels.find(channel)
     #    return self.channel
 
-    def send_message(self, text, to_channel = None):
+    def send_message(self, text, to_channel = None) -> SlackPostedMessage:
         #channel = self.resolve_channel(to_channel)
         channel = to_channel if to_channel is not None else self.channel
 
         if channel is None:
-            return
-
-        if len(text) == 0:
-            return
+            raise ValueError("no channel to post to")
 
         # post as BOT_NAME instead of the current user
         response = self.slackmonitor.webclient.chat_postMessage(
@@ -73,21 +69,20 @@ class Bot():
 
         return SlackPostedMessage(response["channel"], response["ts"], text)
 
-    def update_message(self, text, original_message = None, original_channel = None, original_timestamp = None):
-        channel = original_channel or original_message.channel
-        timestamp = original_timestamp or original_message.timestamp
+    def update_message(self, text, *, original_message=None, original_channel=None, original_timestamp=None):
+        channel = original_channel or original_message["channel"]
+        timestamp = original_timestamp or original_message["timestamp"]
 
         #channel = self.resolve_channel(channel)
 
-        raise ValueError("todo")
-        self.slackmonitor.api_call(
-                "chat.update",
-                channel = channel["id"],
-                ts = timestamp,
-                username = self.botname_for_channel(channel["name"]),
-                icon_emoji = self.botemoji_for_channel(channel["name"]),
-                as_user = False,
-                text = text)
+        self.slackmonitor.webclient.chat_update(
+            channel=channel["id"],
+            ts=timestamp,
+            username=self.botname_for_channel(channel["name"]),
+            icon_emoji=self.botemoji_for_channel(channel["name"]),
+            as_user=False,
+            text=text
+        )
 
     def send_list(self, prefix, list):
         self.send_message("{}: {}".format(prefix, ', '.join(list)))
