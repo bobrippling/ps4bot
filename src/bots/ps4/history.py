@@ -5,7 +5,7 @@ import datetime
 from functional import find
 
 from .historicgame import PS4HistoricGame
-from .elo import *
+from .elo import Game, calculate_rankings
 from .gamecategory import limit_game_to_single_win, Stats
 
 SAVE_FILE = "ps4-stats.txt"
@@ -183,7 +183,7 @@ class PS4History:
             teams = [winners, losers]
             winning_team_index = 0
 
-            return elo.Game(teams, winning_team_index, scrub)
+            return Game(teams, winning_team_index, scrub)
 
         def game_can_elo(game):
             for team in game.teams:
@@ -197,7 +197,7 @@ class PS4History:
         elo_games = map(convert_to_elo_game, elo_games)
         elo_games = filter(game_can_elo, elo_games)
 
-        rankings = elo.calculate_rankings(elo_games, k_factor)
+        rankings = calculate_rankings(elo_games, k_factor)
 
         return rankings
 
