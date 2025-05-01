@@ -78,6 +78,12 @@ class SportBot(Bot):
 
         if text == "new":
             monday = next_monday()
+
+            for g in self.games:
+                if g.when == monday:
+                    self.send_message(f"Already have a game for {monday.strftime('%Y-%m-%d')}")
+                    return
+
             g = Game(monday, None)
             msg_str = message_for_game(g)
             posted_msg = self.send_message(msg_str)
