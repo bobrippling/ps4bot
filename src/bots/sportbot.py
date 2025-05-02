@@ -113,7 +113,7 @@ class SportBot(Bot):
         self.save()
 
         self.update_message(
-            message_for_game(game),
+            game.generate_message(),
             original_channel=reaction.channel,
             original_timestamp=reaction.original_msg_time,
         )
@@ -164,22 +164,22 @@ class Game:
 
         return True
 
+    def generate_message(self):
+        start_of_week = self.when.strftime("%Y-%m-%d")
+        react_hint = ", ".join([
+            f"{n_to_day(i)}: :{k}:"
+            for k, i in list(REACTION_DAYS.items())[:2]
+        ])
+
+        players_str = ""
+        for day in REACTION_DAYS.values():
+            players = self.day_to_players[day]
+            if len(players):
+                players_str += f"\n{n_to_day(day)}:\n" + "\n".join(f"- <@{p}>" for p in players)
+
+        return f"Who's up for a game, week starting {start_of_week}? ({react_hint}, ...){players_str}"
+
 def next_monday():
     today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     days_ahead = (0 - today.weekday()) % 7  # Monday is 0
     return today + timedelta(days=days_ahead)
-
-def message_for_game(g):
-    start_of_week = g.when.strftime("%Y-%m-%d")
-    react_hint = ", ".join([
-        f"{n_to_day(i)}: :{k}:"
-        for k, i in list(REACTION_DAYS.items())[:2]
-    ])
-
-    players_str = ""
-    for day in REACTION_DAYS.values():
-        players = g.day_to_players[day]
-        if len(players):
-            players_str += f"\n{n_to_day(day)}:\n" + "\n".join(f"- <@{p}>" for p in players)
-
-    return f"Who's up for a game, week starting {start_of_week}? ({react_hint}, ...){players_str}"
