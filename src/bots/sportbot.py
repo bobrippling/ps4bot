@@ -149,18 +149,23 @@ class Game:
         )
 
     def update_user_via_emoji(self, user, emoji, removed):
-        day = REACTION_DAYS.get(emoji)
-        if day is None:
-            return False
-
-        if not removed:
-            game.day_to_players[day].append(reaction.reacting_user)
+        if reaction.emoji == "infinity":
+            days = list(REACTION_DAYS.values())
         else:
-            try:
-                game.day_to_players[day].remove(reaction.reacting_user)
-            except ValueError:
-                # pretend we changed the game anyway, to update the message
-                pass
+            day = REACTION_DAYS.get(emoji)
+            if day is None:
+                return False
+            days = [day]
+
+        for day in days:
+            if not removed:
+                self.day_to_players[day].append(user)
+            else:
+                try:
+                    self.day_to_players[day].remove(user)
+                except ValueError:
+                    # pretend we changed the game anyway, to update the message
+                    pass
 
         return True
 
