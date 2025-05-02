@@ -107,17 +107,8 @@ class SportBot(Bot):
             return
 
         game = candidates[0]
-        day = REACTION_DAYS.get(reaction.emoji)
-        if day is None:
+        if not game.update_user_via_emoji(reaction.reacting_user, reaction.emoji, removed):
             return
-
-        if not removed:
-            game.day_to_players[day].append(reaction.reacting_user)
-        else:
-            try:
-                game.day_to_players[day].remove(reaction.reacting_user)
-            except ValueError:
-                pass
 
         self.save()
 
@@ -156,6 +147,22 @@ class Game:
             j["message_timestamp"],
             defaultdict(list, { int(k): v for k, v in j["day_to_players"].items() }),
         )
+
+    def update_user_via_emoji(self, user, emoji, removed):
+        day = REACTION_DAYS.get(emoji)
+        if day is None:
+            return False
+
+        if not removed:
+            game.day_to_players[day].append(reaction.reacting_user)
+        else:
+            try:
+                game.day_to_players[day].remove(reaction.reacting_user)
+            except ValueError:
+                # pretend we changed the game anyway, to update the message
+                pass
+
+        return True
 
 def next_monday():
     today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
