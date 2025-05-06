@@ -11,5 +11,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: deps
       run: pip install -r requirements.txt
-    - name: test
+    - name: dev-deps
+      run: pip install -r dev-requirements.txt
+    - name: check
       run: ./check
