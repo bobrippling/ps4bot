@@ -149,7 +149,7 @@ class Game:
         )
 
     def update_user_via_emoji(self, user, emoji, removed):
-        if reaction.emoji == "infinity":
+        if emoji == "infinity":
             days = list(REACTION_DAYS.values())
         else:
             day = REACTION_DAYS.get(emoji)
