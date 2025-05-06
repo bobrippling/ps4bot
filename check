@@ -1,9 +1,25 @@
 #!/bin/sh
 
-if test $# -ne 0
-then
-	echo >&2 "Usage: $0"
+usage(){
+	echo >&2 "Usage: $0 [--tests] [--types]"
 	exit 2
+}
+
+tests=false
+types=false
+for arg
+do
+	case "$arg" in
+		--tests) tests=true ;;
+		--types) types=true ;;
+		*) usage ;;
+	esac
+done
+
+if ! $tests && ! $types
+then
+	tests=true
+	types=true
 fi
 
 cfg=src/config.py
@@ -21,11 +37,21 @@ fi
 
 ec=0
 
-for f in $(find src -iname '*.spec.py')
-do
-	if ! python3 "$f"
+if $tests
+then
+	for f in $(find src -iname '*.spec.py')
+	do
+		if ! python3 "$f"
+		then ec=1
+		fi
+	done
+fi
+
+if $types
+then
+	if ! (cd src && pyright **/*.py)
 	then ec=1
 	fi
-done
+fi
 
 exit $ec
