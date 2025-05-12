@@ -1,6 +1,5 @@
 import sys
 import json
-import re
 from datetime import datetime, timedelta
 from collections import defaultdict
 
@@ -85,7 +84,7 @@ class SportBot(Bot):
                     return
 
             g = Game(monday, None)
-            msg_str = message_for_game(g)
+            msg_str = g.generate_message()
             posted_msg = self.send_message(msg_str)
 
             g.message_timestamp = posted_msg.timestamp
