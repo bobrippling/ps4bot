@@ -6,6 +6,7 @@ import json
 
 from slack import RTMClient, WebClient
 from slack.errors import SlackApiError
+import aiohttp
 #import websocket
 #import slackclient
 #import requests
@@ -298,8 +299,14 @@ class SlackMonitor():
         def on_unreact(**payload):
             self.handle_slack_event(payload["data"], "reaction_removed")
 
-        self.socketclient.start()
+        while True:
+            try:
+                self.socketclient.start()
+            except aiohttp.client_exceptions.ClientConnectorDNSError as e:
+                print(e)
+                print("disconnected, reconnecting...")
 
+        # unreachable
         return
 
         while True:
